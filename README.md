@@ -1,73 +1,90 @@
-# React + TypeScript + Vite
+# ⚒️ SchemaForge
 
-This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
+**The Visual Database Architect for Modern Developers.**
 
-Currently, two official plugins are available:
+SchemaForge is a professional database design platform that bridges the gap between visual diagrams and live code. Build complex relational schemas with a drag-and-drop canvas, generate them with AI, and sync them directly to your IDE via the Model Context Protocol (MCP).
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Oxc](https://oxc.rs)
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react-swc) uses [SWC](https://swc.rs/)
+---
 
-## React Compiler
+## ✨ Key Features
 
-The React Compiler is not enabled on this template because of its impact on dev & build performances. To add it, see [this documentation](https://react.dev/learn/react-compiler/installation).
+- **🎨 Professional Visual Canvas**: Interactive, high-performance canvas for designing tables and relationships.
+- **✦ AI-Powered Materialization**: Describe your app in plain English and let AI generate the entire schema.
+- **🔌 Model Context Protocol (MCP)**: Sync your live canvas state directly into Cursor, Windsurf, or Claude Desktop.
+- **🏗️ Multi-Dialect Export**: Generate SQL (PostgreSQL, MySQL), DBML, Prisma, and Drizzle schemas in one click.
+- **🔄 Schema Diffing & Migrations**: Automatically calculate differences between versions and generate safe migration scripts.
+- **👥 Real-time Collaboration**: Built-in Yjs support for multi-user editing with live cursors.
 
-## Expanding the ESLint configuration
+---
 
-If you are developing a production application, we recommend updating the configuration to enable type-aware lint rules:
+## 🚀 Getting Started
 
-```js
-export default defineConfig([
-  globalIgnores(['dist']),
-  {
-    files: ['**/*.{ts,tsx}'],
-    extends: [
-      // Other configs...
+### Local Development
 
-      // Remove tseslint.configs.recommended and replace with this
-      tseslint.configs.recommendedTypeChecked,
-      // Alternatively, use this for stricter rules
-      tseslint.configs.strictTypeChecked,
-      // Optionally, add this for stylistic rules
-      tseslint.configs.stylisticTypeChecked,
+1. **Clone the repository**:
+   ```bash
+   git clone https://github.com/prateesh7777/SchemaForge.git
+   cd SchemaForge
+   ```
 
-      // Other configs...
-    ],
-    languageOptions: {
-      parserOptions: {
-        project: ['./tsconfig.node.json', './tsconfig.app.json'],
-        tsconfigRootDir: import.meta.dirname,
-      },
-      // other options...
-    },
-  },
-])
+2. **Install dependencies**:
+   ```bash
+   npm install
+   cd mcp-server && npm install && cd ..
+   ```
+
+3. **Environment Setup**:
+   Create a `.env` file in the root:
+   ```env
+   VITE_SUPABASE_URL=your_supabase_url
+   VITE_SUPABASE_ANON_KEY=your_anon_key
+   ```
+
+4. **Run the App & Backend**:
+   ```bash
+   npm run dev
+   ```
+
+---
+
+## 🔌 Using the MCP Server
+
+SchemaForge includes a specialized MCP server that lets your AI coding assistant read and modify your diagrams.
+
+### 1. Local Stdio (Cursor/Claude Desktop)
+Add this to your `mcp.json` or Desktop config:
+```json
+{
+  "mcpServers": {
+    "schemaforge": {
+      "command": "node",
+      "args": ["/path/to/SchemaForge/mcp-server/index.js"],
+      "env": {
+        "SCHEMA_FORGE_TOKEN": "sfk_live_..."
+      }
+    }
+  }
+}
 ```
 
-You can also install [eslint-plugin-react-x](https://github.com/Rel1cx/eslint-react/tree/main/packages/plugins/eslint-plugin-react-x) and [eslint-plugin-react-dom](https://github.com/Rel1cx/eslint-react/tree/main/packages/plugins/eslint-plugin-react-dom) for React-specific lint rules:
-
-```js
-// eslint.config.js
-import reactX from 'eslint-plugin-react-x'
-import reactDom from 'eslint-plugin-react-dom'
-
-export default defineConfig([
-  globalIgnores(['dist']),
-  {
-    files: ['**/*.{ts,tsx}'],
-    extends: [
-      // Other configs...
-      // Enable lint rules for React
-      reactX.configs['recommended-typescript'],
-      // Enable lint rules for React DOM
-      reactDom.configs.recommended,
-    ],
-    languageOptions: {
-      parserOptions: {
-        project: ['./tsconfig.node.json', './tsconfig.app.json'],
-        tsconfigRootDir: import.meta.dirname,
-      },
-      // other options...
-    },
-  },
-])
+### 2. Cloud SSE (Remote)
+If hosted on Railway:
+```json
+{
+  "mcpServers": {
+    "schemaforge": {
+      "url": "https://your-mcp-server.up.railway.app/sse"
+    }
+  }
+}
 ```
+
+---
+
+## 🛠️ Built With
+
+- **Frontend**: React 18, TypeScript, Vite, React Flow
+- **Backend**: Node.js, Express, WebSocket (Yjs)
+- **Database**: Supabase (PostgreSQL)
+- **Styling**: Vanilla CSS (Custom Token System)
+- **AI**: OpenAI GPT-4o
