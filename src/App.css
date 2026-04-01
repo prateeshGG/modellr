@@ -1,0 +1,71 @@
+.app-shell {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+  width: 100%;
+  overflow: hidden;
+  background: var(--canvas-bg);
+}
+
+.app-body {
+  display: flex;
+  flex: 1;
+  overflow: hidden;
+  min-height: 0;
+}
+
+/* Canvas area — adaptive layout based on mode */
+.app-canvas-area {
+  flex: 1;
+  overflow: hidden;
+  position: relative;
+  min-width: 0;
+  display: flex;
+}
+
+/* Canvas pane — fills full area by default, halves in split */
+.app-canvas-pane {
+  flex: 1;
+  min-width: 0;
+  overflow: hidden;
+  position: relative;
+}
+
+/* Code pane */
+.app-code-pane {
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+}
+
+/* ── Canvas mode (default) ─────────────────────── */
+.app-canvas-area .app-canvas-pane {
+  flex: 1;
+}
+
+/* ── Split mode ─────────────────────────────────── */
+.app-canvas-area--split {
+  flex-direction: row;
+}
+
+.app-canvas-area--split .app-canvas-pane {
+  flex: 1;
+  border-right: 1px solid var(--border-subtle);
+}
+
+.app-canvas-area--split .app-code-pane {
+  width: 480px;
+  flex-shrink: 0;
+  animation: codePaneSlideIn var(--dur-panel) var(--ease-spring);
+}
+
+/* ── Code mode ──────────────────────────────────── */
+.app-canvas-area--code .app-code-pane {
+  flex: 1;
+  animation: codePaneSlideIn var(--dur-panel) var(--ease-spring);
+}
+
+@keyframes codePaneSlideIn {
+  from { opacity: 0; transform: translateX(24px); }
+  to   { opacity: 1; transform: translateX(0); }
+}

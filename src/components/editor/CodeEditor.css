@@ -1,0 +1,15 @@
+.code-editor {
+  height: 100%;
+  overflow: auto;
+}
+
+.code-editor .cm-editor {
+  height: 100%;
+  outline: none;
+}
+
+.code-editor .cm-scroller {
+  overflow: auto;
+  height: 100%;
+  font-family: 'Geist Mono', 'Fira Code', monospace;
+}

@@ -1,0 +1,359 @@
+import React, { useCallback, useEffect, useMemo, useRef } from 'react';
+import {
+  ReactFlow,
+  Background,
+  BackgroundVariant,
+  MiniMap,
+  useNodesState,
+  useEdgesState,
+  type Node,
+  type Edge,
+  type Connection,
+  ReactFlowProvider,
+  useReactFlow,
+  Panel,
+  Controls,
+} from '@xyflow/react';
+import '@xyflow/react/dist/style.css';
+
+import { TableNode } from './TableNode';
+import { RelationshipEdge, RelationshipMarkerDefs } from './RelationshipEdge';
+import { EmptyState } from './EmptyState';
+import { useSchemaStore } from '../../store/schema';
+import { useUIStore } from '../../store/ui';
+import { CANVAS_SNAP_GRID, ACCENT_HEX, PILL_NODE_ZOOM_THRESHOLD } from '../../utils/constants';
+import { autoLayout } from '../../utils/autoLayout';
+import type { Table, Relationship } from '../../types/schema';
+import './SchemaCanvas.css';
+
+const nodeTypes = { tableNode: TableNode };
+const edgeTypes = { relationshipEdge: RelationshipEdge };
+
+function tableToNode(table: Table): Node {
+  return {
+    id: table.id,
+    type: 'tableNode',
+    position: table.position,
+    data: { ...table } as unknown as Record<string, unknown>,
+    dragHandle: '.table-node__header',
+  };
+}
+
+// Build a lightweight {id -> position} map that updates live during drag
+type PositionMap = Map<string, { x: number; y: number }>;
+
+function relationshipToEdge(rel: Relationship, positions: PositionMap): Edge {
+  const sourcePos = positions.get(rel.sourceTableId);
+  const targetPos = positions.get(rel.targetTableId);
+  
+  // Use centre of a ~300px wide node to decide which side faces the other
+  const sourceX = (sourcePos?.x ?? 0) + 150;
+  const targetX = (targetPos?.x ?? 0) + 150;
+  const isSourceLeftOfTarget = sourceX <= targetX;
+
+  // React Flow edges must always flow from a 'source' handle (right side) to a 'target' handle (left side).
+  // Our FieldRow only renders type="source" on the right, and type="target" on the left.
+  // So if the logical target table is dragged to the left of the logical source table,
+  // we must swap the React Flow edge direction and apply the crowsfoot marker to the start instead of end.
+  const edgeSourceTableId = isSourceLeftOfTarget ? rel.sourceTableId : rel.targetTableId;
+  const edgeTargetTableId = isSourceLeftOfTarget ? rel.targetTableId : rel.sourceTableId;
+  const edgeSourceFieldId = isSourceLeftOfTarget ? rel.sourceFieldId : rel.targetFieldId;
+  const edgeTargetFieldId = isSourceLeftOfTarget ? rel.targetFieldId : rel.sourceFieldId;
+
+  const marker = rel.cardinality !== 'one-to-one' ? 'url(#crowsfoot-many)' : 'url(#crowsfoot-one)';
+
+  return {
+    id: rel.id,
+    source: edgeSourceTableId,
+    target: edgeTargetTableId,
+    sourceHandle: `${edgeSourceTableId}__${edgeSourceFieldId}__right`,
+    targetHandle: `${edgeTargetTableId}__${edgeTargetFieldId}__left`,
+    type: 'relationshipEdge',
+    // zIndex 0 ensures edges render BEHIND table node cards at all times
+    zIndex: 0,
+    markerEnd: isSourceLeftOfTarget ? marker : undefined,
+    markerStart: !isSourceLeftOfTarget ? marker : undefined,
+    data: {
+      sourceTableId: rel.sourceTableId,
+      cardinality: rel.cardinality,
+    } as unknown as Record<string, unknown>,
+  };
+}
+
+function CanvasInner() {
+  const { tables, relationships, addRelationship, moveTable, removeTable } = useSchemaStore();
+  const { setZoom, zoom, density, showToast, setSelection, clearSelection, readOnly } = useUIStore() as any;
+  const { screenToFlowPosition, fitView, setViewport } = useReactFlow();
+  const isRunningLayout = useRef(false);
+
+  const [nodes, setNodes, onNodesChange] = useNodesState(tables.map(tableToNode));
+  const [edges, setEdges, onEdgesChange] = useEdgesState<Edge>([]);
+
+  useEffect(() => {
+    setNodes(tables.map(tableToNode));
+  }, [tables, setNodes]);
+
+  // Derive a position map from the LIVE React Flow node state (not Zustand).
+  // This updates on every drag frame, so edges recalculate in real-time and
+  // never point at stale handles — fixing the "lines disappear when moved" bug.
+  const livePositions = useMemo<PositionMap>(() => {
+    const map: PositionMap = new Map();
+    nodes.forEach(n => map.set(n.id, n.position));
+    return map;
+  }, [nodes]);
+
+  useEffect(() => {
+    setEdges(relationships.map(r => relationshipToEdge(r, livePositions)));
+  }, [relationships, livePositions, setEdges]);
+
+  const onConnect = useCallback(
+    (connection: Connection) => {
+      if (readOnly) return;
+      if (!connection.source || !connection.target ||
+          !connection.sourceHandle || !connection.targetHandle) return;
+
+      try {
+        // Handle ID format: "tableId__fieldId__left" or "tableId__fieldId__right"
+        const sourceParts = connection.sourceHandle.split('__');
+        const targetParts = connection.targetHandle.split('__');
+        const sourceFieldId = sourceParts[1];
+        const targetFieldId = targetParts[1];
+
+        if (!sourceFieldId || !targetFieldId) return;
+
+        addRelationship({
+          sourceTableId: connection.source,
+          sourceFieldId,
+          targetTableId: connection.target,
+          targetFieldId,
+          cardinality: 'one-to-many',
+        });
+      } catch (e) {
+        console.error('[Canvas] Failed to create relationship:', e);
+      }
+    },
+    [addRelationship, readOnly]
+  );
+
+  const onNodeDragStop = useCallback(
+    (_: React.MouseEvent, node: Node) => {
+      if (readOnly) return;
+      moveTable(node.id, node.position);
+    },
+    [moveTable, readOnly]
+  );
+
+  const onPaneClick = useCallback(() => {
+    clearSelection();
+  }, [clearSelection]);
+
+  // ── Edge click → select relationship in RightPanel ──
+  const onEdgeClick = useCallback(
+    (_: React.MouseEvent, edge: Edge) => {
+      setSelection({ type: 'relationship', relationshipId: edge.id });
+    },
+    [setSelection]
+  );
+
+  // ── Multi-select: track selected node IDs for bulk delete ──
+  const selectedNodeIds = useRef<string[]>([]);
+  const onSelectionChange = useCallback(
+    ({ nodes }: { nodes: Node[] }) => {
+      selectedNodeIds.current = nodes.map((n) => n.id);
+    },
+    []
+  );
+
+  const onDoubleClick = useCallback(
+    (e: React.MouseEvent) => {
+      if (readOnly) return;
+      const target = e.target as HTMLElement;
+      if (
+        !target.closest('.react-flow__node') &&
+        !target.closest('.react-flow__panel') &&
+        !target.closest('.react-flow__controls')
+      ) {
+        const pos = screenToFlowPosition({ x: e.clientX, y: e.clientY });
+        useSchemaStore.getState().addTable(pos);
+      }
+    },
+    [screenToFlowPosition, readOnly]
+  );
+
+  // ── Auto-layout handler ──────────────────────────
+  const handleAutoLayout = useCallback(async () => {
+    if (isRunningLayout.current || tables.length === 0) return;
+    isRunningLayout.current = true;
+
+    try {
+      const positions = await autoLayout(tables, relationships, density ?? 'comfortable');
+      positions.forEach((pos, tableId) => {
+        moveTable(tableId, pos);
+      });
+      setTimeout(() => fitView({ padding: 0.12, duration: 400 }), 100);
+      if (showToast) showToast('Auto-layout applied', 'success');
+    } catch {
+      if (showToast) showToast('Auto-layout failed', 'error');
+    } finally {
+      isRunningLayout.current = false;
+    }
+  }, [tables, relationships, density, moveTable, fitView, showToast]);
+
+  // ── Custom event listeners (keyboard shortcuts → canvas) ──
+  useEffect(() => {
+    const onAutoLayout = () => handleAutoLayout();
+    const onFitView = () => fitView({ padding: 0.12, duration: 300 });
+    const onZoomPreset = (e: Event) => {
+      const level = (e as CustomEvent).detail as number;
+      const zoomMap: Record<number, number> = { 1: 0.25, 2: 0.5, 3: 1, 4: 1.5, 5: 2 };
+      const z = zoomMap[level] ?? 1;
+      setViewport({ x: 0, y: 0, zoom: z }, { duration: 200 });
+      setZoom(z);
+    };
+    const onFocusFilter = () => {
+      document.querySelector<HTMLInputElement>('.sidebar__filter')?.focus();
+    };
+    // sf:focus-table — pan canvas to a specific table node
+    const onFocusTable = (e: Event) => {
+      const tableId = (e as CustomEvent).detail as string;
+      const node = tables.find((t) => t.id === tableId);
+      if (!node) return;
+      fitView({ nodes: [{ id: tableId }], padding: 0.3, duration: 400, maxZoom: 1.5 });
+    };
+    // sf:bulk-delete — delete all currently selected nodes
+    const onBulkDelete = () => {
+      const ids = selectedNodeIds.current;
+      if (ids.length === 0) return;
+      ids.forEach((id) => removeTable(id));
+      clearSelection();
+      selectedNodeIds.current = [];
+    };
+
+    window.addEventListener('sf:auto-layout', onAutoLayout);
+    window.addEventListener('sf:fit-view', onFitView);
+    window.addEventListener('sf:zoom-preset', onZoomPreset);
+    window.addEventListener('sf:focus-filter', onFocusFilter);
+    window.addEventListener('sf:focus-table', onFocusTable);
+    window.addEventListener('sf:bulk-delete', onBulkDelete);
+
+    return () => {
+      window.removeEventListener('sf:auto-layout', onAutoLayout);
+      window.removeEventListener('sf:fit-view', onFitView);
+      window.removeEventListener('sf:zoom-preset', onZoomPreset);
+      window.removeEventListener('sf:focus-filter', onFocusFilter);
+      window.removeEventListener('sf:focus-table', onFocusTable);
+      window.removeEventListener('sf:bulk-delete', onBulkDelete);
+    };
+  }, [handleAutoLayout, fitView, setViewport, setZoom, tables, removeTable, clearSelection]);
+
+  const isPillMode = zoom < PILL_NODE_ZOOM_THRESHOLD;
+
+  return (
+    <div
+      className="schema-canvas"
+      role="application"
+      aria-label="Schema canvas"
+      onDoubleClick={onDoubleClick}
+    >
+      <RelationshipMarkerDefs />
+      <ReactFlow
+        nodes={nodes.map((n) => ({
+          ...n,
+          className: isPillMode ? 'table-node--pill' : '',
+        }))}
+        edges={edges}
+        onNodesChange={onNodesChange}
+        onEdgesChange={onEdgesChange}
+        onConnect={onConnect}
+        onNodeDragStop={onNodeDragStop}
+        onPaneClick={onPaneClick}
+        onEdgeClick={onEdgeClick}
+        onSelectionChange={onSelectionChange}
+        onMoveEnd={(_, viewport) => setZoom(viewport.zoom)}
+        nodeTypes={nodeTypes}
+        edgeTypes={edgeTypes}
+        nodesDraggable={!readOnly}
+        nodesConnectable={!readOnly}
+        elementsSelectable
+        connectionMode={'loose' as any}
+        snapToGrid
+        snapGrid={CANVAS_SNAP_GRID}
+        minZoom={0.1}
+        maxZoom={4}
+        fitView
+        multiSelectionKeyCode="Shift"
+        deleteKeyCode={null} // We handle delete ourselves
+        proOptions={{ hideAttribution: true }}
+        isValidConnection={(conn) => conn.source !== conn.target}
+      >
+        <Background
+          variant={BackgroundVariant.Dots}
+          gap={24}
+          size={1.5}
+          color="var(--text-muted)"
+          style={{ opacity: 0.08 }}
+        />
+        <MiniMap
+          nodeColor={(node) => {
+            const tbl = tables.find((t) => t.id === node.id);
+            return tbl ? ACCENT_HEX[tbl.accentColor] : '#888';
+          }}
+          maskColor="var(--canvas-bg)"
+          style={{
+            background: 'var(--surface-low)',
+            border: '1px solid var(--border-subtle)',
+            borderRadius: 'var(--r-lg)',
+          }}
+        />
+
+        {/* Canvas toolbar */}
+        <Panel position="bottom-left" style={{ bottom: 8, left: 8 }}>
+          <div className="canvas-toolbar">
+            <button
+              className="canvas-toolbar__btn"
+              onClick={handleAutoLayout}
+              title="Auto-layout (G)"
+              aria-label="Auto-layout"
+            >
+              ⊞ Layout
+            </button>
+            <button
+              className="canvas-toolbar__btn"
+              onClick={() => fitView({ padding: 0.12, duration: 300 })}
+              title="Fit view (0)"
+              aria-label="Fit to view"
+            >
+              ⤢ Fit
+            </button>
+          </div>
+        </Panel>
+
+        <Controls 
+          position="bottom-center"
+          style={{ 
+            display: 'flex', 
+            flexDirection: 'row', 
+            background: 'var(--surface-base)',
+            border: '1px solid var(--border-subtle)',
+            borderRadius: '8px',
+            overflow: 'hidden',
+            margin: '0 0 16px 0',
+            boxShadow: '0 4px 12px rgba(0,0,0,0.5)'
+          }}
+          className="canvas-controls-dark"
+          showInteractive={false}
+        />
+
+        {tables.length === 0 && <EmptyState />}
+      </ReactFlow>
+    </div>
+  );
+}
+
+export function SchemaCanvas() {
+  return (
+    <ReactFlowProvider>
+      <CanvasInner />
+    </ReactFlowProvider>
+  );
+}

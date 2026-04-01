@@ -1,0 +1,214 @@
+.field-row {
+  position: relative;
+  display: flex;
+  align-items: center;
+  height: var(--height-field-row);
+  padding: 0 var(--space-2);
+  border-bottom: 1px solid var(--border-subtle);
+  cursor: default;
+  transition:
+    background var(--dur-base) var(--ease-out),
+    height var(--dur-micro) var(--ease-out);
+  user-select: none;
+}
+
+.field-row:last-child {
+  border-bottom: none;
+}
+
+.field-row:hover {
+  background: var(--surface-raised);
+}
+
+.field-row--selected {
+  background: var(--info-bg);
+}
+
+.field-row--editing {
+  background: var(--surface-overlay);
+  padding: 0 var(--space-2);
+  gap: var(--space-1);
+}
+
+.field-row--dragging {
+  opacity: 0.4;
+}
+
+.field-row--drop-target {
+  border-top: 2px solid var(--border-focus);
+}
+
+/* Commit flash */
+.field-row--commit-flash {
+  animation: commitFlash var(--dur-base) var(--ease-out);
+}
+
+@keyframes commitFlash {
+  0%   { background: var(--success-bg); }
+  100% { background: transparent; }
+}
+
+/* Drag handle */
+.field-drag-handle {
+  opacity: 0;
+  font-size: 11px;
+  color: var(--text-muted);
+  cursor: grab;
+  padding-right: var(--space-1);
+  flex-shrink: 0;
+  transition: opacity var(--dur-base) var(--ease-out);
+}
+
+.field-row:hover .field-drag-handle {
+  opacity: 1;
+}
+
+/* View content */
+.field-row__view-content {
+  display: flex;
+  align-items: center;
+  width: 100%;
+  gap: var(--space-1);
+  overflow: hidden;
+}
+
+.field-name {
+  font-size: 12px;
+  font-weight: 400;
+  color: var(--text-primary);
+  flex: 1;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.field-name em {
+  color: var(--text-muted);
+  font-style: normal;
+}
+
+.field-nullable-dot {
+  font-size: 14px;
+  color: var(--text-muted);
+  flex-shrink: 0;
+}
+
+.field-type {
+  font-size: 11px;
+  color: var(--text-muted);
+  flex-shrink: 0;
+  font-family: 'Geist Mono', monospace;
+}
+
+.field-badges {
+  display: flex;
+  gap: var(--space-1);
+  flex-shrink: 0;
+}
+
+.badge {
+  font-size: 10px;
+  font-weight: 500;
+  padding: 1px 4px;
+  border-radius: var(--r-xs);
+  letter-spacing: 0.02em;
+  font-family: 'Geist', sans-serif;
+}
+
+.badge--pk {
+  background: #FEF3C7;
+  color: #92400E;
+}
+
+[data-theme="dark"] .badge--pk {
+  background: #3A2800;
+  color: #F5BC5A;
+}
+
+.badge--fk {
+  background: var(--info-bg);
+  color: var(--info-text);
+}
+
+.ai-mark {
+  font-size: 10px;
+  color: var(--accent-purple);
+  flex-shrink: 0;
+}
+
+/* Edit content */
+.field-row__edit-content {
+  display: flex;
+  align-items: center;
+  width: 100%;
+  gap: var(--space-1);
+}
+
+.field-edit-name {
+  flex: 1;
+  font-size: 12px;
+  font-weight: 400;
+  color: var(--text-primary);
+  background: transparent;
+  border: 1px solid var(--border-focus);
+  border-radius: var(--r-xs);
+  padding: 1px 4px;
+  margin: 0;
+}
+
+.field-edit-type {
+  width: auto;
+  min-width: 60px;
+  font-size: 11px;
+  color: var(--text-primary);
+  background: transparent;
+  border: 1px solid var(--border-subtle);
+  border-radius: var(--r-xs);
+  padding: 1px 2px;
+  cursor: pointer;
+}
+
+.field-edit-toggles {
+  display: flex;
+  gap: var(--space-2);
+  font-size: 10px;
+  color: var(--text-muted);
+  padding-top: 2px;
+}
+
+.field-toggle {
+  display: flex;
+  align-items: center;
+  gap: 3px;
+  cursor: pointer;
+}
+
+.field-toggle input {
+  width: 10px;
+  height: 10px;
+  accent-color: var(--border-focus);
+}
+
+/* Field-level handles */
+.field-handle {
+  width: 8px !important;
+  height: 8px !important;
+  background: var(--border-focus) !important;
+  border: 1.5px solid var(--surface-base) !important;
+  opacity: 0;
+  transition: opacity var(--dur-base) var(--ease-out);
+}
+
+.field-row:hover .field-handle,
+.field-row--selected .field-handle {
+  opacity: 1;
+}
+
+/* Compact density (applied via parent class) */
+.density-compact .field-row {
+  height: var(--height-field-compact);
+}
+
+.density-compact .field-type {
+  display: none;
+}

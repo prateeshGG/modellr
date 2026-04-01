@@ -1,0 +1,244 @@
+.table-node {
+  position: relative;
+  background: var(--surface-low);
+  border: 0.5px solid var(--border-subtle);
+  border-radius: var(--r-xl);
+  min-width: 200px;
+  max-width: 280px;
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+  transition:
+    border-color var(--dur-base) var(--ease-out),
+    transform var(--dur-base) var(--ease-out),
+    box-shadow var(--dur-base) var(--ease-out);
+}
+
+.table-node:hover {
+  border-color: var(--border-default);
+  transform: translateY(-1px);
+}
+
+.table-node--selected {
+  border: 1.5px solid var(--border-focus) !important;
+  box-shadow:
+    0 0 0 4px color-mix(in srgb, var(--border-focus) 20%, transparent);
+}
+
+/* Accent bar */
+.table-node__accent-bar {
+  position: absolute;
+  top: 0;
+  left: 0;
+  bottom: 0;
+  width: var(--accent-bar-width);
+  /* Parent overflow:hidden clips perfectly */
+  z-index: 1;
+}
+
+/* Header */
+.table-node__header {
+  height: var(--height-node-header);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0 var(--space-3) 0 calc(var(--accent-bar-width) + var(--space-3));
+  border-bottom: 1px solid var(--border-subtle);
+  flex-shrink: 0;
+  cursor: default;
+  user-select: none;
+}
+
+.table-node__header-actions {
+  display: flex;
+  align-items: center;
+  gap: var(--space-1);
+  flex-shrink: 0;
+}
+
+.table-node__name-input {
+  font-size: 13px;
+  font-weight: 500;
+  color: var(--text-primary);
+  background: var(--surface-overlay);
+  border: 1px solid var(--border-focus);
+  border-radius: var(--r-sm);
+  padding: 2px 6px;
+  flex: 1;
+  min-width: 0;
+  outline: none;
+}
+
+.table-node__delete-btn {
+  font-size: 10px;
+  color: var(--text-muted);
+  width: 16px;
+  height: 16px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: var(--r-sm);
+  opacity: 0;
+  transition: opacity var(--dur-base), color var(--dur-base), background var(--dur-base);
+  cursor: pointer;
+}
+
+.table-node--selected .table-node__delete-btn,
+.table-node:hover .table-node__delete-btn {
+  opacity: 1;
+}
+
+.table-node__delete-btn:hover {
+  color: var(--danger-text);
+  background: var(--danger-bg);
+}
+
+/* Accent picker */
+.table-node__accent-bar {
+  position: absolute;
+  top: 0;
+  left: 0;
+  bottom: 0;
+  width: var(--accent-bar-width);
+  z-index: 1;
+  cursor: pointer;
+  transition: width var(--dur-base) var(--ease-out);
+}
+
+.table-node__accent-picker {
+  position: absolute;
+  top: calc(var(--height-node-header) + 4px);
+  left: var(--space-2);
+  background: var(--surface-base);
+  border: 1px solid var(--border-subtle);
+  border-radius: var(--r-lg);
+  padding: var(--space-2);
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-1);
+  width: 108px;
+  z-index: var(--z-tooltip);
+  box-shadow: 0 4px 16px color-mix(in srgb, black 20%, transparent);
+  animation: pickerOpen var(--dur-micro) var(--ease-out);
+}
+
+@keyframes pickerOpen {
+  from { opacity: 0; transform: scale(0.9) translateY(-4px); }
+  to   { opacity: 1; transform: scale(1) translateY(0); }
+}
+
+.accent-swatch {
+  width: 20px;
+  height: 20px;
+  border-radius: 50%;
+  cursor: pointer;
+  border: 2px solid transparent;
+  transition: transform var(--dur-base), border-color var(--dur-base);
+}
+
+.accent-swatch:hover {
+  transform: scale(1.15);
+}
+
+.accent-swatch--active {
+  border-color: var(--text-primary);
+}
+
+.table-node__name {
+  font-size: 13px;
+  font-weight: 500;
+  color: var(--text-primary);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  flex: 1;
+}
+
+.table-node__count {
+  font-size: 11px;
+  color: var(--text-muted);
+  background: var(--surface-raised);
+  padding: 1px 5px;
+  border-radius: var(--r-xs);
+  flex-shrink: 0;
+}
+
+/* Fields list */
+.table-node__fields {
+  display: flex;
+  flex-direction: column;
+  padding-left: var(--accent-bar-width);
+}
+
+/* Add field button */
+.table-node__add-field {
+  display: none;
+  align-items: center;
+  justify-content: flex-start;
+  padding: var(--space-1) var(--space-3);
+  padding-left: calc(var(--accent-bar-width) + var(--space-3));
+  font-size: 11px;
+  color: var(--text-muted);
+  border-top: 1px solid var(--border-subtle);
+  cursor: pointer;
+  transition: color var(--dur-base) var(--ease-out);
+}
+
+.table-node:hover .table-node__add-field,
+.table-node--selected .table-node__add-field {
+  display: flex;
+}
+
+.table-node__add-field:hover {
+  color: var(--text-accent);
+}
+
+/* AI chip */
+.table-node__ai-chip {
+  display: none;
+  align-items: center;
+  justify-content: center;
+  padding: 3px var(--space-2);
+  font-size: 10px;
+  color: var(--ai-text);
+  background: var(--ai-bg);
+  gap: 3px;
+  cursor: not-allowed;
+  opacity: 0.6;
+  border-top: 1px solid var(--border-subtle);
+}
+
+.table-node:hover .table-node__ai-chip {
+  display: flex;
+}
+
+/* Pill node mode (zoom < 40%) — applied from parent */
+.table-node--pill {
+  min-width: 120px;
+  max-width: 180px;
+}
+
+.table-node--pill .table-node__fields {
+  height: 0 !important;
+  opacity: 0;
+  pointer-events: none;
+  overflow: hidden;
+}
+
+.table-node--pill .field-row {
+  height: 0 !important;
+  min-height: 0 !important;
+  padding: 0 !important;
+  border: none !important;
+  margin: 0 !important;
+}
+
+.table-node--pill .table-node__add-field,
+.table-node--pill .table-node__ai-chip,
+.table-node--pill .table-node__count {
+  display: none;
+}
+
+.table-node--pill .table-node__header {
+  height: 28px;
+}

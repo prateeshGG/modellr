@@ -1,0 +1,32 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="description" content="SchemaForge — Visual database schema designer. Design, visualize, and export database schemas with a fast, beautiful ERD canvas." />
+    <title>SchemaForge — Visual Database Schema Designer</title>
+
+    <!-- Prevent flash of light mode -->
+    <script>
+      const t = localStorage.getItem('sf-theme') ?? 'dark';
+      document.documentElement.setAttribute('data-theme', t);
+    </script>
+
+    <!-- Google Fonts: Geist + Geist Mono -->
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Geist:wght@400;500;600&family=Geist+Mono:wght@400;500&display=swap"
+      rel="stylesheet"
+    />
+
+    <style>
+      /* Prevent layout shift before JS loads */
+      html, body { margin: 0; padding: 0; background: #131312; }
+    </style>
+  </head>
+  <body>
+    <div id="root"></div>
+    <script type="module" src="/src/main.tsx"></script>
+  </body>
+</html>

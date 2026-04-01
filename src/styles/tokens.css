@@ -1,0 +1,165 @@
+/* ============================================================
+   SchemaForge Design Tokens
+   All values from Design System v2
+   ============================================================ */
+
+:root {
+  /* ── BACKGROUNDS ─────────────────────────────── */
+  --canvas-bg:      #EFEDE7;
+  --surface-low:    #F7F6F2;
+  --surface-base:   #FFFFFF;
+  --surface-raised: #F2F0EA;
+  --surface-overlay:#E8E6DF;
+
+  /* ── TEXT ────────────────────────────────────── */
+  --text-primary:   #1C1B18;
+  --text-secondary: #5A5955;
+  --text-muted:     #9B998F;
+  --text-accent:    #185FA5;
+
+  /* ── BORDERS ─────────────────────────────────── */
+  --border-subtle:  #E4E2DA;
+  --border-default: #CBC9C0;
+  --border-focus:   #378ADD;
+  --border-ai:      #7F77DD;
+
+  /* ── SEMANTIC: INFO ──────────────────────────── */
+  --info-bg:        #EBF3FD;
+  --info-text:      #185FA5;
+
+  /* ── SEMANTIC: SUCCESS ───────────────────────── */
+  --success-bg:     #EBF5D6;
+  --success-text:   #639922;
+
+  /* ── SEMANTIC: WARN ──────────────────────────── */
+  --warn-bg:        #FDF5D4;
+  --warn-text:      #B9A717;
+
+  /* ── SEMANTIC: DANGER ────────────────────────── */
+  --danger-bg:      #FDECEA;
+  --danger-text:    #E24B4A;
+
+  /* ── SEMANTIC: AI ────────────────────────────── */
+  --ai-bg:          #EEEDF9;
+  --ai-text:        #7F77DD;
+
+  /* ── DIFF COLORS ─────────────────────────────── */
+  --diff-added:     #639922;
+  --diff-removed:   #E24B4A;
+  --diff-modified:  #EF9F27;
+
+  /* ── NODE ACCENT PALETTE ─────────────────────── */
+  --accent-blue:    #378ADD;
+  --accent-teal:    #1D9E75;
+  --accent-coral:   #D85A38;
+  --accent-purple:  #7F77DD;
+  --accent-amber:   #B9A717;
+  --accent-green:   #639922;
+  --accent-pink:    #D4537E;
+  --accent-gray:    #888780;
+
+  /* ── SPACING (base 4px) ──────────────────────── */
+  --space-1:  4px;
+  --space-2:  8px;
+  --space-3:  12px;
+  --space-4:  16px;
+  --space-5:  20px;
+  --space-6:  24px;
+  --space-8:  32px;
+  --space-12: 48px;
+
+  /* ── FIXED HEIGHTS ───────────────────────────── */
+  --height-topbar:       44px;
+  --height-statusbar:    28px;
+  --height-field-row:    32px;
+  --height-field-edit:   44px;
+  --height-field-compact:28px;
+  --height-node-header:  40px;
+
+  /* ── BORDER RADIUS ───────────────────────────── */
+  --r-xs:  2px;
+  --r-sm:  4px;
+  --r-md:  6px;
+  --r-lg:  8px;
+  --r-xl:  10px;
+  --r-2xl: 14px;
+
+  /* ── MOTION ──────────────────────────────────── */
+  --dur-instant:       0ms;
+  --dur-micro:         150ms;
+  --dur-base:          200ms;
+  --dur-panel:         260ms;
+  --dur-layout:        400ms;
+  --dur-debounce-fast: 300ms;
+  --dur-debounce-slow: 600ms;
+  --dur-palette:       180ms;
+
+  --ease-out:    cubic-bezier(0, 0, 0.2, 1);
+  --ease-in-out: cubic-bezier(0.4, 0, 0.2, 1);
+  --ease-spring: cubic-bezier(0.22, 1, 0.36, 1);
+
+  /* ── Z-INDEX ─────────────────────────────────── */
+  --z-canvas:    0;
+  --z-edge:      1;
+  --z-node:      10;
+  --z-node-sel:  20;
+  --z-panel:     100;
+  --z-topbar:    110;
+  --z-tooltip:   200;
+  --z-toast:     210;
+  --z-palette:   300;
+  --z-ai-drawer: 300;
+  --z-dialog:    400;
+
+  /* ── LAYOUT WIDTHS ───────────────────────────── */
+  --sidebar-width:    220px;
+  --sidebar-rail:      32px;
+  --panel-width:      320px;
+  --palette-width:    560px;
+  --accent-bar-width:   4px;
+}
+
+/* ── DARK MODE ─────────────────────────────────── */
+[data-theme="dark"] {
+  --canvas-bg:      #131312;
+  --surface-low:    #1A1A18;
+  --surface-base:   #242422;
+  --surface-raised: #2E2E2B;
+  --surface-overlay:#383835;
+
+  --text-primary:   #F0EEE8;
+  --text-secondary: #A8A69E;
+  --text-muted:     #686965;
+  --text-accent:    #85B7EB;
+
+  --border-subtle:  #353532;
+  --border-default: #484845;
+  /* border-focus and border-ai stay same in dark */
+
+  --info-bg:        #0C2340;
+  --info-text:      #85B7EB;
+
+  --success-bg:     #1A2E0A;
+  --success-text:   #97C459;
+
+  --warn-bg:        #2E2608;
+  --warn-text:      #F5BC5A;
+
+  --danger-bg:      #2E0C0C;
+  --danger-text:    #F07070;
+
+  --ai-bg:          #1C1A36;
+  --ai-text:        #A09AEB;
+
+  --diff-added:     #97C459;
+  --diff-removed:   #F07070;
+  --diff-modified:  #F5BC5A;
+}
+
+/* ── REDUCED MOTION ────────────────────────────── */
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after {
+    animation-duration: 0ms !important;
+    transition-duration: 0ms !important;
+  }
+}

@@ -1,0 +1,92 @@
+# 08: Total Codebase Map
+
+This document is the "Technical Genome" of SchemaForge—an exhaustive map of every core function, data flow, and architectural pattern in the project.
+
+---
+
+## 1. The 5 Core Engines
+SchemaForge is built on four interlocking technical engines:
+
+### A. The Canvas Engine (`@xyflow/react`)
+- **Main Entry**: `src/components/canvas/SchemaCanvas.tsx`.
+- **Custom Logic**: Uses `TableNode` and `RelationshipEdge` types.
+- **Node Data**: Tables are passed into the `data` prop of React Flow nodes.
+- **Handle Logic**: Field-level handles are rendered in `FieldRow.tsx`. Each field has a **source** and **target** handle on its left/right side.
+
+### B. The State Engine (`Zustand`)
+- **Schema Store**: `src/store/schema.ts`. Manages tables/relationships.
+- **UI Store**: `src/store/ui.ts`. Manages selection, zoom, and the **Global Dialog System** state.
+- **Temporal State**: Wrapped in `zundo` to provide a 50-step undo/redo buffer (`useUndoRedo.ts`).
+
+### C. The Sync Engine (`Y.js`)
+- **Provider**: `y-websocket` (WebsocketProvider) in `src/store/yjsStore.ts`.
+- **Bridge**: Subscribes to `useSchemaStore` and replicates JSON stringified blobs to a Y.Map named 'schema'.
+- **Guard**: Uses `isApplyingRemote` to break infinite update loops.
+
+### D. The AI Engine (`OpenAI`)
+- **System Logic**: `src/hooks/useAI.ts`.
+- **Streaming**: Uses `fetch` with `ReadableStream` to provide real-time suggestions.
+- **Model**: Hardcoded to `gpt-4o-mini` with a 0.4 temperature for architectural stability.
+
+---
+
+## 2. Technical Journey: "The Evolution of a Table"
+Tracing a table from creation to the cloud:
+1.  **Creation**: `SchemaCanvas.tsx` detects a double-click or `useKeyboardShortcuts.ts` detects 'T'.
+2.  **Action**: Calls `addTable(pos)` in `schema.ts`.
+3.  **State Update**: Zustand updates the `tables` array.
+4.  **Broadcast**: `yjsStore.ts` detects the Zustand change → `doc.transact` updates the Y.js map.
+5.  **Persistence**: `useCloudPersistence.ts` detects the change → 2000ms debounce → `supabase.from('schemas').update()`.
+6.  **Re-render**: React Flow detects the `nodes` prop update in `SchemaCanvas.tsx` and materializes the `TableNode`.
+
+## 3. Technical Journey: "The Import Pipeline"
+How data enters SchemaForge:
+1.  **Trigger**: `LiveImportDialog.tsx` collects a connection string.
+2.  **Request**: POST to `/api/postgres/` (or `/api/mysql/`).
+3.  **Backend**: `server/routes/postgres.js` runs `information_schema` queries and maps PG types to SchemaForge generic types.
+4.  **Frontend**: The result is passed to `schemaStore.importTables(tables, relationships)`.
+5.  **Validation**: The store clears the current canvas and populates it with the new data.
+
+## 4. Technical Journey: "The AI Materialization"
+How AI modifies the schema:
+1.  **Trigger**: User types in `AIBottomDrawer.tsx`.
+2.  **Backend**: `POST /api/openai/modify`.
+3.  **Prompt**: The system prompt in `useAI.ts` instructs the AI to return an array of `operations` (e.g., `add_table`, `modify_field`).
+4.  **UI Feedback**: A "Proposed Structural Changes" card appears in the drawer.
+5.  **Commit**: User clicks "Accept & Apply" → `applyAIOperations(ops)` in `schema.ts`.
+
+---
+
+## 5. Hook Registry & Side Effects
+A map of the "Invisible Logic" in SchemaForge:
+
+| Hook | File | Responsibility | Side Effects |
+| :--- | :--- | :--- | :--- |
+| `useAI` | `src/hooks/useAI.ts` | Streaming AI calls | None (Pure state) |
+| `useCloudPersistence` | `src/hooks/useCloudPersistence.ts` | Supabase Auto-save | Debounced DB Writes |
+| `useKeyboardShortcuts` | `src/hooks/useKeyboardShortcuts.ts` | Global Hotkeys | `window` Event Listeners |
+| `useShareLink` | `src/hooks/useShareLink.ts` | URL Room Management | Browser URL Navigation |
+| `useUndoRedo` | `src/hooks/useUndoRedo.ts` | Temporal Control | Zustand Undo/Redo |
+
+---
+
+## 6. Backend API & MCP Gateway
+Detailed mapping of the `/server/` logic:
+
+- **Auth Layer**: `apikeys.js`. Checks the `sfk_live_...` headers for Pro/Lifetime users.
+- **Introspection Gateway**: `postgres.js` / `mysql.js`. Direct DB connection logic via `pg` or `mysql2`.
+- **MCP Gateway**: `mcpGateway.js`. The bridge between the Web App and the Local MCP Server.
+- **Ecosystem**: `mcp-server/index.js` (Separate Package). Exposes `list_projects` and `read_schema` tools to AI IDEs.
+
+## 7. Utility & Parser Logic
+- **autoLayout.ts**: Configures **ELKjs** with `elk.direction: RIGHT` and `elk.spacing.nodeNode: 60`.
+- **importers/sql.ts**: Uses `node-sql-parser` to convert raw DDL into JSON.
+- **exporters/**: Each file (Prisma, Drizzle, SQL) is a pure function that iterates over `tables` and `relationships` to generate string templates.
+
+## 8. Layout & Shared Components
+- **PublicNav.tsx**: Unified header for all marketing and public documentation pages with auth-sync logic.
+- **Footer.tsx**: Reusable marketing footer with legal and social links.
+- **DialogModal.tsx**: Global, non-blocking modal system injected at the `App.tsx` root.
+
+---
+*Generated by Anti & Kiro — Exhaustive Codebase Audit.*

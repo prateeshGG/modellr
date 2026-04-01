@@ -1,0 +1,252 @@
+.import-overlay {
+  position: fixed;
+  inset: 0;
+  background: color-mix(in srgb, black 55%, transparent);
+  backdrop-filter: blur(4px);
+  z-index: var(--z-dialog);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  animation: overlayIn var(--dur-panel) var(--ease-out);
+}
+
+/* ── Format tabs ─────────────────────────────────── */
+.import-dialog__format-tabs {
+  display: flex;
+  gap: 2px;
+  padding: var(--space-2) var(--space-5) 0;
+  border-bottom: 1px solid var(--border-subtle);
+  flex-shrink: 0;
+}
+
+.import-dialog__format-tab {
+  font-size: 12px;
+  font-weight: 500;
+  color: var(--text-muted);
+  padding: 6px 14px;
+  border-radius: var(--r-md) var(--r-md) 0 0;
+  border: 1px solid transparent;
+  border-bottom: none;
+  transition: color var(--dur-base), background var(--dur-base);
+  position: relative;
+  bottom: -1px;
+}
+
+.import-dialog__format-tab:hover {
+  color: var(--text-primary);
+  background: var(--surface-raised);
+}
+
+.import-dialog__format-tab--active {
+  color: var(--text-primary);
+  background: var(--surface-low);
+  border-color: var(--border-subtle);
+  border-bottom-color: var(--surface-low);
+}
+
+@keyframes overlayIn {
+  from { opacity: 0; }
+  to   { opacity: 1; }
+}
+
+.import-dialog {
+  width: min(740px, calc(100vw - 48px));
+  max-height: calc(100vh - 80px);
+  background: var(--surface-base);
+  border: 1px solid var(--border-subtle);
+  border-radius: var(--r-xl);
+  box-shadow: 0 24px 80px color-mix(in srgb, black 30%, transparent);
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+  animation: dialogIn var(--dur-panel) var(--ease-spring);
+}
+
+@keyframes dialogIn {
+  from { opacity: 0; transform: scale(0.95) translateY(12px); }
+  to   { opacity: 1; transform: scale(1) translateY(0); }
+}
+
+/* ── Header ─────────────────────────────────────── */
+.import-dialog__header {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  padding: var(--space-5) var(--space-5) var(--space-4);
+  gap: var(--space-4);
+  flex-shrink: 0;
+}
+
+.import-dialog__title {
+  font-size: 16px;
+  font-weight: 600;
+  color: var(--text-primary);
+  margin: 0 0 var(--space-1);
+}
+
+.import-dialog__sub {
+  font-size: 13px;
+  color: var(--text-secondary);
+  margin: 0;
+  line-height: 1.5;
+}
+
+.import-dialog__close {
+  font-size: 14px;
+  color: var(--text-muted);
+  width: 28px;
+  height: 28px;
+  border-radius: var(--r-md);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  transition: color var(--dur-base), background var(--dur-base);
+}
+
+.import-dialog__close:hover {
+  color: var(--text-primary);
+  background: var(--surface-raised);
+}
+
+/* ── Editor ─────────────────────────────────────── */
+.import-dialog__editor-wrap {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+  border-top: 1px solid var(--border-subtle);
+  border-bottom: 1px solid var(--border-subtle);
+}
+
+.import-dialog__editor-toolbar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: var(--space-2) var(--space-4);
+  border-bottom: 1px solid var(--border-subtle);
+  background: var(--surface-low);
+  flex-shrink: 0;
+}
+
+.import-dialog__editor-label {
+  font-size: 11px;
+  font-weight: 500;
+  color: var(--text-muted);
+  letter-spacing: 0.06em;
+  font-family: 'Geist Mono', monospace;
+}
+
+.import-dialog__editor-actions {
+  display: flex;
+  gap: var(--space-2);
+}
+
+.import-dialog__pill-btn {
+  font-size: 12px;
+  color: var(--text-secondary);
+  background: var(--surface-raised);
+  border: 1px solid var(--border-subtle);
+  border-radius: var(--r-md);
+  padding: 3px 10px;
+  transition: color var(--dur-base), background var(--dur-base);
+}
+
+.import-dialog__pill-btn:hover {
+  color: var(--text-primary);
+  background: var(--surface-overlay);
+}
+
+.import-dialog__textarea {
+  flex: 1;
+  resize: none;
+  border: none;
+  outline: none;
+  padding: var(--space-4);
+  font-family: 'Geist Mono', 'Fira Code', monospace;
+  font-size: 12px;
+  line-height: 1.7;
+  color: var(--text-primary);
+  background: var(--surface-low);
+  tab-size: 2;
+  overflow: auto;
+  min-height: 260px;
+}
+
+.import-dialog__textarea::placeholder {
+  color: var(--text-muted);
+  opacity: 0.55;
+}
+
+/* ── Errors ─────────────────────────────────────── */
+.import-dialog__errors {
+  padding: var(--space-3) var(--space-4);
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-1);
+  background: var(--danger-bg);
+  flex-shrink: 0;
+}
+
+.import-error {
+  font-size: 12px;
+  color: var(--danger-text);
+  font-family: 'Geist Mono', monospace;
+}
+
+/* ── Footer ─────────────────────────────────────── */
+.import-dialog__footer {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: var(--space-3) var(--space-5);
+  flex-shrink: 0;
+}
+
+.import-dialog__supported {
+  font-size: 11px;
+  color: var(--text-muted);
+}
+
+.import-dialog__footer-actions {
+  display: flex;
+  gap: var(--space-3);
+}
+
+.import-dialog__cancel-btn {
+  font-size: 13px;
+  font-weight: 500;
+  color: var(--text-secondary);
+  padding: 7px 16px;
+  border-radius: var(--r-md);
+  transition: color var(--dur-base), background var(--dur-base);
+}
+
+.import-dialog__cancel-btn:hover {
+  color: var(--text-primary);
+  background: var(--surface-raised);
+}
+
+.import-dialog__import-btn {
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--surface-base);
+  background: var(--text-primary);
+  padding: 7px 20px;
+  border-radius: var(--r-md);
+  transition: opacity var(--dur-base), background var(--dur-base);
+}
+
+.import-dialog__import-btn:hover:not(:disabled) {
+  opacity: 0.88;
+}
+
+.import-dialog__import-btn:disabled {
+  opacity: 0.4;
+  cursor: not-allowed;
+}
+
+.import-dialog__import-btn--done {
+  background: var(--success-text) !important;
+  opacity: 1 !important;
+}
