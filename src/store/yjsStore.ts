@@ -1,4 +1,5 @@
 import * as Y from 'yjs';
+// @ts-ignore
 import { WebsocketProvider } from 'y-websocket';
 import { create } from 'zustand';
 import { useSchemaStore } from './schema';
@@ -134,13 +135,13 @@ export const useYjsStore = create<YjsState & YjsActions>()((set, get) => ({
     provider.awareness.on('change', () => {
       const localId = doc.clientID;
       const states = provider.awareness.getStates();
-      const collabs: Collaborator[] = Array.from(states.entries())
-        .filter(([id]) => (id as number) !== localId)
+      const collabs: Collaborator[] = Array.from(states.entries() as IterableIterator<[number, any]>)
+        .filter(([id]) => id !== localId)
         .map(([id, state]) => ({
-          clientId: id as number,
-          name: (state as any).user?.name ?? 'Collaborator',
-          color: (state as any).user?.color ?? '#888',
-          cursor: (state as any).user?.cursor ?? null,
+          clientId: id,
+          name: state.user?.name ?? 'Collaborator',
+          color: state.user?.color ?? '#888',
+          cursor: state.user?.cursor ?? null,
         }));
       set({ collaborators: collabs });
     });

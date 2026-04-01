@@ -1,6 +1,7 @@
 import React from 'react';
 import { useNavigate } from 'react-router-dom';
 import { ACCENT_HEX } from '../../utils/constants';
+import type { Table, AccentColor } from '../../types/schema';
 
 interface ProjectCardProps {
   schema: any;
@@ -12,7 +13,7 @@ interface ProjectCardProps {
 export const ProjectCard: React.FC<ProjectCardProps> = ({ schema, onDuplicate, onExport, onDelete }) => {
   const navigate = useNavigate();
   
-  let tables: any[] = [];
+  let tables: Table[] = [];
   try {
     const cs = typeof schema.canvas_state === 'string' ? JSON.parse(schema.canvas_state) : schema.canvas_state;
     tables = cs?.tables || [];
@@ -40,7 +41,7 @@ export const ProjectCard: React.FC<ProjectCardProps> = ({ schema, onDuplicate, o
                   opacity: 0.7 
                 }}
               >
-                <div className="mini-map-header" style={{ background: ACCENT_HEX[t.accentColor] || 'rgb(162, 107, 252)' }}></div>
+                <div className="mini-map-header" style={{ background: ACCENT_HEX[t.accentColor as AccentColor] || 'rgb(162, 107, 252)' }}></div>
                 <div style={{ width: '80%', height: '2px', background: 'var(--border-default)', marginBottom: '1px' }}></div>
                 <div style={{ width: '60%', height: '2px', background: 'var(--border-default)', marginBottom: '1px' }}></div>
                 <div style={{ width: '70%', height: '2px', background: 'var(--border-default)' }}></div>

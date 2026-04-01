@@ -1,9 +1,7 @@
-import { useNavigate } from 'react-router-dom';
 import { PublicNav } from '../components/layout/PublicNav';
 import { Footer } from '../components/layout/Footer';
 
 export function Terms() {
-  const navigate = useNavigate();
 
   return (
     <div style={{ background: 'var(--canvas-bg)', minHeight: '100vh', color: 'var(--text-primary)', display: 'flex', flexDirection: 'column' }}>

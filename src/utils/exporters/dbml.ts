@@ -1,7 +1,6 @@
 import type { Table, Relationship } from '../../types/schema';
 
 export function exportDBML(tables: Table[], relationships: Relationship[]): string {
-  const tableMap = new Map(tables.map((t) => [t.id, t]));
   const fieldMap = new Map(
     tables.flatMap((t) => t.fields.map((f) => [`${t.id}:${f.id}`, { table: t, field: f }]))
   );

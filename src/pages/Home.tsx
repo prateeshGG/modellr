@@ -1,14 +1,12 @@
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { useAuthStore } from '../store/authStore';
-import { Maximize2, Minimize2, Bot, Users, ExternalLink, Database, Shield, History, Zap } from 'lucide-react';
+import { Maximize2, Minimize2, ExternalLink, Database, History, Zap } from 'lucide-react';
 import { Footer } from '../components/layout/Footer';
 import { PublicNav } from '../components/layout/PublicNav';
 import Editor from './Editor';
 
 export default function Home() {
   const navigate = useNavigate();
-  const { session } = useAuthStore();
   const [isFullscreen, setIsFullscreen] = useState(false);
 
   return (

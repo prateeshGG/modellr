@@ -1,4 +1,3 @@
-import React from 'react';
 import { useUIStore } from '../../store/ui';
 
 export function DialogModal() {
