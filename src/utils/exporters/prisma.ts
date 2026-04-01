@@ -3,8 +3,7 @@ import type { Table, Relationship } from '../../types/schema';
 /** Generate a Prisma schema file from the current schema */
 export function exportPrisma(
   tables: Table[],
-  relationships: Relationship[],
-  dbUrl = 'postgresql://USER:PASSWORD@localhost:5432/DB'
+  relationships: Relationship[]
 ): string {
   const lines: string[] = [];
 
