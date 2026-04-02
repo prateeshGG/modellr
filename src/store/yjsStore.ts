@@ -7,7 +7,9 @@ import { useAuthStore } from './authStore';
 import { useUIStore } from './ui';
 
 // ── Constants ──────────────────────────────────────────────────────────────
-const WS_BASE = 'ws://localhost:3001';
+// Helper to compute the dynamic WS URL based on where the app is running
+const HTTP_API = import.meta.env.VITE_API_URL || 'http://localhost:3001';
+const WS_BASE = HTTP_API.replace(/^http/, 'ws');
 
 const COLLAB_COLORS = [
   '#6366f1', '#ec4899', '#f59e0b', '#10b981',

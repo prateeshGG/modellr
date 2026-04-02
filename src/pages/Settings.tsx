@@ -43,7 +43,8 @@ export function Settings() {
   const fetchApiKeys = async () => {
     setLoadingKeys(true);
     try {
-      const res = await fetch('http://localhost:3001/api/keys', {
+      const baseUrl = import.meta.env.VITE_API_URL || 'http://localhost:3001';
+      const res = await fetch(`${baseUrl}/api/keys`, {
         headers: { 'Authorization': `Bearer ${session?.access_token}` }
       });
       const data = await res.json();
@@ -68,7 +69,8 @@ export function Settings() {
       return;
     }
     try {
-      const res = await fetch('http://localhost:3001/api/keys/generate', {
+      const baseUrl = import.meta.env.VITE_API_URL || 'http://localhost:3001';
+      const res = await fetch(`${baseUrl}/api/keys/generate`, {
         method: 'POST',
         headers: {
           'Authorization': `Bearer ${session?.access_token}`,
@@ -102,7 +104,8 @@ export function Settings() {
       type: 'confirm',
       onConfirm: async () => {
         try {
-          const res = await fetch(`http://localhost:3001/api/keys/${id}`, {
+          const baseUrl = import.meta.env.VITE_API_URL || 'http://localhost:3001';
+          const res = await fetch(`${baseUrl}/api/keys/${id}`, {
             method: 'DELETE',
             headers: { 'Authorization': `Bearer ${session?.access_token}` }
           });
