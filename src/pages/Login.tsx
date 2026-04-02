@@ -12,6 +12,14 @@ export function Login() {
   if (session) return <Navigate to="/app" replace />;
 
   const handleEmailAuth = async (isSignUp: boolean) => {
+    if (!email.trim() || !password.trim()) {
+      setMsg({ text: 'Please enter your email and password.', isError: true });
+      return;
+    }
+    if (isSignUp && password.length < 6) {
+      setMsg({ text: 'Password must be at least 6 characters.', isError: true });
+      return;
+    }
     setMsg({ text: 'Processing...', isError: false });
     const { error } = isSignUp 
       ? await supabase.auth.signUp({ email, password })
@@ -20,7 +28,7 @@ export function Login() {
     if (error) {
       setMsg({ text: error.message, isError: true });
     } else {
-      setMsg({ text: isSignUp ? 'Check your email for confirmation!' : 'Logged in natively!', isError: false });
+      setMsg({ text: isSignUp ? 'Check your email for confirmation!' : 'Logged in!', isError: false });
     }
   };
 
