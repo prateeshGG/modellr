@@ -32,6 +32,25 @@ export interface Table {
   position: { x: number; y: number };
   accentColor: AccentColor;
   comment?: string;
+  groupId?: string;
+}
+
+export interface Note {
+  id: string;
+  content: string;
+  position: { x: number; y: number };
+  color: AccentColor;
+  width: number;
+  height: number;
+}
+
+export interface Group {
+  id: string;
+  name: string;
+  color: AccentColor;
+  position: { x: number; y: number };
+  width: number;
+  height: number;
 }
 
 export interface Relationship {
@@ -49,10 +68,14 @@ export interface Snapshot {
   timestamp: number;
   tables: Table[];
   relationships: Relationship[];
+  notes?: Note[];
+  groups?: Group[];
 }
 
 export type SelectionTarget =
   | { type: 'table'; tableId: string }
   | { type: 'field'; tableId: string; fieldId: string }
   | { type: 'relationship'; relationshipId: string }
+  | { type: 'note'; noteId: string }
+  | { type: 'group'; groupId: string }
   | null;

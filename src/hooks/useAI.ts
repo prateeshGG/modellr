@@ -6,18 +6,11 @@
 import { useState, useCallback, useRef } from 'react';
 import type { Table, Relationship } from '../types/schema';
 
-
-
-function getKey(): string {
-  return (import.meta as any).env?.VITE_OPENAI_API_KEY ?? '';
-}
-
-// Use Vite proxy path /api/openai in dev to avoid CORS; direct in prod
-function getEndpoint(): string {
-  const isDev = (import.meta as any).env?.DEV;
-  return isDev
-    ? '/api/openai/v1/chat/completions'
-    : 'https://api.openai.com/v1/chat/completions';
+// Always route AI calls through our EC2 backend — the API key lives there securely.
+// VITE_API_URL is set in Vercel env vars → https://13-61-7-14.sslip.io
+// Falls back to empty string (relative path) in local dev where Vite proxies it.
+function getBackendBase(): string {
+  return (import.meta as any).env?.VITE_API_URL ?? '';
 }
 
 export type AIStatus = 'idle' | 'loading' | 'streaming' | 'done' | 'error';
@@ -35,34 +28,22 @@ function tableToText(table: Table): string {
     .join(', ')})`;
 }
 
-/** Stream a chat completion from the OpenAI API */
+/** Proxy a streaming chat completion through our EC2 backend */
 async function streamCompletion(
   messages: { role: string; content: string }[],
   onChunk: (chunk: string) => void,
   signal: AbortSignal
 ): Promise<void> {
-  const key = getKey();
-  if (!key) throw new Error('No OpenAI API key configured (VITE_OPENAI_API_KEY).');
-
-  const res = await fetch(getEndpoint(), {
+  const res = await fetch(`${getBackendBase()}/api/openai/stream`, {
     method: 'POST',
     signal,
-    headers: {
-      'Content-Type': 'application/json',
-      Authorization: `Bearer ${key}`,
-    },
-    body: JSON.stringify({
-      model: 'gpt-4o-mini',
-      messages,
-      stream: true,
-      max_tokens: 800,
-      temperature: 0.4,
-    }),
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ messages, max_tokens: 800, temperature: 0.4 }),
   });
 
   if (!res.ok) {
     const err = await res.json().catch(() => ({}));
-    throw new Error((err as any)?.error?.message ?? `OpenAI error ${res.status}`);
+    throw new Error((err as any)?.error ?? `AI error ${res.status}`);
   }
 
   const reader = res.body!.getReader();
@@ -81,7 +62,7 @@ async function streamCompletion(
         const json = JSON.parse(data);
         const delta = json.choices?.[0]?.delta;
         if (delta) {
-          const chunkText = delta.reasoning_content || delta.content || '';
+          const chunkText = delta.content || '';
           if (chunkText) onChunk(chunkText);
         }
       } catch { /* ignore parse errors */ }
@@ -170,33 +151,47 @@ export function useDescribeField(
 ): { describe: () => Promise<string> } {
   return {
     describe: async () => {
-      const key = getKey();
-      if (!key) return 'No API key configured.';
-
-      const res = await fetch(getEndpoint(), {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          Authorization: `Bearer ${key}`,
-        },
-        body: JSON.stringify({
-          model: 'gpt-4o-mini',
-          messages: [
-            {
-              role: 'system',
-              content: 'You are a helpful database documentation assistant. Write one concise sentence (max 20 words) describing what a database column is used for.',
-            },
-            {
-              role: 'user',
-              content: `Table: ${tableName}\nField: ${fieldName} (${fieldType})\nWrite a one-sentence description.`,
-            },
-          ],
-          max_tokens: 60,
-          temperature: 0.3,
-        }),
-      });
-      const data = await res.json();
-      return data.choices?.[0]?.message?.content?.trim() ?? 'No description available.';
+      try {
+        const res = await fetch(`${getBackendBase()}/api/openai/stream`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            max_tokens: 60,
+            temperature: 0.3,
+            messages: [
+              {
+                role: 'system',
+                content: 'You are a helpful database documentation assistant. Write one concise sentence (max 20 words) describing what a database column is used for.',
+              },
+              {
+                role: 'user',
+                content: `Table: ${tableName}\nField: ${fieldName} (${fieldType})\nWrite a one-sentence description.`,
+              },
+            ],
+          }),
+        });
+        // This is a non-streaming call treated as streaming — collect all chunks
+        if (!res.ok) return 'No description available.';
+        const reader = res.body!.getReader();
+        const decoder = new TextDecoder();
+        let result = '';
+        while (true) {
+          const { done, value } = await reader.read();
+          if (done) break;
+          for (const line of decoder.decode(value).split('\n')) {
+            if (!line.startsWith('data:')) continue;
+            const d = line.slice(5).trim();
+            if (d === '[DONE]') break;
+            try {
+              const j = JSON.parse(d);
+              result += j.choices?.[0]?.delta?.content || '';
+            } catch { /* */ }
+          }
+        }
+        return result.trim() || 'No description available.';
+      } catch {
+        return 'No description available.';
+      }
     },
   };
 }
@@ -206,61 +201,16 @@ export async function generateSchemaFromPrompt(
   prompt: string,
   signal?: AbortSignal
 ): Promise<{ tables: { name: string; fields: { name: string; type: string; isPK?: boolean; isFK?: boolean; nullable?: boolean; unique?: boolean; references?: string }[] }[]; relationships: { from: string; fromField: string; to: string; toField: string; cardinality: string }[] }> {
-  const key = getKey();
-  if (!key) throw new Error('No OpenAI API key configured.');
-
-  const res = await fetch(getEndpoint(), {
+  const res = await fetch(`${getBackendBase()}/api/openai/generate`, {
     method: 'POST',
     signal,
-    headers: {
-      'Content-Type': 'application/json',
-      Authorization: `Bearer ${key}`,
-    },
-    body: JSON.stringify({
-      model: 'gpt-4o-mini',
-      messages: [
-        {
-          role: 'system',
-          content: `You are a database schema designer. Given a description, output a JSON schema object.
-
-Rules:
-- Output ONLY valid JSON, no markdown, no explanation
-- Use snake_case for all table and field names
-- Include appropriate id field (bigserial PK) for each table
-- Include created_at (timestamptz) for important tables
-- Use realistic PostgreSQL types: text, varchar, integer, bigint, bigserial, boolean, timestamptz, numeric, jsonb, uuid
-- Infer foreign key relationships from context
-
-Output format:
-{
-  "tables": [
-    {
-      "name": "table_name",
-      "fields": [
-        { "name": "id", "type": "bigserial", "isPK": true, "nullable": false },
-        { "name": "field_name", "type": "text", "nullable": false }
-      ]
-    }
-  ],
-  "relationships": [
-    { "from": "orders", "fromField": "customer_id", "to": "customers", "toField": "id", "cardinality": "one-to-many" }
-  ]
-}`,
-        },
-        {
-          role: 'user',
-          content: `Design a database schema for: ${prompt}`,
-        },
-      ],
-      max_tokens: 1200,
-      temperature: 0.2,
-      response_format: { type: 'json_object' },
-    }),
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ prompt }),
   });
 
   if (!res.ok) {
     const err = await res.json().catch(() => ({}));
-    throw new Error((err as any)?.error?.message ?? `OpenAI error ${res.status}`);
+    throw new Error((err as any)?.error ?? `AI error ${res.status}`);
   }
 
   const data = await res.json();

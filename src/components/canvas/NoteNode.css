@@ -1,0 +1,96 @@
+.note-node {
+  position: relative;
+  border-radius: 8px;
+  border-width: 2px;
+  border-style: solid;
+  padding: 12px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+  display: flex;
+  flex-direction: column;
+  transition: border-color 0.15s ease, box-shadow 0.15s ease;
+  pointer-events: all;
+  background-color: var(--surface-base); /* Fallback */
+}
+
+.note-node.selected {
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.12);
+  z-index: 10;
+}
+
+.note-node__textarea {
+  flex: 1;
+  width: 100%;
+  height: 100%;
+  background: transparent;
+  border: none;
+  resize: none;
+  font-family: var(--font-body), sans-serif;
+  font-size: 14px;
+  font-weight: 500;
+  line-height: y1.5;
+  outline: none;
+  cursor: text;
+  padding: 0;
+  margin: 0;
+}
+
+.note-node__textarea::placeholder {
+  opacity: 0.5;
+}
+
+.note-node__delete {
+  position: absolute;
+  top: -10px;
+  right: -10px;
+  background: white;
+  border: 1px solid #e2e8f0;
+  color: #ef4444;
+  border-radius: 50%;
+  width: 24px;
+  height: 24px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+  opacity: 0;
+  transition: opacity 0.2s, transform 0.1s;
+  z-index: 20;
+}
+
+.note-node:hover .note-node__delete {
+  opacity: 1;
+}
+
+.note-node__delete:hover {
+  transform: scale(1.1);
+}
+
+.note-node .react-flow__resize-control {
+  background: transparent;
+  border: none;
+  opacity: 0;
+  transition: opacity 0.2s;
+  width: 12px;
+  height: 12px;
+  right: 2px;
+  bottom: 2px;
+}
+
+.note-node:hover .react-flow__resize-control,
+.note-node.selected .react-flow__resize-control {
+  opacity: 0.5;
+}
+
+/* Custom Resize Handle icon (a little triangle pattern) */
+.note-node .react-flow__resize-control::after {
+  content: '';
+  position: absolute;
+  bottom: 2px;
+  right: 2px;
+  width: 6px;
+  height: 6px;
+  background-image: radial-gradient(circle, currentColor 1px, transparent 1px);
+  background-size: 3px 3px;
+  opacity: 0.6;
+}

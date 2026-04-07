@@ -18,7 +18,7 @@ export const ShareModal: React.FC<ShareModalProps> = ({ onClose }) => {
   const { allowGuestEdits, setAllowGuestEdits } = useSchemaStore();
   const { connected } = useYjsStore();
   
-  const [activeTab, setActiveTab] = useState<'collab' | 'embed'>('collab');
+  const [activeTab, setActiveTab] = useState<'collab' | 'stateless' | 'embed'>('collab');
   const [isPublic, setIsPublic] = useState(false);
   const [isHost, setIsHost] = useState(false);
   const [loading, setLoading] = useState(true);
@@ -82,7 +82,13 @@ export const ShareModal: React.FC<ShareModalProps> = ({ onClose }) => {
             className={`share-modal__tab ${activeTab === 'collab' ? 'active' : ''}`}
             onClick={() => setActiveTab('collab')}
           >
-            Team Workspace
+            Real-time Collab
+          </button>
+          <button 
+            className={`share-modal__tab ${activeTab === 'stateless' ? 'active' : ''}`}
+            onClick={() => setActiveTab('stateless')}
+          >
+            Stateless Link
           </button>
           <button 
             className={`share-modal__tab ${activeTab === 'embed' ? 'active' : ''}`}
@@ -106,7 +112,11 @@ export const ShareModal: React.FC<ShareModalProps> = ({ onClose }) => {
 
               <div className="share-modal__copy-group">
                 <input readOnly value={window.location.href} className="share-modal__input" />
-                <button className="share-modal__copy-btn" onClick={() => { copyShareLink(); onClose(); }}>Copy Link</button>
+                <button className="share-modal__copy-btn" onClick={() => { 
+                  navigator.clipboard.writeText(window.location.href);
+                  showToast('Collaborative link copied!', 'success');
+                  onClose(); 
+                }}>Copy Link</button>
               </div>
 
               <div style={{ marginTop: '24px', padding: '16px', background: 'var(--surface-bg)', borderRadius: '8px', border: '1px solid var(--border-subtle)' }}>
@@ -129,6 +139,31 @@ export const ShareModal: React.FC<ShareModalProps> = ({ onClose }) => {
                     </label>
                   </div>
                 )}
+              </div>
+            </div>
+          )}
+
+          {activeTab === 'stateless' && (
+            <div className="share-modal__section">
+              <p className="share-modal__desc">
+                Generate a massive URL that contains your entire schema encoded inside the link itself. 
+                Perfect for sharing on Reddit, Twitter, or Discord without saving to a database.
+              </p>
+              
+              <div style={{ marginTop: '24px', padding: '16px', background: 'var(--surface-bg)', borderRadius: '8px', border: '1px solid var(--alert-warning)', borderLeft: '4px solid var(--alert-warning)' }}>
+                <span style={{ fontWeight: 600, fontSize: '14px', color: 'var(--text-primary)', display: 'block', marginBottom: '8px' }}>Serverless Sharing</span>
+                <span style={{ fontSize: '13px', color: 'var(--text-muted)' }}>
+                  Anyone opening this link will see a read-only snapshot of your schema exactly as it is right now. 
+                  Future changes you make will <b>not</b> be synced to the stateless link.
+                </span>
+                
+                <button 
+                  className="share-modal__btn-primary" 
+                  style={{ marginTop: '16px', background: 'var(--alert-warning)', color: '#000' }}
+                  onClick={() => { copyShareLink(); onClose(); }}
+                >
+                  Generate & Copy Stateless Link
+                </button>
               </div>
             </div>
           )}

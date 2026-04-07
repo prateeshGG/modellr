@@ -3,13 +3,15 @@ import { temporal } from 'zundo';
 import { nanoid } from '../store/nanoid';
 import { useUIStore } from './ui';
 import type {
-  Table, Field, Relationship, Dialect, AccentColor, Snapshot
+  Table, Field, Relationship, Dialect, AccentColor, Snapshot, Note, Group
 } from '../types/schema';
 import { ACCENT_COLORS } from '../utils/constants';
 
 interface SchemaState {
   tables: Table[];
   relationships: Relationship[];
+  notes: Note[];
+  groups: Group[];
   dialect: Dialect;
   projectName: string;
   isSaving: boolean;
@@ -36,8 +38,16 @@ interface SchemaActions {
   removeRelationship: (id: string) => void;
   updateRelationship: (id: string, patch: Partial<Omit<Relationship, 'id'>>) => void;
 
-  importTables: (tables: Table[], relationships: Relationship[], allowGuestEdits?: boolean) => void;
-  loadSnapshot: (snapshot: Pick<Snapshot, 'tables' | 'relationships'>) => void;
+  addNote: (position: { x: number; y: number }) => string;
+  removeNote: (id: string) => void;
+  updateNote: (id: string, patch: Partial<Omit<Note, 'id'>>) => void;
+
+  addGroup: (position: { x: number; y: number }) => string;
+  removeGroup: (id: string) => void;
+  updateGroup: (id: string, patch: Partial<Omit<Group, 'id'>>) => void;
+
+  importTables: (tables: Table[], relationships: Relationship[], notes?: Note[], groups?: Group[], allowGuestEdits?: boolean) => void;
+  loadSnapshot: (snapshot: Pick<Snapshot, 'tables' | 'relationships' | 'notes' | 'groups'>) => void;
 
   setSaving: (saving: boolean) => void;
   setLastSaved: (ts: number) => void;
@@ -55,6 +65,8 @@ export type { SchemaState, SchemaActions, SchemaStore };
 export const createSchemaLogic = (set: any, _get: any): SchemaStore => ({
   tables: [],
   relationships: [],
+  notes: [],
+  groups: [],
   dialect: 'postgres',
   projectName: 'Untitled schema',
   isSaving: false,
@@ -217,11 +229,79 @@ export const createSchemaLogic = (set: any, _get: any): SchemaStore => ({
     }));
   },
 
-  importTables: (tables: Table[], relationships: Relationship[], allowGuestEdits?: boolean) =>
-    set((s: SchemaStore) => ({ tables, relationships, allowGuestEdits: allowGuestEdits ?? s.allowGuestEdits })),
+  addNote: (position: { x: number; y: number }) => {
+    if (useUIStore.getState().readOnly) return '';
+    const id = nanoid();
+    set((s: SchemaStore) => ({
+      notes: [
+        ...s.notes,
+        {
+          id,
+          content: '',
+          position,
+          color: 'yellow' as AccentColor,
+          width: 200,
+          height: 150
+        }
+      ]
+    }));
+    return id;
+  },
 
-  loadSnapshot: (snapshot: Pick<Snapshot, 'tables' | 'relationships'>) =>
-    set({ tables: snapshot.tables, relationships: snapshot.relationships }),
+  removeNote: (id: string) => {
+    if (useUIStore.getState().readOnly) return;
+    set((s: SchemaStore) => ({
+      notes: s.notes.filter((n: Note) => n.id !== id)
+    }));
+  },
+
+  updateNote: (id: string, patch: Partial<Omit<Note, 'id'>>) => {
+    if (useUIStore.getState().readOnly) return;
+    set((s: SchemaStore) => ({
+      notes: s.notes.map((n: Note) => n.id === id ? { ...n, ...patch } : n)
+    }));
+  },
+
+  addGroup: (position: { x: number; y: number }) => {
+    if (useUIStore.getState().readOnly) return '';
+    const id = nanoid();
+    set((s: SchemaStore) => ({
+      groups: [
+        ...s.groups,
+        {
+          id,
+          name: 'New Table Group',
+          position,
+          color: 'gray' as AccentColor,
+          width: 300,
+          height: 300
+        }
+      ]
+    }));
+    return id;
+  },
+
+  removeGroup: (id: string) => {
+    if (useUIStore.getState().readOnly) return;
+    set((s: SchemaStore) => ({
+      groups: s.groups.filter((g: Group) => g.id !== id),
+      // Also release any tables that were assigned to this group
+      tables: s.tables.map((t: Table) => t.groupId === id ? { ...t, groupId: undefined } : t)
+    }));
+  },
+
+  updateGroup: (id: string, patch: Partial<Omit<Group, 'id'>>) => {
+    if (useUIStore.getState().readOnly) return;
+    set((s: SchemaStore) => ({
+      groups: s.groups.map((g: Group) => g.id === id ? { ...g, ...patch } : g)
+    }));
+  },
+
+  importTables: (tables: Table[], relationships: Relationship[], notes?: Note[], groups?: Group[], allowGuestEdits?: boolean) =>
+    set((s: SchemaStore) => ({ tables, relationships, notes: notes || [], groups: groups || [], allowGuestEdits: allowGuestEdits ?? s.allowGuestEdits })),
+
+  loadSnapshot: (snapshot: Pick<Snapshot, 'tables' | 'relationships' | 'notes' | 'groups'>) =>
+    set({ tables: snapshot.tables, relationships: snapshot.relationships, notes: snapshot.notes || [], groups: snapshot.groups || [] }),
 
   setSaving: (isSaving: boolean) => set({ isSaving }),
   setLastSaved: (ts: number) => set({ lastSaved: ts }),
@@ -306,6 +386,8 @@ export const useSchemaStore = create<SchemaStore>()(
     partialize: (state) => ({
       tables: state.tables,
       relationships: state.relationships,
+      notes: state.notes,
+      groups: state.groups,
     }),
   })
 );

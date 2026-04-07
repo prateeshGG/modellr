@@ -46,8 +46,13 @@ export const AIBottomDrawer: React.FC<{ isOpen: boolean; onClose: () => void }> 
     setMessages(prev => [...prev, userMsg]);
     setLoading(true);
 
+    // In production, VITE_API_URL points to the EC2 backend.
+    // In dev, fall back to the Vite proxy path.
+    const apiBase = (import.meta as any).env?.VITE_API_URL ?? '';
+    const endpoint = `${apiBase}/api/openai/modify`;
+
     try {
-      const resp = await fetch('/api/openai/modify', {
+      const resp = await fetch(endpoint, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({

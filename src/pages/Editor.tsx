@@ -44,7 +44,7 @@ function SandboxLimiter() {
   return null;
 }
 
-export default function Editor({ isSandbox = false }: { isSandbox?: boolean }) {
+export default function Editor({ isSandbox = false, isSharedView = false }: { isSandbox?: boolean; isSharedView?: boolean }) {
   const { id } = useParams();
   useKeyboardShortcuts();
   
@@ -55,7 +55,7 @@ export default function Editor({ isSandbox = false }: { isSandbox?: boolean }) {
   const setReadOnly = useUIStore((s) => s.setReadOnly);
 
   useEffect(() => {
-    if (isSandbox) return;
+    if (isSandbox || isSharedView) return;
     if (!schemaOwnerId) return; // Haven't loaded yet
     
     // Evaluate if the current user owns this schema
@@ -132,8 +132,8 @@ export default function Editor({ isSandbox = false }: { isSandbox?: boolean }) {
   // Yjs Auto-join and cursor broadcasting
   useEffect(() => {
     let joined = false;
-    // Do not join WebSockets if we are in an offline sandbox
-    if (id && !isSandbox) {
+    // Do not join WebSockets if we are in an offline sandbox or stateless view
+    if (id && !isSandbox && !isSharedView) {
       useYjsStore.getState().joinRoom(id);
       joined = true;
     }
@@ -164,7 +164,7 @@ export default function Editor({ isSandbox = false }: { isSandbox?: boolean }) {
 
   // Sandbox LocalStorage Sync Bridge
   useEffect(() => {
-    if (!isSandbox) return;
+    if (!isSandbox || isSharedView) return;
     
     const saved = localStorage.getItem('sandbox_schema');
     if (saved) {
@@ -199,7 +199,7 @@ export default function Editor({ isSandbox = false }: { isSandbox?: boolean }) {
 
   return (
     <div className="app-shell">
-      {isSandbox && <SandboxLimiter />}
+      {isSandbox && !isSharedView && <SandboxLimiter />}
       <TopBar
         isHost={isHost}
         onImportClick={() => setImportOpen(true)}

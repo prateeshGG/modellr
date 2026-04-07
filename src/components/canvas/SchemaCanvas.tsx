@@ -17,16 +17,18 @@ import {
 import '@xyflow/react/dist/style.css';
 
 import { TableNode } from './TableNode';
+import NoteNode from './NoteNode';
+import GroupNode from './GroupNode';
 import { RelationshipEdge, RelationshipMarkerDefs } from './RelationshipEdge';
 import { EmptyState } from './EmptyState';
 import { useSchemaStore } from '../../store/schema';
 import { useUIStore } from '../../store/ui';
 import { CANVAS_SNAP_GRID, ACCENT_HEX, PILL_NODE_ZOOM_THRESHOLD } from '../../utils/constants';
 import { autoLayout } from '../../utils/autoLayout';
-import type { Table, Relationship } from '../../types/schema';
+import type { Table, Relationship, Note, Group } from '../../types/schema';
 import './SchemaCanvas.css';
 
-const nodeTypes = { tableNode: TableNode };
+const nodeTypes = { tableNode: TableNode, noteNode: NoteNode, groupNode: GroupNode };
 const edgeTypes = { relationshipEdge: RelationshipEdge };
 
 function tableToNode(table: Table): Node {
@@ -34,8 +36,28 @@ function tableToNode(table: Table): Node {
     id: table.id,
     type: 'tableNode',
     position: table.position,
+    parentId: table.groupId,
     data: { ...table } as unknown as Record<string, unknown>,
     dragHandle: '.table-node__header',
+  };
+}
+
+function noteToNode(note: Note): Node {
+  return {
+    id: note.id,
+    type: 'noteNode',
+    position: note.position,
+    data: { ...note } as unknown as Record<string, unknown>,
+  };
+}
+
+function groupToNode(group: Group): Node {
+  return {
+    id: group.id,
+    type: 'groupNode',
+    position: group.position,
+    data: { ...group } as unknown as Record<string, unknown>,
+    style: { width: group.width, height: group.height, zIndex: -1 },
   };
 }
 
@@ -81,17 +103,19 @@ function relationshipToEdge(rel: Relationship, positions: PositionMap): Edge {
 }
 
 function CanvasInner() {
-  const { tables, relationships, addRelationship, moveTable, removeTable } = useSchemaStore();
+  const { tables, relationships, notes, groups, addRelationship, moveTable, removeTable, addNote, updateNote, addGroup, updateGroup, updateTable } = useSchemaStore();
   const { setZoom, zoom, density, showToast, setSelection, clearSelection, readOnly } = useUIStore() as any;
-  const { screenToFlowPosition, fitView, setViewport } = useReactFlow();
+  const { screenToFlowPosition, fitView, setViewport, getViewport, getIntersectingNodes, getNode } = useReactFlow();
   const isRunningLayout = useRef(false);
 
-  const [nodes, setNodes, onNodesChange] = useNodesState(tables.map(tableToNode));
+  // Combine tables, notes, and groups into a single nodes array
+  const initialNodes = [...groups.map(groupToNode), ...tables.map(tableToNode), ...notes.map(noteToNode)];
+  const [nodes, setNodes, onNodesChange] = useNodesState(initialNodes);
   const [edges, setEdges, onEdgesChange] = useEdgesState<Edge>([]);
 
   useEffect(() => {
-    setNodes(tables.map(tableToNode));
-  }, [tables, setNodes]);
+    setNodes([...groups.map(groupToNode), ...tables.map(tableToNode), ...notes.map(noteToNode)]);
+  }, [tables, notes, groups, setNodes]);
 
   // Derive a position map from the LIVE React Flow node state (not Zustand).
   // This updates on every drag frame, so edges recalculate in real-time and
@@ -138,9 +162,37 @@ function CanvasInner() {
   const onNodeDragStop = useCallback(
     (_: React.MouseEvent, node: Node) => {
       if (readOnly) return;
-      moveTable(node.id, node.position);
+      
+      if (node.type === 'tableNode') {
+        const intersections = getIntersectingNodes(node).filter((n) => n.type === 'groupNode');
+        const targetGroup = intersections.length > 0 ? intersections[0] : null;
+
+        if (targetGroup) {
+          // Dropped over a group -> assign to group
+          // React Flow's node.position is relative to the parent if it has one, or absolute if it doesn't.
+          // To ensure stable parenting, we capture the absolute position of the table and the absolute position of the group,
+          // then compute the relative offset locally.
+          // React Flow calculates absolute positions during drags, available on internally typed nodes
+          const tableAbsPos = (node as any).computed?.positionAbsolute || (node as any).positionAbsolute || node.position;
+          const groupAbsPos = (targetGroup as any).computed?.positionAbsolute || (targetGroup as any).positionAbsolute || targetGroup.position;
+          
+          const relativePos = {
+            x: tableAbsPos.x - groupAbsPos.x,
+            y: tableAbsPos.y - groupAbsPos.y
+          };
+          updateTable(node.id, { position: relativePos, groupId: targetGroup.id });
+        } else {
+          // Dropped outside -> remove from group and restore absolute position
+          const tableAbsPos = (node as any).computed?.positionAbsolute || (node as any).positionAbsolute || node.position;
+          updateTable(node.id, { position: tableAbsPos, groupId: undefined });
+        }
+      } else if (node.type === 'noteNode') {
+        updateNote(node.id, { position: node.position });
+      } else if (node.type === 'groupNode') {
+        updateGroup(node.id, { position: node.position });
+      }
     },
-    [moveTable, readOnly]
+    [updateTable, updateNote, updateGroup, getIntersectingNodes, readOnly]
   );
 
   const onPaneClick = useCallback(() => {
@@ -182,11 +234,17 @@ function CanvasInner() {
 
   // ── Auto-layout handler ──────────────────────────
   const handleAutoLayout = useCallback(async () => {
-    if (isRunningLayout.current || tables.length === 0) return;
+    const ungroupedTables = tables.filter(t => !t.groupId);
+    const ungroupedTableIds = new Set(ungroupedTables.map(t => t.id));
+    const ungroupedRels = relationships.filter(r => 
+      ungroupedTableIds.has(r.sourceTableId) && ungroupedTableIds.has(r.targetTableId)
+    );
+
+    if (isRunningLayout.current || ungroupedTables.length === 0) return;
     isRunningLayout.current = true;
 
     try {
-      const positions = await autoLayout(tables, relationships, density ?? 'comfortable');
+      const positions = await autoLayout(ungroupedTables, ungroupedRels, density ?? 'comfortable');
       positions.forEach((pos, tableId) => {
         moveTable(tableId, pos);
       });
@@ -198,6 +256,24 @@ function CanvasInner() {
       isRunningLayout.current = false;
     }
   }, [tables, relationships, density, moveTable, fitView, showToast]);
+
+  const handleAddNote = useCallback(() => {
+    if (readOnly) return;
+    const { x, y, zoom } = getViewport();
+    // Spawn in the center of the current viewport
+    const centerX = -x / zoom + window.innerWidth / (2 * zoom) - 100;
+    const centerY = -y / zoom + window.innerHeight / (2 * zoom) - 75;
+    addNote({ x: centerX, y: centerY });
+  }, [getViewport, addNote, readOnly]);
+
+  const handleAddGroup = useCallback(() => {
+    if (readOnly) return;
+    const { x, y, zoom } = getViewport();
+    // Spawn in the center
+    const centerX = -x / zoom + window.innerWidth / (2 * zoom) - 150;
+    const centerY = -y / zoom + window.innerHeight / (2 * zoom) - 150;
+    addGroup({ x: centerX, y: centerY });
+  }, [getViewport, addGroup, readOnly]);
 
   // ── Custom event listeners (keyboard shortcuts → canvas) ──
   useEffect(() => {
@@ -309,6 +385,27 @@ function CanvasInner() {
         {/* Canvas toolbar */}
         <Panel position="bottom-left" style={{ bottom: 8, left: 8 }}>
           <div className="canvas-toolbar">
+            <button
+              className="canvas-toolbar__btn"
+              onClick={handleAddNote}
+              title="Add Sticky Note"
+              aria-label="Add Sticky Note"
+              disabled={readOnly}
+            >
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" style={{ marginRight: '6px' }}><path d="M14.5 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V7.5L14.5 2z"/><polyline points="14 2 14 8 20 8"/></svg>
+              Note
+            </button>
+            <button
+              className="canvas-toolbar__btn"
+              onClick={handleAddGroup}
+              title="Add Table Group"
+              aria-label="Add Table Group"
+              disabled={readOnly}
+            >
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" style={{ marginRight: '6px' }}><rect x="3" y="3" width="18" height="18" rx="2" ry="2"/><line x1="3" y1="9" x2="21" y2="9"/></svg>
+              Group
+            </button>
+            <div style={{ width: '1px', background: 'var(--border-default)', margin: '0 4px', height: '16px' }} />
             <button
               className="canvas-toolbar__btn"
               onClick={handleAutoLayout}

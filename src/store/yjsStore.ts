@@ -157,6 +157,8 @@ export const useYjsStore = create<YjsState & YjsActions>()((set, get) => ({
       
       const tablesJson = ySchema.get('tables');
       const relsJson   = ySchema.get('relationships');
+      const notesJson = ySchema.get('notes');
+      const groupsJson = ySchema.get('groups');
       const allowGuestEditsJson = ySchema.get('allowGuestEdits');
       if (!tablesJson) return;
       
@@ -164,8 +166,10 @@ export const useYjsStore = create<YjsState & YjsActions>()((set, get) => ({
         get().setApplyingRemote(true);
         const tables = JSON.parse(tablesJson);
         const rels   = relsJson ? JSON.parse(relsJson) : [];
+        const notes = notesJson ? JSON.parse(notesJson) : [];
+        const groups = groupsJson ? JSON.parse(groupsJson) : [];
         const allowGuestEdits = allowGuestEditsJson ? JSON.parse(allowGuestEditsJson) : undefined;
-        useSchemaStore.getState().importTables(tables, rels, allowGuestEdits);
+        useSchemaStore.getState().importTables(tables, rels, notes, groups, allowGuestEdits);
       } catch (e) {
         console.warn('[Yjs] Failed to apply remote schema:', e);
       } finally {
@@ -176,6 +180,8 @@ export const useYjsStore = create<YjsState & YjsActions>()((set, get) => ({
     // ── Zustand → Yjs  (local edits go out) ──────────────────────────────
     let lastTablesJson = '';
     let lastRelsJson = '';
+    let lastNotesJson = '';
+    let lastGroupsJson = '';
     let lastAllowGuestEditsJson = '';
     
     const unsub = useSchemaStore.subscribe((state) => {
@@ -189,19 +195,25 @@ export const useYjsStore = create<YjsState & YjsActions>()((set, get) => ({
       
       const tablesJson = JSON.stringify(state.tables);
       const relsJson   = JSON.stringify(state.relationships);
+      const notesJson = JSON.stringify(state.notes);
+      const groupsJson = JSON.stringify(state.groups);
       const allowGuestEditsJson = JSON.stringify(state.allowGuestEdits);
       
       // Only broadcast if the actual schema payload changed
-      if (tablesJson === lastTablesJson && relsJson === lastRelsJson && allowGuestEditsJson === lastAllowGuestEditsJson) return;
+      if (tablesJson === lastTablesJson && relsJson === lastRelsJson && notesJson === lastNotesJson && groupsJson === lastGroupsJson && allowGuestEditsJson === lastAllowGuestEditsJson) return;
       
       lastTablesJson = tablesJson;
       lastRelsJson = relsJson;
+      lastNotesJson = notesJson;
+      lastGroupsJson = groupsJson;
       lastAllowGuestEditsJson = allowGuestEditsJson;
       
       const ySchemaMap = doc.getMap<string>('schema');
       doc.transact(() => {
         ySchemaMap.set('tables',        tablesJson);
         ySchemaMap.set('relationships', relsJson);
+        ySchemaMap.set('notes', notesJson);
+        ySchemaMap.set('groups', groupsJson);
         ySchemaMap.set('allowGuestEdits', allowGuestEditsJson);
       });
     });
@@ -216,11 +228,13 @@ export const useYjsStore = create<YjsState & YjsActions>()((set, get) => ({
     set({ roomId, doc, provider, connected: false });
 
     // Seed Yjs with current local schema immediately
-    const { tables, relationships, allowGuestEdits } = useSchemaStore.getState();
+    const { tables, relationships, notes, groups, allowGuestEdits } = useSchemaStore.getState();
     if (tables.length > 0) {
       doc.transact(() => {
         ySchema.set('tables',        JSON.stringify(tables));
         ySchema.set('relationships', JSON.stringify(relationships));
+        ySchema.set('notes', JSON.stringify(notes));
+        ySchema.set('groups', JSON.stringify(groups));
         ySchema.set('allowGuestEdits', JSON.stringify(allowGuestEdits));
       });
     }

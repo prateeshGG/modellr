@@ -58,6 +58,13 @@ export default function App() {
             </div>
           ) : <Navigate to="/login" replace />
         } />
+        
+        {/* Stateless Shared Link Viewer */}
+        <Route path="/app/shared" element={
+          <div style={{ height: '100vh', width: '100vw', overflow: 'hidden', background: 'var(--canvas-bg)' }}>
+            <Editor isSharedView={true} />
+          </div>
+        } />
       </Routes>
     </BrowserRouter>
   );

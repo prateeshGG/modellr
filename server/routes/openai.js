@@ -68,7 +68,7 @@ router.post('/modify', async (req, res) => {
         }
       ],
       response_format: zodResponseFormat(AIResponseSchema, "schema_modifications"),
-      temperature: 0.1, // Highly deterministic
+      temperature: 0.1,
     });
 
     const parsedResult = completion.choices[0].message.parsed;
@@ -82,6 +82,112 @@ router.post('/modify', async (req, res) => {
   } catch (error) {
     console.error('[OpenAI Error]', error);
     res.status(500).json({ error: error.message || 'Unknown OpenAI proxy error' });
+  }
+});
+
+// ── Streaming chat proxy (for AI Suggest / field description) ──────────────
+router.post('/stream', async (req, res) => {
+  const apiKey = process.env.OPENAI_API_KEY;
+  if (!apiKey) return res.status(500).json({ error: 'OpenAI API key missing on server' });
+
+  const { messages, max_tokens = 800, temperature = 0.4 } = req.body;
+  if (!messages) return res.status(400).json({ error: 'Missing messages' });
+
+  try {
+    const upstream = await fetch('https://api.openai.com/v1/chat/completions', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        Authorization: `Bearer ${apiKey}`,
+      },
+      body: JSON.stringify({
+        model: 'gpt-4o-mini',
+        messages,
+        stream: true,
+        max_tokens,
+        temperature,
+      }),
+    });
+
+    if (!upstream.ok) {
+      const err = await upstream.json().catch(() => ({}));
+      return res.status(upstream.status).json({ error: err?.error?.message || 'OpenAI error' });
+    }
+
+    // Pipe the SSE stream directly to the client
+    res.setHeader('Content-Type', 'text/event-stream');
+    res.setHeader('Cache-Control', 'no-cache');
+    upstream.body.pipe(res);
+  } catch (error) {
+    console.error('[OpenAI Stream Error]', error);
+    res.status(500).json({ error: error.message || 'Proxy stream error' });
+  }
+});
+
+// ── JSON schema generation proxy ───────────────────────────────────────────
+router.post('/generate', async (req, res) => {
+  const apiKey = process.env.OPENAI_API_KEY;
+  if (!apiKey) return res.status(500).json({ error: 'OpenAI API key missing on server' });
+
+  const { prompt } = req.body;
+  if (!prompt) return res.status(400).json({ error: 'Missing prompt' });
+
+  try {
+    const upstream = await fetch('https://api.openai.com/v1/chat/completions', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        Authorization: `Bearer ${apiKey}`,
+      },
+      body: JSON.stringify({
+        model: 'gpt-4o-mini',
+        messages: [
+          {
+            role: 'system',
+            content: `You are a database schema designer. Given a description, output a JSON schema object.
+
+Rules:
+- Output ONLY valid JSON, no markdown, no explanation
+- Use snake_case for all table and field names
+- Include appropriate id field (bigserial PK) for each table
+- Include created_at (timestamptz) for important tables
+- Use realistic PostgreSQL types: text, varchar, integer, bigint, bigserial, boolean, timestamptz, numeric, jsonb, uuid
+- Infer foreign key relationships from context
+
+Output format:
+{
+  "tables": [
+    {
+      "name": "table_name",
+      "fields": [
+        { "name": "id", "type": "bigserial", "isPK": true, "nullable": false },
+        { "name": "field_name", "type": "text", "nullable": false }
+      ]
+    }
+  ],
+  "relationships": [
+    { "from": "orders", "fromField": "customer_id", "to": "customers", "toField": "id", "cardinality": "one-to-many" }
+  ]
+}`,
+          },
+          { role: 'user', content: `Design a database schema for: ${prompt}` },
+        ],
+        max_tokens: 1200,
+        temperature: 0.2,
+        response_format: { type: 'json_object' },
+      }),
+    });
+
+    if (!upstream.ok) {
+      const err = await upstream.json().catch(() => ({}));
+      return res.status(upstream.status).json({ error: err?.error?.message || 'OpenAI error' });
+    }
+
+    const data = await upstream.json();
+    res.json(data);
+  } catch (error) {
+    console.error('[OpenAI Generate Error]', error);
+    res.status(500).json({ error: error.message || 'Proxy generate error' });
   }
 });
 

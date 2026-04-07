@@ -6,6 +6,7 @@
  * Falls back to plain base64 for broad compatibility.
  */
 import { useEffect, useCallback } from 'react';
+import LZString from 'lz-string';
 import { useSchemaStore } from '../store/schema';
 import { useUIStore } from '../store/ui';
 
@@ -13,17 +14,17 @@ const PREFIX = '#/schema/';
 
 function encode(data: unknown): string {
   const json = JSON.stringify(data);
-  // btoa needs ASCII — use encodeURIComponent to handle Unicode
-  return btoa(unescape(encodeURIComponent(json)));
+  return LZString.compressToEncodedURIComponent(json);
 }
 
 function decode(b64: string): unknown {
-  return JSON.parse(decodeURIComponent(escape(atob(b64))));
+  const json = LZString.decompressFromEncodedURIComponent(b64);
+  return json ? JSON.parse(json) : null;
 }
 
 /** Copy the current schema as a shareable URL to the clipboard. */
 export function useShareLink() {
-  const { tables, relationships, projectName, importTables, setProjectName } = useSchemaStore();
+  const { tables, relationships, notes, groups, projectName, importTables, setProjectName } = useSchemaStore();
   const { showToast } = useUIStore() as any;
 
   // ── Decode from hash on first load ───────────────
@@ -36,15 +37,20 @@ export function useShareLink() {
       const data = decode(b64) as {
         tables: typeof tables;
         relationships: typeof relationships;
+        notes?: typeof notes;
+        groups?: typeof groups;
         projectName?: string;
       };
 
-      if (Array.isArray(data.tables)) {
-        importTables(data.tables, data.relationships ?? []);
+      if (data && Array.isArray(data.tables)) {
+        importTables(data.tables, data.relationships ?? [], data.notes, data.groups);
         if (data.projectName) setProjectName(data.projectName);
         // Clear hash after loading so undo/redo doesn't re-import
         history.replaceState(null, '', window.location.pathname + window.location.search);
-        (showToast as any)?.('Schema loaded from share link', 'success');
+        (showToast as any)?.('Schema loaded from stateless share link', 'success');
+        
+        // Force read-only mode for hash links
+        useUIStore.getState().setReadOnly(true);
       }
     } catch {
       // Malformed hash — just ignore
@@ -55,15 +61,16 @@ export function useShareLink() {
   // ── Generate and copy share URL ──────────────────
   const copyShareLink = useCallback(async () => {
     try {
-      const payload = { tables, relationships, projectName };
+      const payload = { tables, relationships, notes, groups, projectName };
       const b64 = encode(payload);
-      const url = `${window.location.origin}${window.location.pathname}${PREFIX}${b64}`;
+      // Always point to /app/shared so we don't accidentally embed the current collaborative room ID
+      const url = `${window.location.origin}/app/shared${PREFIX}${b64}`;
       await navigator.clipboard.writeText(url);
-      (showToast as any)?.('Share link copied to clipboard!', 'success');
+      (showToast as any)?.('Stateless Share link copied to clipboard!', 'success');
     } catch {
       (showToast as any)?.('Failed to copy share link', 'error');
     }
-  }, [tables, relationships, projectName, showToast]);
+  }, [tables, relationships, notes, groups, projectName, showToast]);
 
   return { copyShareLink };
 }
