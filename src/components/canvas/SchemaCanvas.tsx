@@ -105,7 +105,7 @@ function relationshipToEdge(rel: Relationship, positions: PositionMap): Edge {
 function CanvasInner() {
   const { tables, relationships, notes, groups, addRelationship, moveTable, removeTable, addNote, updateNote, addGroup, updateGroup, updateTable } = useSchemaStore();
   const { setZoom, zoom, density, showToast, setSelection, clearSelection, readOnly } = useUIStore() as any;
-  const { screenToFlowPosition, fitView, setViewport, getViewport, getIntersectingNodes, getNode } = useReactFlow();
+  const { screenToFlowPosition, fitView, setViewport, getViewport, getIntersectingNodes } = useReactFlow();
   const isRunningLayout = useRef(false);
 
   // Combine tables, notes, and groups into a single nodes array

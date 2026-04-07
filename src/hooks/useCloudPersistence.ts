@@ -45,7 +45,7 @@ export function useCloudPersistence(isSandbox: boolean = false) {
         store.setAllowGuestEdits(allowGuests);
         
         if (Array.isArray(state.tables)) {
-          store.importTables(state.tables, state.relationships || [], allowGuests);
+          store.importTables(state.tables, state.relationships || []);
         }
       }
     }

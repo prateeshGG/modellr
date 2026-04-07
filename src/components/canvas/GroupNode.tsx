@@ -8,12 +8,13 @@ import type { AccentColor } from '../../types/schema';
 import { ACCENT_HEX } from '../../utils/constants';
 import './GroupNode.css';
 
-export default function GroupNode({ id, data, selected }: NodeProps) {
+export default function GroupNode({ id, data: rawData, selected }: NodeProps) {
+  const data = rawData as any;
   const readOnly = useUIStore(s => s.readOnly);
   const updateGroup = useSchemaStore(s => s.updateGroup);
   const removeGroup = useSchemaStore(s => s.removeGroup);
 
-  const [name, setName] = useState(data.name);
+  const [name, setName] = useState<string>(data.name ?? '');
   const [isEditing, setIsEditing] = useState(false);
 
   useEffect(() => {

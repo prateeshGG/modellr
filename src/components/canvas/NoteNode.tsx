@@ -18,13 +18,14 @@ const NOTE_COLORS: Record<AccentColor, { bg: string, border: string, text: strin
   gray: { bg: '#f3f4f6', border: '#d1d5db', text: '#374151' },
 };
 
-export default function NoteNode({ id, data, selected }: NodeProps) {
+export default function NoteNode({ id, data: rawData, selected }: NodeProps) {
+  const data = rawData as any;
   const readOnly = useUIStore(s => s.readOnly);
   const updateNote = useSchemaStore(s => s.updateNote);
   const removeNote = useSchemaStore(s => s.removeNote);
 
   // Local state for snappy typing without debouncing the global Yjs store on every keystroke
-  const [content, setContent] = useState(data.content);
+  const [content, setContent] = useState<string>(data.content ?? '');
 
   useEffect(() => {
     setContent(data.content);
