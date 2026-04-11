@@ -5,6 +5,7 @@ import { defaultKeymap, history, historyKeymap } from '@codemirror/commands';
 import { sql } from '@codemirror/lang-sql';
 import { syntaxHighlighting, defaultHighlightStyle, bracketMatching } from '@codemirror/language';
 import { closeBrackets } from '@codemirror/autocomplete';
+import { useUIStore } from '../../store/ui';
 import './CodeEditor.css';
 
 interface CodeEditorProps {
@@ -13,7 +14,6 @@ interface CodeEditorProps {
   readOnly?: boolean;
 }
 
-const themeCompartment = new Compartment();
 
 function buildTheme(isDark: boolean) {
   return EditorView.theme(
@@ -75,7 +75,11 @@ export const CodeEditor: React.FC<CodeEditorProps> = ({
 }) => {
   const containerRef = useRef<HTMLDivElement>(null);
   const viewRef = useRef<EditorView | null>(null);
-  const isDark = document.documentElement.getAttribute('data-theme') !== 'light';
+  // Fix #41: scope the compartment per-instance instead of module-level singleton
+  const themeCompartmentRef = useRef(new Compartment());
+  // Fix #41: read isDark reactively from the store (not a one-time DOM snapshot)
+  const theme = useUIStore((s) => s.theme);
+  const isDark = theme !== 'light';
 
   const extensions = useMemo(() => [
     lineNumbers(),
@@ -87,7 +91,7 @@ export const CodeEditor: React.FC<CodeEditorProps> = ({
     syntaxHighlighting(defaultHighlightStyle),
     keymap.of([...defaultKeymap, ...historyKeymap]),
     sql(),
-    themeCompartment.of(buildTheme(isDark)),
+    themeCompartmentRef.current.of(buildTheme(isDark)),
     EditorView.editable.of(!readOnly),
     EditorView.lineWrapping,
     EditorView.updateListener.of((update) => {
@@ -123,6 +127,15 @@ export const CodeEditor: React.FC<CodeEditorProps> = ({
       changes: { from: 0, to: currentValue.length, insert: value },
     });
   }, [value]);
+
+  // Fix #41: reconfigure theme via Compartment when the user toggles dark/light mode
+  useEffect(() => {
+    const view = viewRef.current;
+    if (!view) return;
+    view.dispatch({
+      effects: themeCompartmentRef.current.reconfigure(buildTheme(isDark)),
+    });
+  }, [isDark]);
 
   return (
     <div

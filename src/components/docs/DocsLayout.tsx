@@ -10,24 +10,25 @@ export const DocsLayout: React.FC<DocsLayoutProps> = ({ currentArticle, onSelect
 
   const navGroups = [
     {
-      title: 'Introduction',
+      title: 'Documentation',
       items: [
-        { id: 'intro', label: 'Welcome to SchemaForge' },
-        { id: 'normalization', label: 'Normalization 101' },
-        { id: 'canvas', label: 'The Visual Editor' },
-        { id: 'relationships', label: 'Understanding Relationships' },
+        { id: 'getting-started', label: 'Getting Started' },
+        { id: 'ai-usage', label: 'AI Usage' },
       ],
     },
     {
-      title: 'Professional Sync',
+      title: 'Exports',
       items: [
-        { id: 'mcp', label: 'MCP & IDE Connection' },
+        { id: 'export-prisma', label: 'Prisma' },
+        { id: 'export-drizzle', label: 'Drizzle' },
+        { id: 'export-sql', label: 'SQL / DBML' },
       ],
     },
     {
-      title: 'Collaboration & Porting',
+      title: 'Resources',
       items: [
-        { id: 'export', label: 'SQL & Prisma Exports' },
+        { id: 'examples', label: 'Examples' },
+        { id: 'notes', label: 'Notes & Limitations' },
       ],
     },
   ];
@@ -35,8 +36,11 @@ export const DocsLayout: React.FC<DocsLayoutProps> = ({ currentArticle, onSelect
   return (
     <div className="docs-container">
       <aside className="docs-sidebar">
-        <div className="docs-logo" style={{ fontSize: '18px', color: 'var(--text-primary)' }}>
+        <div className="docs-logo" style={{ fontSize: '18px', color: 'var(--text-primary)', marginBottom: '8px' }}>
           Documentation
+        </div>
+        <div style={{ color: 'var(--text-secondary)', fontSize: '12px', marginBottom: '32px', lineHeight: 1.4 }}>
+          Learn how to design, generate, and export database schemas.
         </div>
 
         <nav>

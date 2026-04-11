@@ -34,7 +34,7 @@
 .app-logo-icon {
   width: 28px;
   height: 28px;
-  background: rgb(162, 107, 252);
+  background: var(--brand);
   border-radius: 8px;
   display: flex;
   align-items: center;

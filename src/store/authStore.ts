@@ -6,6 +6,7 @@ interface AuthState {
   user: User | null;
   session: Session | null;
   isLoading: boolean;
+  ensureProfile: (user: User) => Promise<void>;  // Fix #52: was missing from interface
   initialize: () => void;
   signOut: () => Promise<void>;
 }
@@ -36,27 +37,23 @@ export const useAuthStore = create<AuthState>((set, get) => ({
   },
 
   initialize: async () => {
-    const { data: { session } } = await supabase.auth.getSession();
-    
-    if (session?.user) {
-      await (get() as any).ensureProfile(session.user);
+    try {
+      const { data: { session } } = await supabase.auth.getSession();
+      if (session?.user) {
+        await get().ensureProfile(session.user);
+      }
+      set({ session, user: session?.user || null, isLoading: false });
+    } catch {
+      // Fix #35: always clear loading state so the app doesn't get stuck
+      set({ session: null, user: null, isLoading: false });
     }
-    
-    set({
-      session,
-      user: session?.user || null,
-      isLoading: false
-    });
 
-    // Listen for auth changes (login, logout, refresh)
+    // Listen for auth changes (login, logout, token refresh)
     supabase.auth.onAuthStateChange(async (_event, newSession) => {
       if (newSession?.user) {
-        await (get() as any).ensureProfile(newSession.user);
+        await get().ensureProfile(newSession.user);
       }
-      set({
-        session: newSession,
-        user: newSession?.user || null,
-      });
+      set({ session: newSession, user: newSession?.user || null });
     });
   },
 

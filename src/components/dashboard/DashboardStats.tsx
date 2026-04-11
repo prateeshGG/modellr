@@ -25,7 +25,7 @@ export const DashboardStats: React.FC<DashboardStatsProps> = ({ schemas, limit }
       </div>
       <div className="stat-card">
         <div className="stat-label">Total Tables</div>
-        <div className="stat-value" style={{ color: 'rgb(162, 107, 252)' }}>{totalTables}</div>
+        <div className="stat-value" style={{ color: 'var(--brand)' }}>{totalTables}</div>
       </div>
       <div className="stat-card">
         <div className="stat-label">Collaborators</div>

@@ -7,8 +7,11 @@ export const Toast: React.FC = () => {
 
   if (!toastMessage) return null;
 
+  // Fix #36: errors use assertive so screen readers announce them immediately
+  const ariaLive = toastType === 'error' ? 'assertive' : 'polite';
+
   return (
-    <div className={`toast toast--${toastType}`} role="status" aria-live="polite">
+    <div className={`toast toast--${toastType}`} role="status" aria-live={ariaLive} aria-atomic="true">
       <span className="toast__icon">
         {toastType === 'success' ? '✓' : toastType === 'error' ? '✕' : 'ℹ'}
       </span>

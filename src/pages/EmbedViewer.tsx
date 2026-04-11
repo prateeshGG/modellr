@@ -41,7 +41,13 @@ export default function EmbedViewer() {
       if (data.canvas_state) {
         const state = typeof data.canvas_state === 'string' ? JSON.parse(data.canvas_state) : data.canvas_state;
         if (state && Array.isArray(state.tables)) {
-          importTables(state.tables, state.relationships || []);
+          // Fix #5: pass notes and groups so they appear in embedded view
+          importTables(
+            state.tables,
+            state.relationships || [],
+            Array.isArray(state.notes)  ? state.notes  : [],
+            Array.isArray(state.groups) ? state.groups : []
+          );
         }
       }
       
@@ -78,7 +84,7 @@ export default function EmbedViewer() {
       <SchemaCanvas />
       {/* Branding overlay for viral growth! */}
       <a 
-        href="https://schemaforge.io" 
+        href={window.location.origin}
         target="_blank" 
         rel="noopener noreferrer" 
         style={{
@@ -100,7 +106,7 @@ export default function EmbedViewer() {
           zIndex: 1000
         }}
       >
-        <div style={{ width: '16px', height: '16px', background: 'rgb(162, 107, 252)', borderRadius: '4px', display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#fff', fontSize: '8px' }}>SF</div>
+        <div style={{ width: '16px', height: '16px', background: 'var(--brand)', borderRadius: '4px', display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#fff', fontSize: '8px' }}>SF</div>
         Powered by SchemaForge
       </a>
     </div>

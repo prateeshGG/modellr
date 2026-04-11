@@ -10,7 +10,7 @@ export function Privacy() {
 
       <div style={{ maxWidth: '800px', margin: '0 auto', padding: '64px 20px', flex: 1, lineHeight: 1.8 }}>
         <h1 style={{ fontSize: '40px', fontWeight: 800, marginBottom: '16px' }}>Privacy Policy</h1>
-        <p style={{ color: 'var(--text-secondary)', marginBottom: '48px' }}>Last updated: {new Date().toLocaleDateString()}</p>
+        <p style={{ color: 'var(--text-secondary)', marginBottom: '48px' }}>Last updated: January 1, 2025</p>
 
         <section style={{ marginBottom: '40px' }}>
           <h2 style={{ fontSize: '24px', fontWeight: 700, marginBottom: '16px' }}>1. Information We Collect</h2>

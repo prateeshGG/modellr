@@ -1,5 +1,5 @@
 import ELK from 'elkjs/lib/elk.bundled.js';
-import type { Table, Relationship } from '../types/schema';
+import type { Table, Relationship, Density } from '../types/schema';
 
 const elk = new ELK();
 
@@ -12,17 +12,17 @@ interface LayoutNode {
 }
 
 /** Estimate node height based on field count and density */
-function estimateNodeHeight(table: Table, density: 'comfortable' | 'compact'): number {
+function estimateNodeHeight(table: Table, density: Density): number {
   const headerH = 40;
   const footerH = 28 + 24; // add-field + ai-chip
-  const fieldH = density === 'compact' ? 28 : 32;
+  const fieldH = density === 'compact' ? 28 : (density === 'spacious' ? 36 : 32); 
   return headerH + table.fields.length * fieldH + footerH;
 }
 
 export async function autoLayout(
   tables: Table[],
   relationships: Relationship[],
-  density: 'comfortable' | 'compact' = 'comfortable'
+  density: Density = 'comfortable'
 ): Promise<Map<string, { x: number; y: number }>> {
   const nodeWidth = 240;
 

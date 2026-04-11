@@ -1,11 +1,11 @@
 const NULLABLE = (nullable) => (nullable ? '' : ' NOT NULL');
-const UNIQUE = (unique) => (unique ? ' UNIQUE' : '');
-const DEFAULT = (def) => (def ? ` DEFAULT ${def}` : '');
-const CHECK = (check) => (check ? ` CHECK (${check})` : '');
+const UNIQUE   = (unique)   => (unique   ? ' UNIQUE' : '');
+const DEFAULT  = (def)      => (def      ? ` DEFAULT ${def}` : '');
+const CHECK    = (check)    => (check    ? ` CHECK (${check})` : '');
 
 function fieldDDL(f) {
   const pk = f.isPK ? ' PRIMARY KEY' : '';
-  return `  "${f.name}" ${f.type}${NULLABLE(f.nullable)}${UNIQUE(f.unique)}$ DEFAULT(f.default)}${CHECK(f.check)}${pk}`;
+  return `  "${f.name}" ${f.type}${NULLABLE(f.nullable)}${UNIQUE(f.unique)}${DEFAULT(f.default)}${CHECK(f.check)}${pk}`;
 }
 
 export function generatePostgresSQL(tables, relationships) {

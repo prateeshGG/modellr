@@ -20,6 +20,7 @@ export function Dashboard() {
   
   const [schemas, setSchemas] = useState<any[]>([]);
   const [searchQuery, setSearchQuery] = useState('');
+  const [isLoadingSchemas, setIsLoadingSchemas] = useState(true);  // Fix #59
   
   const [showClaimModal, setShowClaimModal] = useState(false);
   const [sandboxData, setSandboxData] = useState<any>(null);
@@ -27,13 +28,15 @@ export function Dashboard() {
   // 1. Load Schemas
   useEffect(() => {
     async function loadSchemas() {
-      if (!session?.user?.id) return;
+      if (!session?.user?.id) { setIsLoadingSchemas(false); return; }
+      setIsLoadingSchemas(true);
       const { data } = await supabase
         .from('schemas')
         .select('*')
         .order('updated_at', { ascending: false });
-        
+
       if (data) setSchemas(data);
+      setIsLoadingSchemas(false);
     }
     loadSchemas();
   }, [session]);
@@ -112,19 +115,32 @@ export function Dashboard() {
       type: 'confirm',
       onConfirm: async () => {
         await supabase.from('schemas').delete().eq('id', id);
-        setSchemas(schemas.filter(s => s.id !== id));
+        // Fix #29: use functional updater to avoid stale closure
+        setSchemas((prev) => prev.filter((s) => s.id !== id));
       }
     });
   };
 
   const handleClaimSandbox = async () => {
     if (!session?.user?.id || !sandboxData) return;
+
+    // Fix #28: sandbox claim must respect the free tier limit like all other creates
+    if (schemas.length >= FREE_TIER_LIMIT) {
+      useUIStore.getState().showToast(
+        `You've reached the ${FREE_TIER_LIMIT}-schema free tier limit. Upgrade to Pro to save this sandbox.`,
+        'error'
+      );
+      setShowClaimModal(false);
+      return;
+    }
+
     const { data } = await supabase
       .from('schemas')
       .insert([{ owner_id: session.user.id, name: 'Saved Sandbox', canvas_state: sandboxData }])
       .select().single();
     if (data) {
       localStorage.removeItem('sandbox_schema');
+      setSchemas((prev) => [data, ...prev]);
       navigate(`/app/${data.id}`);
     }
   };
@@ -149,7 +165,7 @@ export function Dashboard() {
 
         {/* Pro Up-sell banner */}
         {limitReached && (
-          <div className="pro-banner" style={{ background: 'var(--surface-base)', padding: '24px', borderRadius: '16px', border: '1px solid rgb(162, 107, 252)', display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '40px' }}>
+          <div className="pro-banner" style={{ background: 'var(--surface-base)', padding: '24px', borderRadius: '16px', border: '1px solid var(--brand)', display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '40px' }}>
             <div>
               <h3 style={{ margin: 0, fontSize: '16px', fontWeight: 600 }}>Unlock unlimited projects</h3>
               <p style={{ margin: '4px 0 0 0', fontSize: '14px', color: 'var(--text-secondary)' }}>You've reached the free tier limit of 3 schemas. Upgrade to Pro for unlimited canvases.</p>
@@ -164,23 +180,30 @@ export function Dashboard() {
             <div style={{ fontSize: '12px', color: 'var(--text-muted)' }}>{filteredSchemas.length} projects found</div>
           </div>
 
-          <div className="projects-grid">
-            {filteredSchemas.map(schema => (
-              <ProjectCard 
-                key={schema.id} 
-                schema={schema}
-                onDuplicate={handleDuplicate}
-                onExport={handleExport}
-                onDelete={handleDelete}
-              />
-            ))}
-
-            <div className="create-card" onClick={() => handleCreateNew()}>
-              <div className="create-icon">+</div>
-              <div style={{ fontWeight: 600, color: 'var(--text-primary)', marginBottom: '4px' }}>New Design</div>
-              <div style={{ fontSize: '13px', color: 'var(--text-muted)' }}>Start from scratch</div>
+          {/* Fix #59: show loading indicator instead of flashing empty state */}
+          {isLoadingSchemas ? (
+            <div style={{ padding: '48px', textAlign: 'center', color: 'var(--text-muted)', fontSize: '14px' }}>
+              Loading your schemas…
             </div>
-          </div>
+          ) : (
+            <div className="projects-grid">
+              {filteredSchemas.map(schema => (
+                <ProjectCard 
+                  key={schema.id} 
+                  schema={schema}
+                  onDuplicate={handleDuplicate}
+                  onExport={handleExport}
+                  onDelete={handleDelete}
+                />
+              ))}
+
+              <div className="create-card" onClick={() => handleCreateNew()}>
+                <div className="create-icon">+</div>
+                <div style={{ fontWeight: 600, color: 'var(--text-primary)', marginBottom: '4px' }}>New Design</div>
+                <div style={{ fontSize: '13px', color: 'var(--text-muted)' }}>Start from scratch</div>
+              </div>
+            </div>
+          )}
         </div>
 
         {/* Template Gallery Quick-picks */}

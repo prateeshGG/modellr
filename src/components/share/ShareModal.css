@@ -78,8 +78,8 @@
 }
 
 .share-modal__tab.active {
-  color: rgb(162, 107, 252);
-  border-bottom-color: rgb(162, 107, 252);
+  color: var(--brand);
+  border-bottom-color: var(--brand);
   background: var(--surface-base);
 }
 
@@ -187,13 +187,13 @@
 }
 
 input:checked + .toggle-slider {
-  background-color: rgba(162, 107, 252, 0.2);
-  border-color: rgb(162, 107, 252);
+  background-color: rgba(var(--brand-rgb), 0.2);
+  border-color: var(--brand);
 }
 
 input:checked + .toggle-slider:before {
   transform: translateX(18px);
-  background-color: rgb(162, 107, 252);
+  background-color: var(--brand);
 }
 
 input:disabled + .toggle-slider {
@@ -233,13 +233,13 @@ input:disabled + .toggle-slider {
 
 .share-modal__textarea:focus {
   outline: none;
-  border-color: rgb(162, 107, 252);
+  border-color: var(--brand);
 }
 
 .share-modal__btn-primary {
   width: 100%;
   padding: 12px;
-  background: rgb(162, 107, 252);
+  background: var(--brand);
   color: white;
   border: none;
   border-radius: 8px;

@@ -15,6 +15,16 @@ import { Privacy } from './pages/Privacy';
 import { Terms } from './pages/Terms';
 import { Features } from './pages/Features';
 import { PublicTemplates } from './pages/PublicTemplates';
+import { SaasSchema } from './pages/use-cases/SaasSchema';
+import { EcommerceSchema } from './pages/use-cases/EcommerceSchema';
+import { AuthSchema } from './pages/use-cases/AuthSchema';
+import { DbdiagramCompare } from './pages/compare/DbdiagramCompare';
+import { DrawsqlCompare } from './pages/compare/DrawsqlCompare';
+import { CompareIndex } from './pages/compare/CompareIndex';
+import { About } from './pages/About';
+import { Contact } from './pages/Contact';
+import { BlogIndex } from './pages/BlogIndex';
+import { BlogPost } from './pages/BlogPost';
 import { AppLayout } from './components/layout/AppLayout';
 import { DialogModal } from './components/shared/DialogModal';
 
@@ -38,6 +48,16 @@ export default function App() {
         <Route path="/pricing" element={<Pricing />} />
         <Route path="/features" element={<Features />} />
         <Route path="/templates" element={<PublicTemplates />} />
+        <Route path="/use-cases/saas-database-schema" element={<SaasSchema />} />
+        <Route path="/use-cases/ecommerce-schema" element={<EcommerceSchema />} />
+        <Route path="/use-cases/auth-schema" element={<AuthSchema />} />
+        <Route path="/compare" element={<CompareIndex />} />
+        <Route path="/compare/dbdiagram" element={<DbdiagramCompare />} />
+        <Route path="/compare/drawsql" element={<DrawsqlCompare />} />
+        <Route path="/about" element={<About />} />
+        <Route path="/contact" element={<Contact />} />
+        <Route path="/blog" element={<BlogIndex />} />
+        <Route path="/blog/:id" element={<BlogPost />} />
         <Route path="/privacy" element={<Privacy />} />
         <Route path="/terms" element={<Terms />} />
         <Route path="/docs" element={<Docs />} />

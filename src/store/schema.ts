@@ -239,7 +239,7 @@ export const createSchemaLogic = (set: any, _get: any): SchemaStore => ({
           id,
           content: '',
           position,
-          color: 'yellow' as AccentColor,
+          color: 'amber' as AccentColor,  // Fix #39/#66: 'yellow' is not in AccentColor; 'amber' is the intended warm default
           width: 200,
           height: 150
         }

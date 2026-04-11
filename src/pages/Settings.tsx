@@ -51,7 +51,8 @@ export function Settings() {
       if (!res.ok) throw new Error(data.error);
       setApiKeys(data);
     } catch (err: any) {
-      console.error(err);
+      // Fix #11: surface failure as a toast instead of silently logging
+      setToast('Failed to load API keys: ' + (err?.message || 'Unknown error'), 'error');
     } finally {
       setLoadingKeys(false);
     }
@@ -140,9 +141,9 @@ export function Settings() {
         
         {/* Sidebar */}
         <aside style={{ width: '240px', display: 'flex', flexDirection: 'column', gap: '8px' }}>
-          <div onClick={() => setActiveTab('profile')} style={navItemStyle('profile')}>Profile</div>
+          <div onClick={() => { setActiveTab('profile'); setNewlyGeneratedKey(null); }} style={navItemStyle('profile')}>Profile</div>
           <div style={{ padding: '8px 16px', borderRadius: '8px', color: 'var(--text-muted)', fontSize: '14px', cursor: 'not-allowed' }}>Billing (Coming Soon)</div>
-          <div onClick={() => setActiveTab('api')} style={navItemStyle('api')}>Developer API</div>
+          <div onClick={() => { setActiveTab('api'); setNewlyGeneratedKey(null); }} style={navItemStyle('api')}>Developer API</div>
           <div style={{ padding: '8px 16px', borderRadius: '8px', color: 'var(--text-muted)', fontSize: '14px', cursor: 'not-allowed' }}>Notifications (Coming Soon)</div>
         </aside>
 
@@ -152,11 +153,11 @@ export function Settings() {
           {activeTab === 'api' && (
             <>
               <h1 style={{ fontSize: '20px', fontWeight: 600, margin: '0 0 32px 0' }}>Developer API & MCP Access</h1>
-              <div style={{ background: 'var(--surface-base)', border: '1px solid rgb(162, 107, 252)', borderRadius: '12px', padding: '24px', marginBottom: '40px', position: 'relative' }}>
+              <div style={{ background: 'var(--surface-base)', border: '1px solid var(--brand)', borderRadius: '12px', padding: '24px', marginBottom: '40px', position: 'relative' }}>
                 <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '16px', justifyContent: 'space-between' }}>
                   <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
                     <div style={{ fontWeight: 600, fontSize: '14px' }}>MCP Server Configuration</div>
-                    <div style={{ background: 'rgba(162, 107, 252, 0.1)', color: 'rgb(162, 107, 252)', fontSize: '10px', fontWeight: 700, padding: '2px 8px', borderRadius: '12px', letterSpacing: '0.05em' }}>Phase 5</div>
+                    {/* Fix #91: removed stale 'Phase 5' label — MCP is fully live */}
                   </div>
                   <div style={{ display: 'flex', gap: '8px', alignItems: 'center' }}>
                     <input 
@@ -168,7 +169,7 @@ export function Settings() {
                     />
                     <button 
                       onClick={handleGenerateKey}
-                      style={{ background: 'rgb(162, 107, 252)', color: 'white', border: 'none', padding: '6px 14px', borderRadius: '6px', fontSize: '12px', fontWeight: 600, cursor: 'pointer' }}>
+                      style={{ background: 'var(--brand)', color: 'white', border: 'none', padding: '6px 14px', borderRadius: '6px', fontSize: '12px', fontWeight: 600, cursor: 'pointer' }}>
                       + Generate New Key
                     </button>
                   </div>
@@ -225,9 +226,10 @@ export function Settings() {
                     <span style={{ color: 'var(--text-secondary)' }}># Add this to your Cursor / Windsurf settings (mcp.json):</span><br/>
                     {`"mcpServers": {`}<br/>
                     &nbsp;&nbsp;{`"schemaforge": {`} <br/>
-                    &nbsp;&nbsp;&nbsp;&nbsp;{`"command": "node",`}<br/>
-                    &nbsp;&nbsp;&nbsp;&nbsp;{`"args": ["C:/Web Development/SchemaForge/mcp-server/index.js"],`}<br/>
-                    &nbsp;&nbsp;&nbsp;&nbsp;{`"env": { "SCHEMA_FORGE_TOKEN": "YOUR_RAW_KEY_HERE" }`}<br/>
+                    &nbsp;&nbsp;&nbsp;&nbsp;{`"command": "npx",`}<br/>
+                    {/* Fix #12: use npx with the published package, not a hardcoded local dev path */}
+                    &nbsp;&nbsp;&nbsp;&nbsp;{`"args": ["schemaforge-mcp"],`}<br/>
+                    &nbsp;&nbsp;&nbsp;&nbsp;{`"env": { "SCHEMA_FORGE_TOKEN": "YOUR_RAW_KEY_HERE", "SCHEMA_FORGE_URL": "${window.location.origin}" }`}<br/>
                     &nbsp;&nbsp;{`}`}<br/>
                     {`}`}
                   </div>
@@ -240,7 +242,8 @@ export function Settings() {
             <>
               <h1 style={{ fontSize: '20px', fontWeight: 600, margin: '0 0 32px 0' }}>Profile Settings</h1>
               
-              <div style={{ display: 'flex', flexDirection: 'column', gap: '24px', marginBottom: '48px', maxWidth: '400px' }}>
+              {/* Fix #61: wrap profile fields in a form so Enter key submits */}
+              <form onSubmit={(e) => { e.preventDefault(); handleSaveProfile(); }} style={{ display: 'flex', flexDirection: 'column', gap: '24px', marginBottom: '48px', maxWidth: '400px' }}>
                 <div>
                   <label style={{ display: 'block', fontSize: '11px', fontWeight: 700, letterSpacing: '0.05em', color: 'var(--text-muted)', marginBottom: '8px', textTransform: 'uppercase' }}>Display Name</label>
                   <input 
@@ -256,12 +259,12 @@ export function Settings() {
                   <input type="email" defaultValue={session?.user?.email || ''} readOnly style={{ width: '100%', background: 'var(--surface-base)', border: '1px solid var(--border-subtle)', borderRadius: '8px', padding: '12px', color: 'var(--text-secondary)', fontSize: '14px', outline: 'none', opacity: 0.7 }} />
                 </div>
                 <div style={{ display: 'flex', gap: '12px' }}>
-                  <button onClick={handleSaveProfile} disabled={isSaving} style={{ padding: '10px 20px', background: 'var(--text-primary)', color: 'var(--canvas-bg)', border: 'none', borderRadius: '8px', fontWeight: 600, cursor: isSaving ? 'not-allowed' : 'pointer', fontSize: '13px', opacity: isSaving ? 0.7 : 1 }}>
+                  <button type="submit" disabled={isSaving} style={{ padding: '10px 20px', background: 'var(--text-primary)', color: 'var(--canvas-bg)', border: 'none', borderRadius: '8px', fontWeight: 600, cursor: isSaving ? 'not-allowed' : 'pointer', fontSize: '13px', opacity: isSaving ? 0.7 : 1 }}>
                     {isSaving ? 'Saving...' : 'Save changes'}
                   </button>
-                  <button onClick={() => setDisplayName(session?.user?.user_metadata?.display_name || '')} style={{ padding: '10px 20px', background: 'transparent', color: 'var(--text-secondary)', border: '1px solid var(--border-subtle)', borderRadius: '8px', fontWeight: 600, cursor: 'pointer', fontSize: '13px' }}>Cancel</button>
+                  <button type="button" onClick={() => setDisplayName(session?.user?.user_metadata?.display_name || '')} style={{ padding: '10px 20px', background: 'transparent', color: 'var(--text-secondary)', border: '1px solid var(--border-subtle)', borderRadius: '8px', fontWeight: 600, cursor: 'pointer', fontSize: '13px' }}>Cancel</button>
                 </div>
-              </div>
+              </form>
 
               <div>
                 <div style={{ fontSize: '12px', fontWeight: 600, color: 'var(--alert-error)', marginBottom: '16px' }}>Danger zone</div>

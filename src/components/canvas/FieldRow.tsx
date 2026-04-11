@@ -11,7 +11,7 @@ interface FieldRowProps {
   tableId: string;
   field: Field;
   index: number;
-  totalFields: number;
+  // Fix #63: removed unused 'totalFields' prop
   onDragStart: (index: number) => void;
   onDragOver: (index: number) => void;
   onDrop: () => void;

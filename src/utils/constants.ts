@@ -57,3 +57,13 @@ export const CANVAS_SNAP_GRID: [number, number] = [8, 8];
 export const PILL_NODE_ZOOM_THRESHOLD = 0.0; // disabled per user feedback: tables remain fully expanded at all zooms
 export const MAX_UNDO_STEPS = 50;
 export const MAX_SNAPSHOTS = 50;
+
+// Fix #75/#76: shared TEMPLATE_CATEGORIES used by TemplatesPage and PublicTemplates
+// Previously each file defined its own inline copy; this is the single source of truth.
+export const TEMPLATE_CATEGORIES = [
+  { id: 'all',       label: 'All Templates' },
+  { id: 'saas',      label: 'SaaS & Metrics' },
+  { id: 'ecommerce', label: 'E-commerce' },
+  { id: 'cms',       label: 'CMS & Blogs' },
+  { id: 'auth',      label: 'Auth & Social' },
+] as const;

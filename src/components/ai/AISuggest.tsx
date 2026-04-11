@@ -5,17 +5,11 @@ import type { AIStatus } from '../../hooks/useAI';
 import { generateSchemaFromPrompt } from '../../hooks/useAI';
 import './AISuggest.css';
 
-function getKey(): string {
-  return (import.meta as any).env?.VITE_OPENAI_API_KEY ?? '';
+// Fix #6: always route AI calls through backend proxy — API key lives on EC2, never in the browser.
+// VITE_API_URL is set in production; falls back to '' (relative) in dev where Vite proxies /api/*.
+function getBackendBase(): string {
+  return (import.meta as any).env?.VITE_API_URL ?? '';
 }
-
-function getEndpoint(): string {
-  const isDev = (import.meta as any).env?.DEV;
-  return isDev
-    ? '/api/openai/v1/chat/completions'
-    : 'https://api.openai.com/v1/chat/completions';
-}
-
 
 function tableToText(table: Table): string {
   return `Table "${table.name}" (${table.fields
@@ -54,23 +48,14 @@ export const AISuggestPanel: React.FC<AISuggestPanelProps> = ({ table, onClose }
       }).join('\n')}`
       : '';
 
-    const key = getKey();
-    if (!key) {
-      setError('No API key found. Add VITE_OPENAI_API_KEY to your .env file.');
-      setStatus('error');
-      return;
-    }
 
     try {
-      const res = await fetch(getEndpoint(), {
+      // Fix #6: use backend proxy endpoint instead of api.openai.com directly
+      const res = await fetch(`${getBackendBase()}/api/openai/stream`, {
         method: 'POST',
         signal: ctrl.signal,
-        headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${key}` },
+        headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
-          model: 'gpt-4o-mini',
-          stream: true,
-          max_tokens: 800,
-          temperature: 0.4,
           messages: [
             {
               role: 'system',
@@ -87,6 +72,8 @@ Keep each point to 1-2 sentences. Be direct and practical.`,
               content: `Full schema:\n${context}${relContext}\n\nAnalyze this table:\n${tableToText(table)}`,
             },
           ],
+          max_tokens: 800,
+          temperature: 0.4,
         }),
       });
 

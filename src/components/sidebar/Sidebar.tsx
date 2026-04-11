@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useSchemaStore } from '../../store/schema';
 import { useUIStore } from '../../store/ui';
 import { useHistoryStore } from '../../store/history';
@@ -12,11 +12,29 @@ interface SidebarProps {
 
 export const Sidebar: React.FC<SidebarProps> = ({ isHost = false }) => {
   const { tables, addTable, importTables } = useSchemaStore();
-  const { sidebarOpen, setSelection, readOnly } = useUIStore();
+  const { sidebarOpen, setSelection, readOnly, setSidebarOpen } = useUIStore();
   const { snapshots, createSnapshot, restoreSnapshot } = useHistoryStore();
   const [filter, setFilter] = useState('');
   const [historyOpen, setHistoryOpen] = useState(false);
   const [templatesOpen, setTemplatesOpen] = useState(false);
+
+  // Fix #19: handle sf:focus-filter — open sidebar first if it's collapsed,
+  // then focus the filter input once the DOM has updated.
+  useEffect(() => {
+    const handler = () => {
+      if (!sidebarOpen) {
+        setSidebarOpen(true);
+        // Wait one frame for the sidebar to render the input before focusing
+        setTimeout(() => {
+          document.querySelector<HTMLInputElement>('.sidebar__filter')?.focus();
+        }, 50);
+      } else {
+        document.querySelector<HTMLInputElement>('.sidebar__filter')?.focus();
+      }
+    };
+    window.addEventListener('sf:focus-filter', handler);
+    return () => window.removeEventListener('sf:focus-filter', handler);
+  }, [sidebarOpen, setSidebarOpen]);
 
   const filtered = tables.filter((t) =>
     t.name.toLowerCase().includes(filter.toLowerCase())
@@ -156,7 +174,7 @@ export const Sidebar: React.FC<SidebarProps> = ({ isHost = false }) => {
             <div className="sidebar__footer">
               <button
                 className="sidebar__new-table"
-                onClick={() => addTable({ x: 120, y: 120 })}
+                onClick={() => addTable({ x: 120 + (tables.length % 5) * 260, y: 120 + Math.floor(tables.length / 5) * 180 })}
               >
                 + New table
               </button>
@@ -167,7 +185,10 @@ export const Sidebar: React.FC<SidebarProps> = ({ isHost = false }) => {
         /* Icon rail when collapsed */
         <div className="sidebar__icon-rail">
           <button className="sidebar__rail-icon" title="Tables" onClick={() => useUIStore.getState().toggleSidebar()}>☰</button>
-          <button className="sidebar__rail-icon" title="History" onClick={() => { useUIStore.getState().toggleSidebar(); setHistoryOpen(true); }}>⏱</button>
+          {/* Fix #20: only show History rail icon if user is the schema host */}
+          {isHost && (
+            <button className="sidebar__rail-icon" title="History" onClick={() => { useUIStore.getState().toggleSidebar(); setHistoryOpen(true); }}>⏱</button>
+          )}
           <button className="sidebar__rail-icon" title="Templates" onClick={() => { useUIStore.getState().toggleSidebar(); setTemplatesOpen(true); }}>⊞</button>
         </div>
       )}

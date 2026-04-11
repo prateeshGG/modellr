@@ -1,6 +1,7 @@
 import React, { useMemo, useState } from 'react';
 import { useSchemaStore } from '../../store/schema';
 import { useHistoryStore } from '../../store/history';
+import { useUIStore } from '../../store/ui';
 import type { Table, Field } from '../../types/schema';
 import CodeMirror from '@uiw/react-codemirror';
 import { sql as sqlLang } from '@codemirror/lang-sql';
@@ -75,8 +76,10 @@ function fieldBadges(f: Field) {
 export const DiffViewer: React.FC<DiffViewerProps> = ({ onClose }) => {
   const { tables, dialect } = useSchemaStore();
   const { snapshots, restoreSnapshot } = useHistoryStore();
+  const { showDialog } = useUIStore();
   const [showSql, setShowSql] = useState(false);
 
+  // Fix #22: default to the OLDEST snapshot (last in list) — most useful for comparing past → present
   const [snapshotId, setSnapshotId] = useState<string>(
     snapshots.length > 0 ? snapshots[snapshots.length - 1].id : ''
   );
@@ -264,7 +267,15 @@ export const DiffViewer: React.FC<DiffViewerProps> = ({ onClose }) => {
           {snapshot && (
             <button
               className="diff-dialog__restore-btn"
-              onClick={() => { restoreSnapshot(snapshotId); onClose(); }}
+              onClick={() => {
+                // Fix #23: confirm before overwriting the live canvas
+                showDialog({
+                  title: 'Restore snapshot?',
+                  message: `This will replace the current canvas with "${snapshot.label}". Any unsaved changes will be lost.`,
+                  type: 'confirm',
+                  onConfirm: () => { restoreSnapshot(snapshotId); onClose(); },
+                });
+              }}
             >
               ↩ Restore this snapshot
             </button>

@@ -13,16 +13,22 @@ export const LiveImportDialog: React.FC<LiveImportDialogProps> = ({ onClose }) =
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const inputRef = useRef<HTMLInputElement>(null);
+  // Fix #26: track AbortController so we can cancel in-flight requests when dialog closes
+  const abortRef = useRef<AbortController | null>(null);
 
   const { importTables } = useSchemaStore();
   const { showToast } = useUIStore();
 
-  // Focus input on mount & close on Escape
+  // Focus input on mount & close on Escape; cancel any pending fetch on unmount
   useEffect(() => {
     inputRef.current?.focus();
     const onKey = (e: KeyboardEvent) => { if (e.key === 'Escape') onClose(); };
     window.addEventListener('keydown', onKey);
-    return () => window.removeEventListener('keydown', onKey);
+    return () => {
+      window.removeEventListener('keydown', onKey);
+      // Fix #26: abort the fetch if the dialog is closed while introspecting
+      abortRef.current?.abort();
+    };
   }, [onClose]);
 
   const handleImport = async (e: React.FormEvent) => {
@@ -32,11 +38,16 @@ export const LiveImportDialog: React.FC<LiveImportDialogProps> = ({ onClose }) =
     setLoading(true);
     setError(null);
 
+    // Fix #26: create a new AbortController for this request
+    const controller = new AbortController();
+    abortRef.current = controller;
+
     try {
       const res = await fetch(`/api/introspect/${dialect}`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ connectionString: url.trim() }),
+        signal: controller.signal,
       });
 
       if (!res.ok) {

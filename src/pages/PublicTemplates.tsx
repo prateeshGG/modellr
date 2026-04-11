@@ -1,17 +1,10 @@
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { TEMPLATES } from '../utils/templates';
+import { TEMPLATE_CATEGORIES } from '../utils/constants';
 import { PublicNav } from '../components/layout/PublicNav';
 import { Footer } from '../components/layout/Footer';
 import './TemplateGallery.css';
-
-const CATEGORIES = [
-  { id: 'all', label: 'All Templates' },
-  { id: 'saas', label: 'SaaS & Metrics' },
-  { id: 'ecommerce', label: 'E-commerce' },
-  { id: 'cms', label: 'CMS & Blogs' },
-  { id: 'auth', label: 'Auth & Social' },
-];
 
 export const PublicTemplates: React.FC = () => {
   const navigate = useNavigate();
@@ -37,7 +30,7 @@ export const PublicTemplates: React.FC = () => {
         </div>
 
         <div style={{ display: 'flex', gap: '12px', justifyContent: 'center', marginBottom: '48px', flexWrap: 'wrap' }}>
-          {CATEGORIES.map(cat => (
+          {TEMPLATE_CATEGORIES.map(cat => (
             <button
               key={cat.id}
               style={{
@@ -68,10 +61,10 @@ export const PublicTemplates: React.FC = () => {
                 <div className="template-footer">
                   <span className="template-badge">Starter</span>
                   <button 
-                    onClick={() => navigate('/login')}
-                    style={{ background: 'rgb(162, 107, 252)', color: '#fff', border: 'none', padding: '6px 12px', borderRadius: '6px', fontWeight: 600, cursor: 'pointer', fontSize: '12px' }}
+                    onClick={() => navigate(`/?template=${tpl.id}#demo-anchor`)}
+                    style={{ background: 'var(--brand)', color: '#fff', border: 'none', padding: '6px 12px', borderRadius: '6px', fontWeight: 600, cursor: 'pointer', fontSize: '13px' }}
                   >
-                    Log In to Use
+                    Use template
                   </button>
                 </div>
               </div>

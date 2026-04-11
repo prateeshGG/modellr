@@ -167,7 +167,23 @@ export default function Editor({ isSandbox = false, isSharedView = false }: { is
     if (!isSandbox || isSharedView) return;
     
     const saved = localStorage.getItem('sandbox_schema');
-    if (saved) {
+    const searchParams = new URLSearchParams(window.location.search);
+    const templateParam = searchParams.get('template');
+
+    if (templateParam) {
+      // Force load the template from query string
+      import('../utils/templates').then(({ getTemplate }) => {
+        const tpl = getTemplate(templateParam);
+        if (tpl) {
+          useSchemaStore.getState().importTables(tpl.tables, tpl.relationships);
+          useUIStore.getState().showToast(`Loaded ${tpl.label} template`, "success");
+          
+          // Clear URL parameter natively without reloading the page or breaking react router
+          const newUrl = window.location.pathname + window.location.hash;
+          window.history.replaceState({}, '', newUrl);
+        }
+      });
+    } else if (saved) {
       try {
         const parsed = JSON.parse(saved);
         if (parsed.tables && parsed.relationships) {
@@ -216,11 +232,14 @@ export default function Editor({ isSandbox = false, isSharedView = false }: { is
             mode === 'code'  ? 'app-canvas-area--code'  : '',
           ].filter(Boolean).join(' ')}
         >
-          {mode !== 'code' && (
-            <div className="app-canvas-pane">
-              <SchemaCanvas />
-            </div>
-          )}
+          {/* Fix #30: Always keep SchemaCanvas mounted so React Flow preserves viewport/node positions
+              across mode switches. Use CSS to hide it rather than unmounting. */}
+          <div
+            className="app-canvas-pane"
+            style={{ display: mode === 'code' ? 'none' : 'flex', flex: 1, minHeight: 0 }}
+          >
+            <SchemaCanvas />
+          </div>
           {mode !== 'canvas' && (
             <div className="app-code-pane">
               <CodePanel />

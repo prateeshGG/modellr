@@ -1,4 +1,4 @@
-import React, { useCallback, useRef, useState } from 'react';
+import React, { useCallback, useEffect, useRef, useState } from 'react';
 import type { NodeProps } from '@xyflow/react';
 import { FieldRow } from './FieldRow';
 import { useSchemaStore } from '../../store/schema';
@@ -21,6 +21,19 @@ export const TableNode: React.FC<NodeProps> = ({ data, selected }) => {
   const [isRenaming, setIsRenaming] = useState(false);
   const nameInputRef = useRef<HTMLInputElement>(null);
   const [accentOpen, setAccentOpen] = useState(false);
+  const accentPickerRef = useRef<HTMLDivElement>(null);
+
+  // Fix: close the accent picker when the user clicks outside the table node
+  useEffect(() => {
+    if (!accentOpen) return;
+    const onPointerDown = (e: PointerEvent) => {
+      if (accentPickerRef.current && !accentPickerRef.current.contains(e.target as Node)) {
+        setAccentOpen(false);
+      }
+    };
+    document.addEventListener('pointerdown', onPointerDown);
+    return () => document.removeEventListener('pointerdown', onPointerDown);
+  }, [accentOpen]);
 
   const accentHex = ACCENT_HEX[table.accentColor] ?? ACCENT_HEX.blue;
   const isSelected = selection?.type === 'table' && selection.tableId === table.id;
@@ -109,6 +122,7 @@ export const TableNode: React.FC<NodeProps> = ({ data, selected }) => {
       {/* Accent color picker */}
       {accentOpen && (
         <div
+          ref={accentPickerRef}
           className="table-node__accent-picker"
           onClick={(e) => e.stopPropagation()}
         >
@@ -168,7 +182,6 @@ export const TableNode: React.FC<NodeProps> = ({ data, selected }) => {
             tableId={table.id}
             field={field}
             index={index}
-            totalFields={table.fields.length}
             onDragStart={setDragFromIndex}
             onDragOver={setDragOverIndex}
             onDrop={readOnly ? () => {} : handleDrop}

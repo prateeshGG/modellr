@@ -15,10 +15,15 @@ export function useKeyboardShortcuts() {
 
   useEffect(() => {
     const handler = (e: KeyboardEvent) => {
-      const isMac = navigator.platform.toUpperCase().includes('MAC');
+      // Fix #56: navigator.platform is deprecated; use userAgentData with fallback
+      const isMac = (navigator as any).userAgentData
+        ? (navigator as any).userAgentData.platform?.toLowerCase().includes('mac')
+        : navigator.platform.toUpperCase().includes('MAC');
       const mod = isMac ? e.metaKey : e.ctrlKey;
       const tag = (e.target as HTMLElement).tagName;
-      const isInput = tag === 'INPUT' || tag === 'TEXTAREA' || tag === 'SELECT';
+      // Fix #57: also treat contentEditable as an input context
+      const isInput = tag === 'INPUT' || tag === 'TEXTAREA' || tag === 'SELECT'
+        || (e.target as HTMLElement).isContentEditable;
 
       // ── Always-active shortcuts ──────────────────
       if (mod && (e.key === 'k' || e.key === 'K')) {
@@ -34,13 +39,20 @@ export function useKeyboardShortcuts() {
         return;
       }
 
+      // Fix #16: ⌘⇧E / Ctrl+Shift+E → open export menu
+      if (mod && e.shiftKey && (e.key === 'e' || e.key === 'E')) {
+        e.preventDefault();
+        window.dispatchEvent(new CustomEvent('sf:toggle-export'));
+        return;
+      }
+
+      // Fix #57: guard ALL mod+key and single-key shortcuts against typing context
+      if (isInput) return;
+
       if (mod && e.key === 'z' && !e.shiftKey) { e.preventDefault(); undo(); return; }
       if (mod && (e.key === 'Z' || e.key === 'y' || e.key === 'Y')) { e.preventDefault(); redo(); return; }
       if (mod && (e.key === 'b' || e.key === 'B')) { e.preventDefault(); toggleSidebar(); return; }
       if (mod && e.key === '\\') { e.preventDefault(); toggleRightPanel(); return; }
-
-      // Skip canvas shortcuts when typing in inputs
-      if (isInput) return;
 
       // ── Escape ───────────────────────────────────
       if (e.key === 'Escape') {

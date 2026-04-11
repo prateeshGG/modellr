@@ -1,4 +1,5 @@
-import React, { useRef, useState } from 'react';
+import React, { useRef, useState, useEffect } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { useSchemaStore } from '../../store/schema';
 import { useUIStore } from '../../store/ui';
 import { useUndoRedo } from '../../hooks/useUndoRedo';
@@ -34,6 +35,7 @@ interface TopBarProps {
 }
 
 export const TopBar: React.FC<TopBarProps> = ({ isHost = false, onImportClick, onDiffClick }) => {
+  const navigate = useNavigate();
   const { projectName, setProjectName, dialect, setDialect, tables, relationships } = useSchemaStore();
   const { mode, setMode, toggleTheme, theme, toggleSidebar, readOnly, openPalette } = useUIStore();
   const { undo, redo, canUndo, canRedo } = useUndoRedo();
@@ -42,6 +44,13 @@ export const TopBar: React.FC<TopBarProps> = ({ isHost = false, onImportClick, o
   const nameRef = useRef<HTMLInputElement>(null);
   const [exportOpen, setExportOpen] = useState(false);
   const [shareModalOpen, setShareModalOpen] = useState(false);
+
+  // Fix #16: listen for the ⌘⇧E keyboard shortcut event
+  useEffect(() => {
+    const handler = () => setExportOpen((o) => !o);
+    window.addEventListener('sf:toggle-export', handler);
+    return () => window.removeEventListener('sf:toggle-export', handler);
+  }, []);
 
   const commitName = () => {
     const trimmed = localName.trim();
@@ -100,7 +109,7 @@ export const TopBar: React.FC<TopBarProps> = ({ isHost = false, onImportClick, o
         </button>
         <button
           className="topbar__btn topbar__btn--icon"
-          onClick={() => window.location.href = '/app'}
+          onClick={() => navigate('/app')}
           title="Back to Dashboard"
           aria-label="Dashboard"
         >
@@ -282,11 +291,13 @@ export const TopBar: React.FC<TopBarProps> = ({ isHost = false, onImportClick, o
             {exportOpen && (
               <div className="export-menu">
                 {[
-                  { id: 'sql', label: 'SQL DDL' },
-                  { id: 'dbml', label: 'DBML' },
-                  { id: 'prisma', label: 'Prisma schema' },
+                  { id: 'sql',     label: 'SQL DDL' },
+                  { id: 'dbml',    label: 'DBML' },
+                  { id: 'prisma',  label: 'Prisma schema' },
                   { id: 'drizzle', label: 'Drizzle ORM' },
-                  { id: 'json', label: 'JSON schema' },
+                  { id: 'json',    label: 'JSON schema' },
+                  { id: 'png',     label: 'PNG image' },
+                  { id: 'svg',     label: 'SVG image' },
                 ].map((item) => (
                   <button key={item.id} className="export-menu__item" onClick={() => handleExport(item.id)}>
                     {item.label}
@@ -311,7 +322,7 @@ export const TopBar: React.FC<TopBarProps> = ({ isHost = false, onImportClick, o
 
           <button
             className="topbar__btn topbar__btn--icon"
-            onClick={() => window.location.href = '/app/settings'}
+            onClick={() => navigate('/app/settings')}
             title="Settings"
             aria-label="Settings"
           >

@@ -104,7 +104,7 @@ function relationshipToEdge(rel: Relationship, positions: PositionMap): Edge {
 
 function CanvasInner() {
   const { tables, relationships, notes, groups, addRelationship, moveTable, removeTable, addNote, updateNote, addGroup, updateGroup, updateTable } = useSchemaStore();
-  const { setZoom, zoom, density, showToast, setSelection, clearSelection, readOnly } = useUIStore() as any;
+  const { setZoom, zoom, density, showToast, setSelection, clearSelection, readOnly } = useUIStore();
   const { screenToFlowPosition, fitView, setViewport, getViewport, getIntersectingNodes } = useReactFlow();
   const isRunningLayout = useRef(false);
 
@@ -296,11 +296,19 @@ function CanvasInner() {
       if (!node) return;
       fitView({ nodes: [{ id: tableId }], padding: 0.3, duration: 400, maxZoom: 1.5 });
     };
-    // sf:bulk-delete — delete all currently selected nodes
+    // sf:bulk-delete — delete all currently selected nodes by type
     const onBulkDelete = () => {
       const ids = selectedNodeIds.current;
       if (ids.length === 0) return;
-      ids.forEach((id) => removeTable(id));
+      // Fix #21: dispatch correct removal per node type
+      ids.forEach((id) => {
+        const tableMatch = tables.find(t => t.id === id);
+        if (tableMatch) { removeTable(id); return; }
+        const noteMatch = notes.find(n => n.id === id);
+        if (noteMatch) { useSchemaStore.getState().removeNote(id); return; }
+        const groupMatch = groups.find(g => g.id === id);
+        if (groupMatch) { useSchemaStore.getState().removeGroup(id); }
+      });
       clearSelection();
       selectedNodeIds.current = [];
     };

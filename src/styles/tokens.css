@@ -117,6 +117,13 @@
   --panel-width:      320px;
   --palette-width:    560px;
   --accent-bar-width:   4px;
+
+  /* ── BRAND COLOR ─────────────────────────────── */
+  /* Fix #98: single source of truth for the primary brand purple.
+     Use var(--brand) for solid fills and rgba(var(--brand-rgb), α) for tints. */
+  --brand:      rgb(162, 107, 252);
+  --brand-rgb:  162, 107, 252;
+  --brand-glow: rgba(162, 107, 252, 0.4);
 }
 
 /* ── DARK MODE ─────────────────────────────────── */
@@ -154,6 +161,11 @@
   --diff-added:     #97C459;
   --diff-removed:   #F07070;
   --diff-modified:  #F5BC5A;
+
+  /* Brand stays consistent in dark mode — purple reads well on dark surfaces */
+  --brand:     rgb(174, 122, 255);
+  --brand-rgb: 174, 122, 255;
+  --brand-glow: rgba(174, 122, 255, 0.35);
 }
 
 /* ── REDUCED MOTION ────────────────────────────── */

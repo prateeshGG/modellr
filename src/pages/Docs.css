@@ -32,7 +32,7 @@
 
 .docs-logo-icon {
   width: 24px; height: 24px;
-  background: rgb(162, 107, 252);
+  background: var(--brand);
   border-radius: 6px;
   color: #fff;
   display: flex; align-items: center; justify-content: center;
@@ -154,13 +154,13 @@
   padding: 20px 24px;
   border-radius: 12px;
   background: rgba(162, 107, 152, 0.05);
-  border-left: 4px solid rgb(162, 107, 252);
+  border-left: 4px solid var(--brand);
   margin: 32px 0;
 }
 
 .docs-alert-title {
   font-weight: 700;
-  color: rgb(162, 107, 252);
+  color: var(--brand);
   margin-bottom: 4px;
   font-size: 14px;
 }

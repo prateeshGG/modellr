@@ -3,7 +3,7 @@ export type Cardinality = 'one-to-one' | 'one-to-many' | 'many-to-many';
 export type AccentColor =
   | 'blue' | 'teal' | 'coral' | 'purple'
   | 'amber' | 'green' | 'pink' | 'gray';
-export type Density = 'comfortable' | 'compact';
+export type Density = 'spacious' | 'comfortable' | 'compact';
 export type AppMode = 'canvas' | 'split' | 'code';
 export type Theme = 'light' | 'dark';
 

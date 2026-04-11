@@ -35,13 +35,24 @@ export const StatusBar: React.FC = () => {
         )}
       </div>
 
-      {/* Right: density + zoom */}
+      {/* Right: density */}
+      {/* Fix #83: expose all 3 density options — spacious was previously missing */}
       <div className="statusbar__right">
         <div className="density-toggle" role="group" aria-label="Node density">
+          {/* Fix #84: add aria-pressed for accessibility */}
+          <button
+            className={`density-btn ${density === 'spacious' ? 'density-btn--active' : ''}`}
+            onClick={() => setDensity('spacious')}
+            title="Spacious density"
+            aria-pressed={density === 'spacious'}
+          >
+            ☰
+          </button>
           <button
             className={`density-btn ${density === 'comfortable' ? 'density-btn--active' : ''}`}
             onClick={() => setDensity('comfortable')}
             title="Comfortable density"
+            aria-pressed={density === 'comfortable'}
           >
             ≡
           </button>
@@ -49,11 +60,11 @@ export const StatusBar: React.FC = () => {
             className={`density-btn ${density === 'compact' ? 'density-btn--active' : ''}`}
             onClick={() => setDensity('compact')}
             title="Compact density"
+            aria-pressed={density === 'compact'}
           >
             ≣
           </button>
         </div>
-
       </div>
     </footer>
   );

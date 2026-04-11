@@ -1,19 +1,14 @@
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { TEMPLATES, getTemplate } from '../utils/templates';
+import { TEMPLATE_CATEGORIES } from '../utils/constants';
 import { useAuthStore } from '../store/authStore';
 import { supabase } from '../lib/supabase';
 import { useUIStore } from '../store/ui';
 import { TemplatePreviewModal } from '../components/dashboard/TemplatePreviewModal';
 import './TemplateGallery.css';
 
-const CATEGORIES = [
-  { id: 'all', label: 'All Templates' },
-  { id: 'saas', label: 'SaaS & Metrics' },
-  { id: 'ecommerce', label: 'E-commerce' },
-  { id: 'cms', label: 'CMS & Blogs' },
-  { id: 'auth', label: 'Auth & Social' },
-];
+
 
 export const TemplatesPage: React.FC = () => {
   const { session } = useAuthStore();
@@ -23,7 +18,15 @@ export const TemplatesPage: React.FC = () => {
   const [selectedTemplateId, setSelectedTemplateId] = useState<string | null>(null);
 
   const handleUseTemplate = async (templateId: string) => {
-    if (!session?.user?.id) return;
+    // Fix #78: guests get a sign-in prompt instead of a silent no-op
+    if (!session?.user?.id) {
+      showDialog({
+        title: 'Sign in to use templates',
+        message: 'Create a free account to save this template to your dashboard and start building.',
+        type: 'alert',
+      });
+      return;
+    }
     
     // Check limit (shared with Dashboard logic)
     const { count } = await supabase
@@ -43,7 +46,7 @@ export const TemplatesPage: React.FC = () => {
     const tpl = getTemplate(templateId);
     if (!tpl) return;
 
-    const { data } = await supabase
+    const { data, error } = await supabase
       .from('schemas')
       .insert([{ 
         owner_id: session.user.id, 
@@ -53,7 +56,11 @@ export const TemplatesPage: React.FC = () => {
       .select()
       .single();
 
-    if (data) navigate(`/app/${data.id}`);
+    if (error || !data) {
+      useUIStore.getState().showToast('Failed to create schema from template. Try again.', 'error');
+      return;
+    }
+    navigate(`/app/${data.id}`);
   };
 
   const templateList = Object.entries(TEMPLATES).map(([id, tpl]) => ({ id, ...tpl }));
@@ -66,7 +73,7 @@ export const TemplatesPage: React.FC = () => {
       
       <div className="templates-sidebar">
         <div className="category-title">Categories</div>
-        {CATEGORIES.map(cat => (
+        {TEMPLATE_CATEGORIES.map(cat => (
           <div 
             key={cat.id} 
             className={`category-item ${activeCategory === cat.id ? 'category-item--active' : ''}`}

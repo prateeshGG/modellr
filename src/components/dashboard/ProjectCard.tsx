@@ -41,7 +41,7 @@ export const ProjectCard: React.FC<ProjectCardProps> = ({ schema, onDuplicate, o
                   opacity: 0.7 
                 }}
               >
-                <div className="mini-map-header" style={{ background: ACCENT_HEX[t.accentColor as AccentColor] || 'rgb(162, 107, 252)' }}></div>
+                <div className="mini-map-header" style={{ background: ACCENT_HEX[t.accentColor as AccentColor] || 'var(--brand)' }}></div>
                 <div style={{ width: '80%', height: '2px', background: 'var(--border-default)', marginBottom: '1px' }}></div>
                 <div style={{ width: '60%', height: '2px', background: 'var(--border-default)', marginBottom: '1px' }}></div>
                 <div style={{ width: '70%', height: '2px', background: 'var(--border-default)' }}></div>

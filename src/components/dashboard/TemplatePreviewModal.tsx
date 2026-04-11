@@ -23,28 +23,36 @@ const edgeTypes = { relationshipEdge: RelationshipEdge };
 const PreviewInner: React.FC<TemplatePreviewModalProps> = ({ templateId, onClose, onUse }) => {
   const template = TEMPLATES[templateId];
 
-  const nodes = useMemo(() => 
-    (template.tables || []).map(t => ({
+  // Fix #24: guard BEFORE any hooks to avoid violating the Rules of Hooks
+  // (hooks must not be called after a conditional return)
+  const nodes = useMemo(() => {
+    if (!template) return [];
+    return (template.tables || []).map(t => ({
       id: t.id,
       type: 'tableNode',
       position: t.position,
       data: { ...t }
-    })), [template]);
+    }));
+  }, [template]);
 
-  const edges = useMemo(() => 
-    (template.relationships || []).map(r => {
-      const isSourceLeftOfTarget = true; // Simplified for preview
+  const edges = useMemo(() => {
+    if (!template) return [];
+    return (template.relationships || []).map(r => {
+      // Fix #25: use the canonical handle format tableId__fieldId__side
+      // that matches what FieldRow renders so edges connect properly
       return {
         id: r.id,
         source: r.sourceTableId,
         target: r.targetTableId,
-        sourceHandle: JSON.stringify({ t: r.sourceTableId, f: r.sourceFieldId, type: 'source', pos: isSourceLeftOfTarget ? 'right' : 'left' }),
-        targetHandle: JSON.stringify({ t: r.targetTableId, f: r.targetFieldId, type: 'target', pos: isSourceLeftOfTarget ? 'left' : 'right' }),
+        sourceHandle: `${r.sourceTableId}__${r.sourceFieldId}__right`,
+        targetHandle: `${r.targetTableId}__${r.targetFieldId}__left`,
         type: 'relationshipEdge',
+        zIndex: 0,
         data: { sourceTableId: r.sourceTableId, cardinality: r.cardinality },
         markerEnd: r.cardinality !== 'one-to-one' ? 'url(#crowsfoot-many)' : 'url(#crowsfoot-one)',
       };
-    }), [template]);
+    });
+  }, [template]);
 
   if (!template) return null;
 

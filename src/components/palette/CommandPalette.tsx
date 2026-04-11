@@ -69,7 +69,7 @@ export const CommandPalette: React.FC = () => {
       category: 'Actions', icon: '↓',
       action: () => {
         closePalette();
-        window.dispatchEvent(new CustomEvent('sf:open-import'));
+        window.dispatchEvent(new CustomEvent('sf:open-import', { detail: { type: 'sql' } }));
       },
     },
     {
@@ -78,7 +78,7 @@ export const CommandPalette: React.FC = () => {
       category: 'Actions', icon: '↓',
       action: () => {
         closePalette();
-        window.dispatchEvent(new CustomEvent('sf:open-import'));
+        window.dispatchEvent(new CustomEvent('sf:open-import', { detail: { type: 'prisma' } }));
       },
     },
     {
@@ -203,9 +203,12 @@ export const CommandPalette: React.FC = () => {
     }
   }, [paletteOpen]);
 
+  // Fix #46: scroll highlighted ITEM into view, not just the group wrapper
   useEffect(() => {
-    const el = listRef.current?.children[activeIndex] as HTMLElement;
-    el?.scrollIntoView({ block: 'nearest' });
+    const listEl = listRef.current;
+    if (!listEl) return;
+    const items = listEl.querySelectorAll<HTMLElement>('button.palette__item');
+    items[activeIndex]?.scrollIntoView({ block: 'nearest' });
   }, [activeIndex]);
 
   const handleKeyDown = (e: React.KeyboardEvent) => {
@@ -226,9 +229,9 @@ export const CommandPalette: React.FC = () => {
 
   if (!paletteOpen) return null;
 
-  const categories: Category[] = ['All', 'Actions', 'Navigate', 'AI', 'Insert'];
+  const categories: Category[] = ['All', 'Actions', 'Navigate', 'AI', 'Insert', 'Templates'];
 
-  // Group filtered results by category
+  // Group filtered results by category — Fix #27: include Templates
   const grouped = categories.slice(1).reduce((acc, cat) => {
     const items = filtered.filter((c) => c.category === cat);
     if (items.length) acc[cat] = items;

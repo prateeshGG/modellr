@@ -33,7 +33,7 @@
 .dashboard-logo-icon {
   width: 28px;
   height: 28px;
-  background: rgb(162, 107, 252);
+  background: var(--brand);
   border-radius: 8px;
   display: flex;
   align-items: center;
@@ -131,7 +131,7 @@
 
 .search-input:focus {
   outline: none;
-  border-color: rgb(162, 107, 252);
+  border-color: var(--brand);
   width: 300px;
 }
 
@@ -220,7 +220,7 @@
 
 .project-card:hover {
   transform: translateY(-4px);
-  border-color: rgba(162, 107, 252, 0.4);
+  border-color: rgba(var(--brand-rgb), 0.4);
   box-shadow: 0 20px 40px rgba(0,0,0,0.15);
 }
 
@@ -347,7 +347,7 @@
 
 .create-card:hover {
   background: var(--surface-low);
-  border-color: rgb(162, 107, 252);
+  border-color: var(--brand);
 }
 
 .create-icon {
@@ -366,7 +366,7 @@
 }
 
 .btn-primary {
-  background: rgb(162, 107, 252);
+  background: var(--brand);
   color: white;
   border: none;
   padding: 10px 24px;

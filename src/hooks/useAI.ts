@@ -1,7 +1,7 @@
 /**
- * useAI — streaming OpenAI calls for schema intelligence.
- * Uses GPT-4o-mini via the OpenAI Chat Completions API.
- * API key is read from import.meta.env.VITE_OPENAI_API_KEY.
+ * useAI — streaming AI calls for schema intelligence.
+ * All requests are proxied through the EC2 backend (/api/openai/*).
+ * The OpenAI API key lives exclusively on the server — never in the browser bundle.
  */
 import { useState, useCallback, useRef } from 'react';
 import type { Table, Relationship } from '../types/schema';

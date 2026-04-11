@@ -7,15 +7,18 @@ import { useUIStore } from '../../store/ui';
 import type { AccentColor } from '../../types/schema';
 import './NoteNode.css';
 
+// Fix #38: use HSL-based values that work in both light and dark themes.
+// The data-theme="dark" root attribute flips the surface; we add opacity to
+// keep the pastel feel without pure white backgrounds that clash in dark mode.
 const NOTE_COLORS: Record<AccentColor, { bg: string, border: string, text: string }> = {
-  blue: { bg: '#e0f2fe', border: '#7dd3fc', text: '#0369a1' },
-  teal: { bg: '#ccfbf1', border: '#5eead4', text: '#0f766e' },
-  coral: { bg: '#ffedd5', border: '#fdba74', text: '#c2410c' },
-  purple: { bg: '#f3e8ff', border: '#d8b4fe', text: '#7e22ce' },
-  amber: { bg: '#fef3c7', border: '#fcd34d', text: '#b45309' },
-  green: { bg: '#dcfce7', border: '#86efac', text: '#15803d' },
-  pink: { bg: '#fce7f3', border: '#f9a8d4', text: '#be185d' },
-  gray: { bg: '#f3f4f6', border: '#d1d5db', text: '#374151' },
+  blue:   { bg: 'rgba(125, 211, 252, 0.15)', border: 'rgba(125, 211, 252, 0.5)', text: '#7dd3fc' },
+  teal:   { bg: 'rgba(94, 234, 212, 0.15)',  border: 'rgba(94, 234, 212, 0.5)',  text: '#5eead4' },
+  coral:  { bg: 'rgba(253, 186, 116, 0.15)', border: 'rgba(253, 186, 116, 0.5)', text: '#fdba74' },
+  purple: { bg: 'rgba(216, 180, 254, 0.15)', border: 'rgba(216, 180, 254, 0.5)', text: '#d8b4fe' },
+  amber:  { bg: 'rgba(252, 211, 77, 0.15)',  border: 'rgba(252, 211, 77, 0.5)',  text: '#fcd34d' },
+  green:  { bg: 'rgba(134, 239, 172, 0.15)', border: 'rgba(134, 239, 172, 0.5)', text: '#86efac' },
+  pink:   { bg: 'rgba(249, 168, 212, 0.15)', border: 'rgba(249, 168, 212, 0.5)', text: '#f9a8d4' },
+  gray:   { bg: 'rgba(209, 213, 219, 0.15)', border: 'rgba(209, 213, 219, 0.5)', text: '#9ca3af' },
 };
 
 export default function NoteNode({ id, data: rawData, selected }: NodeProps) {

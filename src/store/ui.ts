@@ -111,9 +111,16 @@ export const useUIStore = create<UIStore>()((set, get) => ({
   exitDiffMode: () =>
     set({ diffMode: false, diffSnapshotId: null }),
 
+  // Fix #37: track timeout ID so rapid calls cancel previous timers
+  // (prevents early dismissal when showToast is called multiple times quickly)
+  _toastTimer: undefined as ReturnType<typeof setTimeout> | undefined,
+
   showToast: (message, type = 'success') => {
+    const state = get() as any;
+    if (state._toastTimer) clearTimeout(state._toastTimer);
     set({ toastMessage: message, toastType: type });
-    setTimeout(() => get().clearToast(), 2200);
+    const timer = setTimeout(() => get().clearToast(), 2800);
+    (get() as any)._toastTimer = timer;
   },
 
   clearToast: () => set({ toastMessage: null }),
