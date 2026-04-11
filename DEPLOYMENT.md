@@ -63,7 +63,7 @@ nano .env
 
 ```bash
 # 4. Start the server using PM2
-pm2 start index.js --name "schemaforge-server"
+pm2 start index.js --name "schemaforge-backend"
 
 # 5. Save the PM2 process so it restarts if the AWS EC2 server reboots
 pm2 save
@@ -129,8 +129,8 @@ SchemaForge uses Supabase for database storage, Row Level Security (RLS), and Au
 
 *   **If the Real-time Collaborative Canvas isn't syncing:**
     *   SSH into your EC2 instance (`ssh ubuntu@13.61.7.14`).
-    *   Check server logs: `pm2 logs schemaforge-server`.
-    *   Restart the server if frozen: `pm2 restart schemaforge-server`.
+    *   Check server logs: `pm2 logs schemaforge-backend`.
+    *   Restart the server if frozen: `pm2 restart schemaforge-backend`.
 *   **If AI Generation fails:**
     *   Verify the `OPENAI_API_KEY` in the `/server/.env` file on the EC2 instance hasn't expired.
 *   **Need to change backend IP?**
