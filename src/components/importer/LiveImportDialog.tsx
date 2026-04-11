@@ -43,7 +43,8 @@ export const LiveImportDialog: React.FC<LiveImportDialogProps> = ({ onClose }) =
     abortRef.current = controller;
 
     try {
-      const res = await fetch(`/api/introspect/${dialect}`, {
+      const baseUrl = import.meta.env.VITE_API_URL || '';
+      const res = await fetch(`${baseUrl}/api/introspect/${dialect}`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ connectionString: url.trim() }),
