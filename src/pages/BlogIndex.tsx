@@ -5,9 +5,9 @@ import { ArrowRight, Calendar } from 'lucide-react';
 
 const STATIC_POSTS = [
   {
-    id: 'announcing-schemaforge',
-    title: 'Announcing SchemaForge: The AI-first database design tool',
-    excerpt: 'Today we are thrilled to announce SchemaForge. We built it because we were tired of wrestling with legacy diagramming tools while working with modern ORMs like Prisma and Drizzle.',
+    id: 'announcing-Modellr',
+    title: 'Announcing Modellr: The AI-first database design tool',
+    excerpt: 'Today we are thrilled to announce Modellr. We built it because we were tired of wrestling with legacy diagramming tools while working with modern ORMs like Prisma and Drizzle.',
     date: 'April 11, ' + new Date().getFullYear(),
     category: 'Company',
     readTime: '3 min read'
@@ -36,11 +36,11 @@ export function BlogIndex() {
   return (
     <div style={{ background: 'var(--canvas-bg)', color: 'var(--text-primary)', minHeight: '100vh', display: 'flex', flexDirection: 'column', fontFamily: 'var(--sans)' }}>
       <PublicNav />
-      
+
       <main style={{ flex: 1, padding: '100px 20px', maxWidth: '1000px', margin: '0 auto', width: '100%' }}>
         <div style={{ textAlign: 'center', marginBottom: '80px' }}>
           <h1 style={{ fontSize: 'min(4rem, 10vw)', fontWeight: 900, letterSpacing: '-0.03em', marginBottom: '24px' }}>
-            The SchemaForge Blog
+            The Modellr Blog
           </h1>
           <p style={{ fontSize: '1.2rem', color: 'var(--text-secondary)', maxWidth: '600px', margin: '0 auto', lineHeight: 1.6 }}>
             Thoughts on data architecture, modern backend development, and building tools for developers.
@@ -49,7 +49,7 @@ export function BlogIndex() {
 
         <div style={{ display: 'grid', gridTemplateColumns: '1fr', gap: '32px' }}>
           {STATIC_POSTS.map((post) => (
-            <article 
+            <article
               key={post.id}
               onClick={() => navigate(`/blog/${post.id}`)}
               style={{ background: 'var(--surface-base)', border: '1px solid var(--border-subtle)', borderRadius: '16px', padding: '40px', cursor: 'pointer', transition: 'transform 0.2s, box-shadow 0.2s', display: 'flex', flexDirection: 'column' }}
@@ -73,15 +73,15 @@ export function BlogIndex() {
                 <span style={{ color: 'var(--border-hi)' }}>•</span>
                 <span style={{ color: 'var(--text-muted)' }}>{post.readTime}</span>
               </div>
-              
+
               <h2 style={{ fontSize: '28px', fontWeight: 800, margin: '0 0 16px 0', letterSpacing: '-0.02em', lineHeight: 1.3 }}>
                 {post.title}
               </h2>
-              
+
               <p style={{ color: 'var(--text-secondary)', fontSize: '16px', lineHeight: 1.6, margin: '0 0 24px 0', flex: 1 }}>
                 {post.excerpt}
               </p>
-              
+
               <div style={{ color: 'var(--text-primary)', fontWeight: 600, fontSize: '14px', display: 'flex', alignItems: 'center', gap: '8px' }}>
                 Read article <ArrowRight size={16} />
               </div>

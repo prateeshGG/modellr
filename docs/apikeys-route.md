@@ -2,7 +2,7 @@
 
 > **Location:** `server/routes/apikeys.js`  
 > **Type:** Express Router Module  
-> **Purpose:** Manages the full lifecycle of SchemaForge API keys (`sfk_live_*`) used by the MCP Gateway — listing, generating, and revoking keys, all scoped per-user via Supabase Row Level Security (RLS).
+> **Purpose:** Manages the full lifecycle of Modellr API keys (`sfk_live_*`) used by the MCP Gateway — listing, generating, and revoking keys, all scoped per-user via Supabase Row Level Security (RLS).
 
 ---
 
@@ -26,7 +26,7 @@
 
 ## 1. File Overview
 
-This file implements API key management for SchemaForge. The keys it manages (`sfk_live_*`) are **not** OpenAI or Supabase keys — they are SchemaForge-specific tokens used to authenticate external MCP clients connecting through `mcpGateway.js`.
+This file implements API key management for Modellr. The keys it manages (`sfk_live_*`) are **not** OpenAI or Supabase keys — they are Modellr-specific tokens used to authenticate external MCP clients connecting through `mcpGateway.js`.
 
 Core security principles enforced here:
 1. **Keys are never stored in plaintext** — only a bcrypt hash is persisted.
@@ -380,4 +380,4 @@ Authorization: Bearer <jwt>
 
 ---
 
-*Generated documentation for SchemaForge — `server/routes/apikeys.js`*
+*Generated documentation for Modellr — `server/routes/apikeys.js`*

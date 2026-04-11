@@ -423,4 +423,4 @@ useHistoryStore.restoreSnapshot(id)  →  useSchemaStore.loadSnapshot(snapshot)
 
 ---
 
-*Generated documentation for SchemaForge — `src/components/diff/DiffViewer.tsx`*
+*Generated documentation for Modellr — `src/components/diff/DiffViewer.tsx`*

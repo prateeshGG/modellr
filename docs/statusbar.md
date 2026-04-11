@@ -208,4 +208,4 @@ TableNode (canvas)
 
 ---
 
-*Generated documentation for SchemaForge — `src/components/statusbar/StatusBar.tsx`*
+*Generated documentation for Modellr — `src/components/statusbar/StatusBar.tsx`*

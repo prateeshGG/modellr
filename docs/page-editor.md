@@ -451,4 +451,4 @@ useEffect(() => {
 
 ---
 
-*Generated documentation for SchemaForge — `src/pages/Editor.tsx`*
+*Generated documentation for Modellr — `src/pages/Editor.tsx`*

@@ -3,7 +3,7 @@
 > **Location:** `src/pages/Features.tsx`  
 > **Type:** React Page Component — TypeScript/TSX  
 > **Route:** `/features`  
-> **Purpose:** A public-facing marketing page listing SchemaForge's six core features as a grid of cards. Static content — no state, no data fetching. Includes a CTA button at the bottom that navigates to `/login`.
+> **Purpose:** A public-facing marketing page listing Modellr's six core features as a grid of cards. Static content — no state, no data fetching. Includes a CTA button at the bottom that navigates to `/login`.
 
 ---
 
@@ -126,4 +126,4 @@ Navigates to `/login` via React Router — correct SPA navigation (unlike `Edito
 
 ---
 
-*Generated documentation for SchemaForge — `src/pages/Features.tsx`*
+*Generated documentation for Modellr — `src/pages/Features.tsx`*

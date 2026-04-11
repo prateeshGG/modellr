@@ -2,7 +2,7 @@
 
 > **Location:** `server/routes/postgres.js`  
 > **Type:** Express Router Module  
-> **Purpose:** Introspects a live PostgreSQL database via a connection string and returns a structured schema representation (tables, fields, relationships) suitable for visual schema editing in SchemaForge.
+> **Purpose:** Introspects a live PostgreSQL database via a connection string and returns a structured schema representation (tables, fields, relationships) suitable for visual schema editing in Modellr.
 
 ---
 
@@ -32,7 +32,7 @@ This file defines a single Express **POST** route (`/`) responsible for **Postgr
 2. Queries `information_schema` to extract user-defined tables, columns, and constraints (Primary Keys & Foreign Keys).
 3. Maps raw PostgreSQL type names into normalized, dialect-agnostic types.
 4. Assembles an in-memory graph of tables, their fields, and inter-table relationships.
-5. Returns this graph as a JSON payload that the SchemaForge frontend uses to render a visual schema diagram.
+5. Returns this graph as a JSON payload that the Modellr frontend uses to render a visual schema diagram.
 
 This route is mounted externally (likely in `server/index.js` or equivalent) under a path like `/api/introspect/postgres`.
 
@@ -63,7 +63,7 @@ import pg from 'pg';
 const { Client } = pg;
 ```
 
-The `pg` package uses CommonJS exports. In an ESM context (which SchemaForge's server appears to use, given the `import` syntax), `pg` is imported as a default export and `Client` is destructured from it. This is the standard ESM interop pattern for `pg`.
+The `pg` package uses CommonJS exports. In an ESM context (which Modellr's server appears to use, given the `import` syntax), `pg` is imported as a default export and `Client` is destructured from it. This is the standard ESM interop pattern for `pg`.
 
 ---
 
@@ -101,7 +101,7 @@ The architecture mirrors `mysql.js` closely — flat, self-contained, and single
 **Lines:** 6–14  
 **Signature:** `function getDialectType(pgType: string): string`
 
-Converts a raw PostgreSQL `data_type` string (as returned by `information_schema.columns`) into a normalized, dialect-agnostic type string used by SchemaForge's internal schema model.
+Converts a raw PostgreSQL `data_type` string (as returned by `information_schema.columns`) into a normalized, dialect-agnostic type string used by Modellr's internal schema model.
 
 #### Type Mapping Table
 
@@ -429,4 +429,4 @@ postgresql://user:password@localhost/database_name   (default port 5432)
 
 ---
 
-*Generated documentation for SchemaForge — `server/routes/postgres.js`*
+*Generated documentation for Modellr — `server/routes/postgres.js`*

@@ -43,7 +43,7 @@ wss.on('connection', (ws, req) => {
 });
 
 server.listen(port, host, () => {
-  console.log(`[SchemaForge Server] HTTP  → http://${host}:${port}`);
-  console.log(`[SchemaForge Server] WS    → ws://localhost:${port}  (room-based Yjs relay)`);
-  console.log(`[SchemaForge Server] ENV   → SUPABASE_SERVICE_ROLE_KEY ${process.env.SUPABASE_SERVICE_ROLE_KEY ? '✓ loaded' : '✗ missing'}`);
+  console.log(`[Modellr Server] HTTP  → http://${host}:${port}`);
+  console.log(`[Modellr Server] WS    → ws://localhost:${port}  (room-based Yjs relay)`);
+  console.log(`[Modellr Server] ENV   → SUPABASE_SERVICE_ROLE_KEY ${process.env.SUPABASE_SERVICE_ROLE_KEY ? '✓ loaded' : '✗ missing'}`);
 });

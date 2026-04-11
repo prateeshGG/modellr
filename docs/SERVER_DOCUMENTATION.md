@@ -1,8 +1,8 @@
-# SchemaForge Server - Comprehensive Documentation
+# Modellr Server - Comprehensive Documentation
 
 ## Overview
 
-The SchemaForge Server is the backend API and real-time collaboration hub for the SchemaForge database design platform. It provides HTTP REST endpoints for database introspection, AI integration, API key management, and MCP gateway services, while also hosting a WebSocket server for real-time collaborative editing using Yjs CRDT (Conflict-free Replicated Data Type).
+The Modellr Server is the backend API and real-time collaboration hub for the Modellr database design platform. It provides HTTP REST endpoints for database introspection, AI integration, API key management, and MCP gateway services, while also hosting a WebSocket server for real-time collaborative editing using Yjs CRDT (Conflict-free Replicated Data Type).
 
 **Location**: `server/index.js`  
 **Environment Loader**: `server/loadEnv.js`  
@@ -361,7 +361,7 @@ POST /api/mcp/call
 **Request Body**:
 ```json
 {
-  "tool": "schemaforge_read_schema",
+  "tool": "Modellr_read_schema",
   "arguments": {
     "id": "uuid-1234"
   }
@@ -387,7 +387,7 @@ Content-Type: application/json
 
 **Integration Flow**:
 ```
-AI Agent → MCP Server → MCP Gateway → SchemaForge Backend → Database
+AI Agent → MCP Server → MCP Gateway → Modellr Backend → Database
 ```
 
 ---
@@ -507,18 +507,18 @@ const server = http.createServer(app);
 
 ```javascript
 server.listen(port, host, () => {
-  console.log(`[SchemaForge Server] HTTP  → http://${host}:${port}`);
-  console.log(`[SchemaForge Server] WS    → ws://localhost:${port}  (room-based Yjs relay)`);
-  console.log(`[SchemaForge Server] ENV   → SUPABASE_SERVICE_ROLE_KEY ${process.env.SUPABASE_SERVICE_ROLE_KEY ? '✓ loaded' : '✗ missing'}`);
+  console.log(`[Modellr Server] HTTP  → http://${host}:${port}`);
+  console.log(`[Modellr Server] WS    → ws://localhost:${port}  (room-based Yjs relay)`);
+  console.log(`[Modellr Server] ENV   → SUPABASE_SERVICE_ROLE_KEY ${process.env.SUPABASE_SERVICE_ROLE_KEY ? '✓ loaded' : '✗ missing'}`);
 });
 ```
 
 **Startup Logs**:
 
 ```
-[SchemaForge Server] HTTP  → http://0.0.0.0:3001
-[SchemaForge Server] WS    → ws://localhost:3001  (room-based Yjs relay)
-[SchemaForge Server] ENV   → SUPABASE_SERVICE_ROLE_KEY ✓ loaded
+[Modellr Server] HTTP  → http://0.0.0.0:3001
+[Modellr Server] WS    → ws://localhost:3001  (room-based Yjs relay)
+[Modellr Server] ENV   → SUPABASE_SERVICE_ROLE_KEY ✓ loaded
 ```
 
 **Log Components**:
@@ -593,8 +593,8 @@ For production, consider restricting origins:
 ```javascript
 app.use(cors({
   origin: [
-    'https://schemaforge.com',
-    'https://app.schemaforge.com',
+    'https://Modellr.com',
+    'https://app.Modellr.com',
     /\.vercel\.app$/  // Allow Vercel preview deployments
   ],
   credentials: true
@@ -789,7 +789,7 @@ const pool = new Pool({
 
 ```javascript
 console.log(`[WS] client connected to ${req.url}`);
-console.log(`[SchemaForge Server] HTTP  → http://${host}:${port}`);
+console.log(`[Modellr Server] HTTP  → http://${host}:${port}`);
 ```
 
 **Format**: Prefixed console logs with component identifiers
@@ -911,8 +911,8 @@ CMD ["node", "index.js"]
 
 **Build & Run**:
 ```bash
-docker build -t schemaforge-server .
-docker run -p 3001:3001 --env-file .env schemaforge-server
+docker build -t Modellr-server .
+docker run -p 3001:3001 --env-file .env Modellr-server
 ```
 
 ---
@@ -1120,7 +1120,7 @@ Each router may have additional dependencies:
 
 ## Conclusion
 
-The SchemaForge Server is a robust, production-ready backend that combines traditional REST API patterns with modern real-time collaboration capabilities. Its modular architecture, comprehensive routing system, and Yjs-powered WebSocket server make it an ideal foundation for collaborative database design tools.
+The Modellr Server is a robust, production-ready backend that combines traditional REST API patterns with modern real-time collaboration capabilities. Its modular architecture, comprehensive routing system, and Yjs-powered WebSocket server make it an ideal foundation for collaborative database design tools.
 
 **Key Strengths**:
 - ✅ Dual protocol support (HTTP + WebSocket)
@@ -1140,5 +1140,5 @@ The SchemaForge Server is a robust, production-ready backend that combines tradi
 
 ---
 
-*Documentation generated for SchemaForge Server*  
+*Documentation generated for Modellr Server*  
 *Last Updated: 2024*

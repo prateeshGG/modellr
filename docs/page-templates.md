@@ -276,4 +276,4 @@ As documented in the `TemplatePreviewModal` docs — this modal has a known bug:
 
 ---
 
-*Generated documentation for SchemaForge — `src/pages/TemplatesPage.tsx`*
+*Generated documentation for Modellr — `src/pages/TemplatesPage.tsx`*

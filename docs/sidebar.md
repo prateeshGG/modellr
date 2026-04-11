@@ -395,4 +395,4 @@ Three icon buttons when collapsed:
 
 ---
 
-*Generated documentation for SchemaForge — `src/components/sidebar/Sidebar.tsx`*
+*Generated documentation for Modellr — `src/components/sidebar/Sidebar.tsx`*

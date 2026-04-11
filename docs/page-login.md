@@ -152,7 +152,7 @@ Note that `"Processing..."` shows as green (success-styled) — a minor UX incon
 ```
 360px centered card
 │
-├── "Log in to SchemaForge"      (h1, 20px)
+├── "Log in to Modellr"      (h1, 20px)
 ├── "Welcome back! Access your cloud schemas."  (p, 14px, muted)
 │
 ├── [message banner] (conditional)
@@ -180,7 +180,7 @@ Note that `"Processing..."` shows as green (success-styled) — a minor UX incon
 | **`signInWithGithub` swallows errors** | No `.catch()` and `error` from `signInWithOAuth` is not destructured — silent failure if OAuth is misconfigured |
 | **No loading/disabled state on any button** | All buttons remain active while `"Processing..."` is shown — double-clicking "Sign In" sends two auth requests |
 | **`"Processing..."` styled green** | The in-flight state message uses success styling (`#10b981`) — should be neutral |
-| **`h1` text says "Log in"** | The page title is "Log in to SchemaForge" but the page also handles sign-up from the same URL. No title update based on user intent |
+| **`h1` text says "Log in"** | The page title is "Log in to Modellr" but the page also handles sign-up from the same URL. No title update based on user intent |
 | **No "Forgot password" link** | There is no password reset flow in the UI. Supabase supports `supabase.auth.resetPasswordForEmail` but it is not surfaced |
 | **`"Geist"` font hardcoded** | `fontFamily: '"Geist", sans-serif'` — this is the only place `Geist` is referenced. If this font is not loaded globally, it falls back to `sans-serif` |
 | **All CTAs from other pages → `/login`** | As noted in `Features.tsx`, `Home.tsx`, and `PublicNav.tsx` — all "Sign up free" / "Start building free" buttons land here. The form header says "Log in" not "Sign up", which creates a disconnect for new users arriving via a signup CTA |
@@ -223,4 +223,4 @@ Email Sign Up path:
 
 ---
 
-*Generated documentation for SchemaForge — `src/pages/Login.tsx`*
+*Generated documentation for Modellr — `src/pages/Login.tsx`*

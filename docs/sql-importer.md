@@ -2,7 +2,7 @@
 
 > **Location:** `src/utils/importers/sql.ts`  
 > **Type:** Pure Utility Function — TypeScript  
-> **Purpose:** Parses raw SQL DDL (`CREATE TABLE` statements) into SchemaForge-compatible tables and relationships. Uses `node-sql-parser` to produce an AST, then traverses the AST to extract table names, column definitions, constraints, and foreign key references — supporting both PostgreSQL and MySQL dialects.
+> **Purpose:** Parses raw SQL DDL (`CREATE TABLE` statements) into Modellr-compatible tables and relationships. Uses `node-sql-parser` to produce an AST, then traverses the AST to extract table names, column definitions, constraints, and foreign key references — supporting both PostgreSQL and MySQL dialects.
 
 ---
 
@@ -31,7 +31,7 @@
 
 `sql.ts` is an **AST-based SQL DDL importer**. Unlike `prisma.ts` which uses hand-written regex, this file delegates parsing to `node-sql-parser` — a proper SQL parser that produces a structured AST (Abstract Syntax Tree). The importer then walks the AST to extract column definitions, constraints, and FK references.
 
-It is used when a user pastes or uploads raw SQL (e.g. from `pg_dump`, a migration file, or a handwritten DDL script) to import their schema into SchemaForge.
+It is used when a user pastes or uploads raw SQL (e.g. from `pg_dump`, a migration file, or a handwritten DDL script) to import their schema into Modellr.
 
 **Key challenges it addresses:**
 - `node-sql-parser`'s AST shape varies between PostgreSQL and MySQL dialects — column name and constraint nodes have different structures.
@@ -330,7 +330,7 @@ function toStr(val: unknown): string {
 
 **Lines:** 210–228
 
-Normalizes raw SQL type strings into SchemaForge's canonical type names:
+Normalizes raw SQL type strings into Modellr's canonical type names:
 
 ```ts
 function normalizeType(raw: string): string {
@@ -366,7 +366,7 @@ function normalizeType(raw: string): string {
 | `VARCHAR(255)` | `varchar` (size params stripped) |
 | Unknown | returned as-is |
 
-Size parameters like `VARCHAR(255)`, `NUMERIC(10,2)` are stripped — SchemaForge stores base types without precision/scale metadata.
+Size parameters like `VARCHAR(255)`, `NUMERIC(10,2)` are stripped — Modellr stores base types without precision/scale metadata.
 
 ---
 
@@ -580,4 +580,4 @@ const { tables, relationships, errors } = importSQL('NOT VALID SQL @@##');
 
 ---
 
-*Generated documentation for SchemaForge — `src/utils/importers/sql.ts`*
+*Generated documentation for Modellr — `src/utils/importers/sql.ts`*

@@ -415,4 +415,4 @@ handleExport → client-side only (no Supabase)
 
 ---
 
-*Generated documentation for SchemaForge — `src/pages/Dashboard.tsx`*
+*Generated documentation for Modellr — `src/pages/Dashboard.tsx`*

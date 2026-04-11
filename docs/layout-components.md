@@ -172,7 +172,7 @@ No stores — purely a navigation/content component.
 ```
 <footer>
   ├── Brand block (left)
-  │     ├── Purple square logo + "SchemaForge" wordmark → navigate('/')
+  │     ├── Purple square logo + "Modellr" wordmark → navigate('/')
   │     └── Tagline paragraph
   │
   └── Link columns (right, flex row)
@@ -186,14 +186,14 @@ No stores — purely a navigation/content component.
               └── Privacy Policy   → navigate('/privacy')
   │
   └── Bottom bar (full width, border-top)
-        ├── © {year} SchemaForge Inc. All rights reserved.
+        ├── © {year} Modellr Inc. All rights reserved.
         └── "Designed natively on the grid."
 ```
 
 ## Copyright Year
 
 ```tsx
-<span>© {new Date().getFullYear()} SchemaForge Inc. All rights reserved.</span>
+<span>© {new Date().getFullYear()} Modellr Inc. All rights reserved.</span>
 ```
 
 Dynamically computed at render time — always shows the current year without manual updates.
@@ -290,7 +290,7 @@ Four public nav links — all use `navigate()` for client-side routing. `<span>`
                 display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#fff', fontSize: '12px' }}>
     SF
   </div>
-  SchemaForge
+  Modellr
 </div>
 ```
 
@@ -306,7 +306,7 @@ Like `Footer`, `PublicNav` uses entirely inline styles. Same brand color hardcod
 <nav style="flex; justify-content: space-between; max-width: 1400px; margin: 0 auto">
   │
   ├── Left: Logo + Nav Links
-  │     ├── [SF] SchemaForge (→ /)
+  │     ├── [SF] Modellr (→ /)
   │     └── Pricing  Templates  Features  Docs
   │
   └── Right: Auth CTAs
@@ -367,4 +367,4 @@ The value `rgb(162, 107, 252)` appears **5+ times** across the codebase as a raw
 
 ---
 
-*Generated documentation for SchemaForge — `src/components/layout/`*
+*Generated documentation for Modellr — `src/components/layout/`*

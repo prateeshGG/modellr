@@ -1,17 +1,17 @@
 {
-  "name": "mcp-server",
+  "name": "modellr-mcp",
   "version": "1.0.0",
-  "description": "Standard Model Context Protocol server connecting AI Agents to SchemaForge diagrams.",
+  "description": "Standard Model Context Protocol server connecting AI Agents (Cursor, Windsurf, Claude Desktop) to Modellr database diagrams.",
   "main": "index.js",
   "bin": {
-    "schemaforge-mcp": "./index.js"
+    "modellr-mcp": "index.js"
   },
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1"
   },
-  "keywords": [],
-  "author": "",
-  "license": "ISC",
+  "keywords": ["mcp", "model-context-protocol", "modellr", "database", "ai", "cursor", "windsurf", "claude"],
+  "author": "Modellr",
+  "license": "MIT",
   "type": "module",
   "dependencies": {
     "@modelcontextprotocol/sdk": "^1.29.0",

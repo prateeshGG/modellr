@@ -9,7 +9,7 @@ interface PrismaImportResult {
 }
 
 /**
- * Parse a Prisma schema string (schema.prisma) into SchemaForge tables + relationships.
+ * Parse a Prisma schema string (schema.prisma) into Modellr tables + relationships.
  *
  * Handles:
  * - model blocks with fields, @id, @unique, @default, @relation
@@ -74,12 +74,12 @@ export function importPrisma(prismaText: string): PrismaImportResult {
         const d = defaultMatch[1];
         defaultVal = d === 'now()' ? 'now()' :
           d === 'autoincrement()' ? undefined :
-          d === 'uuid()' ? 'gen_random_uuid()' :
-          d === 'cuid()' ? undefined :
-          d === 'true' ? 'TRUE' :
-          d === 'false' ? 'FALSE' :
-          d.startsWith('"') ? d.slice(1, -1) :
-          d;
+            d === 'uuid()' ? 'gen_random_uuid()' :
+              d === 'cuid()' ? undefined :
+                d === 'true' ? 'TRUE' :
+                  d === 'false' ? 'FALSE' :
+                    d.startsWith('"') ? d.slice(1, -1) :
+                      d;
       }
 
       // @relation — this is a virtual relation field, not a real column

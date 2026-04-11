@@ -12,7 +12,7 @@ interface ImportResult {
 }
 
 /**
- * Parse SQL DDL (CREATE TABLE statements) into SchemaForge tables and relationships.
+ * Parse SQL DDL (CREATE TABLE statements) into Modellr tables and relationships.
  * Supports PostgreSQL, MySQL dialects.
  */
 export function importSQL(sql: string): ImportResult {

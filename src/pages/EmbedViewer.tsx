@@ -45,12 +45,12 @@ export default function EmbedViewer() {
           importTables(
             state.tables,
             state.relationships || [],
-            Array.isArray(state.notes)  ? state.notes  : [],
+            Array.isArray(state.notes) ? state.notes : [],
             Array.isArray(state.groups) ? state.groups : []
           );
         }
       }
-      
+
       setLoading(false);
     }
 
@@ -83,10 +83,10 @@ export default function EmbedViewer() {
     <div style={{ height: '100vh', width: '100vw', overflow: 'hidden', background: 'var(--canvas-bg)', position: 'relative' }}>
       <SchemaCanvas />
       {/* Branding overlay for viral growth! */}
-      <a 
+      <a
         href={window.location.origin}
-        target="_blank" 
-        rel="noopener noreferrer" 
+        target="_blank"
+        rel="noopener noreferrer"
         style={{
           position: 'absolute',
           bottom: '16px',
@@ -107,7 +107,7 @@ export default function EmbedViewer() {
         }}
       >
         <div style={{ width: '16px', height: '16px', background: 'var(--brand)', borderRadius: '4px', display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#fff', fontSize: '8px' }}>SF</div>
-        Powered by SchemaForge
+        Powered by Modellr
       </a>
     </div>
   );

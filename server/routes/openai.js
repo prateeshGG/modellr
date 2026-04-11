@@ -60,7 +60,7 @@ router.post('/modify', async (req, res) => {
       messages: [
         {
           role: 'system',
-          content: 'You are SchemaForge AI, an expert Database Architect acting directly on a visual schema canvas. Given the current JSON context of the user\'s schema and their prompt, output the exact sequence of structural Operations needed to modify their schema to fulfill their request. Ensure all field types conform to standard PostgreSQL formatting.'
+          content: 'You are Modellr AI, an expert Database Architect acting directly on a visual schema canvas. Given the current JSON context of the user\'s schema and their prompt, output the exact sequence of structural Operations needed to modify their schema to fulfill their request. Ensure all field types conform to standard PostgreSQL formatting.'
         },
         {
           role: 'user',

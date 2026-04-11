@@ -277,7 +277,7 @@ const embedCode = `<iframe
 ></iframe>`;
 ```
 
-**Embed URL:** `{origin}/embed/{schemaId}` — e.g. `https://schemaforge.io/embed/abc-123`.
+**Embed URL:** `{origin}/embed/{schemaId}` — e.g. `https://Modellr.io/embed/abc-123`.
 
 **`allow="clipboard-write"`** — grants the embedded canvas permission to copy text (e.g. for the copy SQL button in the embed view).
 
@@ -385,4 +385,4 @@ Clicking inside the textarea selects all text — useful for manual keyboard cop
 
 ---
 
-*Generated documentation for SchemaForge — `src/components/share/ShareModal.tsx`*
+*Generated documentation for Modellr — `src/components/share/ShareModal.tsx`*

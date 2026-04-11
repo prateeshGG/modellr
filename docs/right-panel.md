@@ -477,4 +477,4 @@ selection?.type
 
 ---
 
-*Generated documentation for SchemaForge — `src/components/panel/RightPanel.tsx`*
+*Generated documentation for Modellr — `src/components/panel/RightPanel.tsx`*

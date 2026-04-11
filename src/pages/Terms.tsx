@@ -5,7 +5,7 @@ export function Terms() {
 
   return (
     <div style={{ background: 'var(--canvas-bg)', minHeight: '100vh', color: 'var(--text-primary)', display: 'flex', flexDirection: 'column' }}>
-      
+
       <PublicNav />
 
       <div style={{ maxWidth: '800px', margin: '0 auto', padding: '64px 20px', flex: 1, lineHeight: 1.8 }}>
@@ -15,7 +15,7 @@ export function Terms() {
         <section style={{ marginBottom: '40px' }}>
           <h2 style={{ fontSize: '24px', fontWeight: 700, marginBottom: '16px' }}>1. Agreement to Terms</h2>
           <p style={{ color: 'var(--text-secondary)' }}>
-            By accessing or using SchemaForge, you agree to be bound by these Terms of Service. If you disagree with any part of the terms, you may not access the service. These Terms apply to all visitors, users, and others who access or use the Service.
+            By accessing or using Modellr, you agree to be bound by these Terms of Service. If you disagree with any part of the terms, you may not access the service. These Terms apply to all visitors, users, and others who access or use the Service.
           </p>
         </section>
 
@@ -29,21 +29,21 @@ export function Terms() {
         <section style={{ marginBottom: '40px' }}>
           <h2 style={{ fontSize: '24px', fontWeight: 700, marginBottom: '16px' }}>3. Acceptable Use</h2>
           <p style={{ color: 'var(--text-secondary)' }}>
-            You agree not to use SchemaForge to construct schemas that explicitly facilitate illegal activities. You also agree not to reverse engineer the canvas drawing protocol, abuse the AI API limits, or spam the collaboration WebSocket channels.
+            You agree not to use Modellr to construct schemas that explicitly facilitate illegal activities. You also agree not to reverse engineer the canvas drawing protocol, abuse the AI API limits, or spam the collaboration WebSocket channels.
           </p>
         </section>
 
         <section style={{ marginBottom: '40px' }}>
           <h2 style={{ fontSize: '24px', fontWeight: 700, marginBottom: '16px' }}>4. Intellectual Property</h2>
           <p style={{ color: 'var(--text-secondary)' }}>
-            Any database schemas, exported files (SQL, Prisma, DBML), and data structures you architect and export using SchemaForge are entirely your intellectual property. We claim no ownership over the database designs you create. The SchemaForge platform interface, code, and branded assets themselves remain the exclusive property of SchemaForge Inc.
+            Any database schemas, exported files (SQL, Prisma, DBML), and data structures you architect and export using Modellr are entirely your intellectual property. We claim no ownership over the database designs you create. The Modellr platform interface, code, and branded assets themselves remain the exclusive property of Modellr Inc.
           </p>
         </section>
 
         <section style={{ marginBottom: '40px' }}>
           <h2 style={{ fontSize: '24px', fontWeight: 700, marginBottom: '16px' }}>5. Limitation of Liability</h2>
           <p style={{ color: 'var(--text-secondary)' }}>
-            In no event shall SchemaForge, nor its directors, employees, partners, agents, suppliers, or affiliates, be liable for any indirect, incidental, special, consequential or punitive damages, including without limitation, loss of profits, data, use, goodwill, or other intangible losses, resulting from your access to or use of or inability to access or use the Service.
+            In no event shall Modellr, nor its directors, employees, partners, agents, suppliers, or affiliates, be liable for any indirect, incidental, special, consequential or punitive damages, including without limitation, loss of profits, data, use, goodwill, or other intangible losses, resulting from your access to or use of or inability to access or use the Service.
           </p>
         </section>
       </div>

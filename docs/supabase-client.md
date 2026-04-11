@@ -49,7 +49,7 @@ The `@supabase/supabase-js` v2 client provides:
 - `supabase.auth.*` — session management, sign in/out, OAuth, token refresh
 - `supabase.from(table).*` — PostgREST query builder (select, insert, update, delete, upsert)
 - `supabase.channel()*` / `supabase.realtime.*` — real-time subscriptions
-- `supabase.storage.*` — file storage (not currently used in SchemaForge)
+- `supabase.storage.*` — file storage (not currently used in Modellr)
 - `supabase.functions.*` — Edge Function invocations (not currently used)
 
 ---
@@ -248,4 +248,4 @@ The Supabase client will automatically pick up the `.env` values via Vite's `imp
 
 ---
 
-*Generated documentation for SchemaForge — `src/lib/supabase.ts`*
+*Generated documentation for Modellr — `src/lib/supabase.ts`*

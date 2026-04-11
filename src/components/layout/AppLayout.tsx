@@ -21,7 +21,7 @@ export const AppSidebar = () => {
     <aside className="app-sidebar">
       <div className="app-logo" onClick={() => navigate('/')}>
         <div className="app-logo-icon">SF</div>
-        SchemaForge
+        Modellr
       </div>
 
       <nav className="sidebar-nav">
@@ -43,8 +43,8 @@ export const AppSidebar = () => {
       </nav>
 
       <div className="sidebar-footer">
-        <div 
-          className={`sidebar-link ${location.pathname.includes('/app/settings') ? 'sidebar-link--active' : ''}`} 
+        <div
+          className={`sidebar-link ${location.pathname.includes('/app/settings') ? 'sidebar-link--active' : ''}`}
           onClick={() => navigate('/app/settings')}
         >
           Settings

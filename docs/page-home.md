@@ -197,7 +197,7 @@ This all happens on the **public landing page**, on first load, for every visito
   │
   ├── <header> HERO
   │     ├── Glow div (blur:200px, opacity:0.1)
-  │     ├── "Introducing SchemaForge 2.0" badge
+  │     ├── "Introducing Modellr 2.0" badge
   │     ├── <h1> "Architect databases at the speed of thought."
   │     ├── <p> subtitle
   │     ├── [Start building free] → /login
@@ -246,4 +246,4 @@ This all happens on the **public landing page**, on first load, for every visito
 
 ---
 
-*Generated documentation for SchemaForge — `src/pages/Home.tsx`*
+*Generated documentation for Modellr — `src/pages/Home.tsx`*

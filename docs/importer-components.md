@@ -458,7 +458,7 @@ Uses a `<form>` with `onSubmit` — supports Enter key to submit naturally (no m
   <div className="live-dialog" onClick={(e) => e.stopPropagation()}>
 ```
 
-Clicking the dark backdrop calls `onClose()`. The inner dialog stops propagation, so clicking anywhere inside the dialog does not close it. Pattern identical to other SchemaForge modals.
+Clicking the dark backdrop calls `onClose()`. The inner dialog stops propagation, so clicking anywhere inside the dialog does not close it. Pattern identical to other Modellr modals.
 
 ## Notable Patterns & Caveats
 
@@ -500,4 +500,4 @@ showToast + onClose()
 
 ---
 
-*Generated documentation for SchemaForge — `src/components/importer/`*
+*Generated documentation for Modellr — `src/components/importer/`*

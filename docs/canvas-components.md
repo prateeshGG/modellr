@@ -2,7 +2,7 @@
 
 > **Location:** `src/components/canvas/`  
 > **Type:** React Components — TypeScript/TSX  
-> **Purpose:** Eight components that together form the entire visual canvas layer of SchemaForge. Built on top of `@xyflow/react` (React Flow), they render tables, fields, relationships, notes, groups, empty state, multiplayer cursors, and the orchestrating canvas container.
+> **Purpose:** Eight components that together form the entire visual canvas layer of Modellr. Built on top of `@xyflow/react` (React Flow), they render tables, fields, relationships, notes, groups, empty state, multiplayer cursors, and the orchestrating canvas container.
 
 ---
 
@@ -792,4 +792,4 @@ SchemaCanvas (ReactFlowProvider + CanvasInner)
 
 ---
 
-*Generated documentation for SchemaForge — `src/components/canvas/`*
+*Generated documentation for Modellr — `src/components/canvas/`*

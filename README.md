@@ -1,8 +1,8 @@
-# ⚒️ SchemaForge
+# ⚒️ Modellr
 
 **The Visual Database Architect for Modern Developers.**
 
-SchemaForge is a professional database design platform that bridges the gap between visual diagrams and live code. Build complex relational schemas with a drag-and-drop canvas, generate them with AI, and sync them directly to your IDE via the Model Context Protocol (MCP).
+Modellr is a professional database design platform that bridges the gap between visual diagrams and live code. Build complex relational schemas with a drag-and-drop canvas, generate them with AI, and sync them directly to your IDE via the Model Context Protocol (MCP).
 
 ---
 
@@ -23,8 +23,8 @@ SchemaForge is a professional database design platform that bridges the gap betw
 
 1. **Clone the repository**:
    ```bash
-   git clone https://github.com/prateesh7777/SchemaForge.git
-   cd SchemaForge
+   git clone https://github.com/prateesh7777/Modellr.git
+   cd Modellr
    ```
 
 2. **Install dependencies**:
@@ -49,16 +49,16 @@ SchemaForge is a professional database design platform that bridges the gap betw
 
 ## 🔌 Using the MCP Server
 
-SchemaForge includes a specialized MCP server that lets your AI coding assistant read and modify your diagrams.
+Modellr includes a specialized MCP server that lets your AI coding assistant read and modify your diagrams.
 
 ### 1. Local Stdio (Cursor/Claude Desktop)
 Add this to your `mcp.json` or Desktop config:
 ```json
 {
   "mcpServers": {
-    "schemaforge": {
+    "Modellr": {
       "command": "node",
-      "args": ["/path/to/SchemaForge/mcp-server/index.js"],
+      "args": ["/path/to/Modellr/mcp-server/index.js"],
       "env": {
         "SCHEMA_FORGE_TOKEN": "sfk_live_..."
       }
@@ -72,7 +72,7 @@ If hosted on Railway:
 ```json
 {
   "mcpServers": {
-    "schemaforge": {
+    "Modellr": {
       "url": "https://your-mcp-server.up.railway.app/sse"
     }
   }

@@ -2,7 +2,7 @@
 
 > **Location:** `src/components/ai/`  
 > **Type:** React Components — TypeScript/TSX  
-> **Purpose:** Two AI-powered UI components that form the AI interaction layer of the SchemaForge editor — a persistent chat drawer for iterative schema modifications, and a combined panel/dialog module for table-specific AI analysis and full schema generation from natural language.
+> **Purpose:** Two AI-powered UI components that form the AI interaction layer of the Modellr editor — a persistent chat drawer for iterative schema modifications, and a combined panel/dialog module for table-specific AI analysis and full schema generation from natural language.
 
 ---
 
@@ -165,7 +165,7 @@ const applyOperations = (msgId: string, ops: any[]) => {
 ```
 <div className="ai-drawer">
   ├── <div className="ai-drawer__header">
-  │     ├── Bot icon + "SchemaForge AI"
+  │     ├── Bot icon + "Modellr AI"
   │     └── <button className="ai-drawer__close"> (ChevronDown)
   │
   ├── <div className="ai-drawer__chat">
@@ -481,7 +481,7 @@ const generate = useCallback(async () => {
   // 1. Abort any in-flight
   // 2. Call generateSchemaFromPrompt(prompt, signal) → backend /api/openai/generate
   // 3. Dynamic import nanoid + ACCENT_COLORS
-  // 4. Map API response tables → SchemaForge Table objects (with IDs + positions)
+  // 4. Map API response tables → Modellr Table objects (with IDs + positions)
   // 5. Map API response relationships → Relationship objects (resolving by name)
   // 6. setPreview(table summaries)
   // 7. importTables(tables, rels) → replaces entire canvas
@@ -610,4 +610,4 @@ Three different AI call paths exist in the codebase:
 
 ---
 
-*Generated documentation for SchemaForge — `src/components/ai/`*
+*Generated documentation for Modellr — `src/components/ai/`*

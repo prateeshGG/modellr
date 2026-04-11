@@ -5,7 +5,7 @@ export function Privacy() {
 
   return (
     <div style={{ background: 'var(--canvas-bg)', minHeight: '100vh', color: 'var(--text-primary)', display: 'flex', flexDirection: 'column' }}>
-      
+
       <PublicNav />
 
       <div style={{ maxWidth: '800px', margin: '0 auto', padding: '64px 20px', flex: 1, lineHeight: 1.8 }}>
@@ -44,7 +44,7 @@ export function Privacy() {
         <section style={{ marginBottom: '40px' }}>
           <h2 style={{ fontSize: '24px', fontWeight: 700, marginBottom: '16px' }}>5. Contact Us</h2>
           <p style={{ color: 'var(--text-secondary)' }}>
-            If you have any questions about this Privacy Policy, please contact us via our support channels or at privacy@schemaforge.com.
+            If you have any questions about this Privacy Policy, please contact us via our support channels or at privacy@Modellr.com.
           </p>
         </section>
       </div>

@@ -2,7 +2,7 @@
 
 > **Location:** `src/utils/importers/prisma.ts`  
 > **Type:** Pure Utility Function — TypeScript  
-> **Purpose:** Parses a raw Prisma schema string (`schema.prisma`) into SchemaForge-compatible tables and relationships. Handles Prisma model blocks, scalar types, `@id`, `@unique`, `@default`, and `@relation` attributes — converting them into the internal `Table`, `Field`, and `Relationship` data shapes.
+> **Purpose:** Parses a raw Prisma schema string (`schema.prisma`) into Modellr-compatible tables and relationships. Handles Prisma model blocks, scalar types, `@id`, `@unique`, `@default`, and `@relation` attributes — converting them into the internal `Table`, `Field`, and `Relationship` data shapes.
 
 ---
 
@@ -27,9 +27,9 @@
 
 ## 1. File Overview
 
-`prisma.ts` is a **hand-written regex-based parser** for Prisma schema files. It converts Prisma's ORM-centric schema format into SchemaForge's relational canvas model. It does **not** use an official Prisma SDK or AST parser — it uses regular expressions and string manipulation directly, which makes it lightweight but limited in edge case handling.
+`prisma.ts` is a **hand-written regex-based parser** for Prisma schema files. It converts Prisma's ORM-centric schema format into Modellr's relational canvas model. It does **not** use an official Prisma SDK or AST parser — it uses regular expressions and string manipulation directly, which makes it lightweight but limited in edge case handling.
 
-The importer is used when a user pastes or uploads a `schema.prisma` file into SchemaForge, allowing them to visualize and edit their existing Prisma-defined schema on the canvas.
+The importer is used when a user pastes or uploads a `schema.prisma` file into Modellr, allowing them to visualize and edit their existing Prisma-defined schema on the canvas.
 
 **Key parsing challenges it solves:**
 - Prisma uses **PascalCase model names** (`UserProfile`) — these are converted to **snake_case table names** (`user_profile`).
@@ -496,4 +496,4 @@ if (errors.length > 0) {
 
 ---
 
-*Generated documentation for SchemaForge — `src/utils/importers/prisma.ts`*
+*Generated documentation for Modellr — `src/utils/importers/prisma.ts`*

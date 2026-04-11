@@ -143,7 +143,7 @@ Implements **stateless schema sharing** — the entire schema is encoded into a 
 
 **Encoding format:**
 ```
-https://schemaforge.dev/app/shared#/schema/<LZString_compressed_base64url>
+https://Modellr.dev/app/shared#/schema/<LZString_compressed_base64url>
 ```
 
 The hook handles **both directions**:
@@ -542,7 +542,7 @@ Persists the last-loaded schema ID across renders. Since `useEffect` with `[id]`
 
 ## File Overview
 
-Provides three AI-powered capabilities by proxying calls through the SchemaForge backend (`/api/openai/*`). The backend holds the OpenAI API key securely — this file never accesses it directly.
+Provides three AI-powered capabilities by proxying calls through the Modellr backend (`/api/openai/*`). The backend holds the OpenAI API key securely — this file never accesses it directly.
 
 **Three exports:**
 1. **`useSuggestFields`** — React hook; streams AI analysis of a specific table with actionable suggestions
@@ -825,4 +825,4 @@ Note: The return shape uses `from`/`fromField`/`to`/`toField` (DBML-like) — **
 
 ---
 
-*Generated documentation for SchemaForge — `src/hooks/`*
+*Generated documentation for Modellr — `src/hooks/`*

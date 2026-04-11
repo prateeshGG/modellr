@@ -31,7 +31,7 @@
 
 ## 1. File Overview
 
-`templates.ts` is a **data-heavy module** that defines SchemaForge's built-in starter templates. Each template is a complete, ready-to-use relational schema with:
+`templates.ts` is a **data-heavy module** that defines Modellr's built-in starter templates. Each template is a complete, ready-to-use relational schema with:
 
 - **Named tables** with typed fields, constraints, and accent colors
 - **Pre-computed canvas positions** so tables appear arranged (not all at `{0,0}`)
@@ -439,4 +439,4 @@ function loadTemplate(key: TemplateKey) {
 
 ---
 
-*Generated documentation for SchemaForge — `src/utils/templates.ts`*
+*Generated documentation for Modellr — `src/utils/templates.ts`*

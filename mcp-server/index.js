@@ -11,7 +11,7 @@ import {
 
 // If users configure IDEs, they will provide this token.
 const TOKEN = process.env.SCHEMA_FORGE_TOKEN;
-// Local development points to local server; production would point to https://api.schemaforge.com
+// Local development points to local server; production would point to https://api.Modellr.com
 const API_URL = process.env.SCHEMA_FORGE_API_URL || 'http://localhost:3001/api/mcp/call';
 
 if (!TOKEN) {
@@ -21,7 +21,7 @@ if (!TOKEN) {
 
 const server = new Server(
   {
-    name: 'schemaforge_mcp',
+    name: 'Modellr_mcp',
     version: '1.0.0',
   },
   {
@@ -36,12 +36,12 @@ server.setRequestHandler(ListToolsRequestSchema, async () => {
   return {
     tools: [
       {
-        name: 'schemaforge_list_schemas',
-        description: 'Lists all available SchemaForge database schemas for the authenticated user. Useful for finding the schema ID parameter to read the canvas state.',
+        name: 'Modellr_list_schemas',
+        description: 'Lists all available Modellr database schemas for the authenticated user. Useful for finding the schema ID parameter to read the canvas state.',
         inputSchema: { type: 'object', properties: {} },
       },
       {
-        name: 'schemaforge_read_schema',
+        name: 'Modellr_read_schema',
         description: 'Reads the live structural relational canvas state of a specific database schema.',
         inputSchema: {
           type: 'object',
@@ -50,7 +50,7 @@ server.setRequestHandler(ListToolsRequestSchema, async () => {
         },
       },
       {
-        name: 'schemaforge_update_schema',
+        name: 'Modellr_update_schema',
         description: 'Overwrites the entire remote database schema canvas.',
         inputSchema: {
           type: 'object',
@@ -63,7 +63,7 @@ server.setRequestHandler(ListToolsRequestSchema, async () => {
         },
       },
       {
-        name: 'schemaforge_add_table',
+        name: 'Modellr_add_table',
         description: 'Adds a new table to the existing remote database schema.',
         inputSchema: {
           type: 'object',
@@ -75,7 +75,7 @@ server.setRequestHandler(ListToolsRequestSchema, async () => {
         },
       },
       {
-        name: 'schemaforge_modify_table',
+        name: 'Modellr_modify_table',
         description: 'Updates a specific table in the remote schema.',
         inputSchema: {
           type: 'object',
@@ -88,7 +88,7 @@ server.setRequestHandler(ListToolsRequestSchema, async () => {
         },
       },
       {
-        name: 'schemaforge_generate_postgres_sql',
+        name: 'Modellr_generate_postgres_sql',
         description: 'Generates standard PostgreSQL DDL for the current schema.',
         inputSchema: {
           type: 'object',
@@ -97,7 +97,7 @@ server.setRequestHandler(ListToolsRequestSchema, async () => {
         },
       },
       {
-        name: 'schemaforge_diff_schemas',
+        name: 'Modellr_diff_schemas',
         description: 'Compares two database schemas and returns structural differences (added/removed/modified tables and fields).',
         inputSchema: {
           type: 'object',
@@ -109,7 +109,7 @@ server.setRequestHandler(ListToolsRequestSchema, async () => {
         },
       },
       {
-        name: 'schemaforge_generate_migration',
+        name: 'Modellr_generate_migration',
         description: 'Generates the PostgreSQL ALTER/CREATE/DROP SQL needed to migrate from an old schema to a new one.',
         inputSchema: {
           type: 'object',
@@ -169,18 +169,18 @@ async function run() {
 
     const port = parseInt(process.env.PORT);
     app.listen(port, "0.0.0.0", () => {
-      console.error(`[SchemaForge MCP] SSE Server listening on 0.0.0.0:${port}`);
+      console.error(`[Modellr MCP] SSE Server listening on 0.0.0.0:${port}`);
     });
 
   } else {
     // Local Usage (Stdio) - Cursor/Windsurf/Claude Desktop
     const transport = new StdioServerTransport();
     await server.connect(transport);
-    console.error('[SchemaForge MCP] Connected and listening on stdio.');
+    console.error('[Modellr MCP] Connected and listening on stdio.');
   }
 }
 
 run().catch((error) => {
-  console.error('[SchemaForge MCP] Fatal error:', error);
+  console.error('[Modellr MCP] Fatal error:', error);
   process.exit(1);
 });

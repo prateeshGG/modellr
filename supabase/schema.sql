@@ -1,4 +1,4 @@
--- SchemaForge Phase 3 Database Setup
+-- Modellr Phase 3 Database Setup
 -- Run this entire script in your Supabase SQL Editor!
 
 -- 1. Create extended users table (optional profile data)

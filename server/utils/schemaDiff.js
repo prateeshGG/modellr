@@ -1,5 +1,5 @@
 /**
- * Compares two SchemaForge Canvas States and returns structural diffs.
+ * Compares two Modellr Canvas States and returns structural diffs.
  * @param {Object} oldState { tables: [], relationships: [] }
  * @param {Object} newState { tables: [], relationships: [] }
  */
@@ -18,7 +18,7 @@ export function diffSchemas(oldState, newState) {
 
     const addedFields = newTable.fields.filter(nf => !oldTable.fields.find(of => of.name === nf.name));
     const removedFields = oldTable.fields.filter(of => !newTable.fields.find(nf => nf.name === of.name));
-    
+
     const modifiedFields = [];
     for (const newField of newTable.fields) {
       const oldField = oldTable.fields.find(of => of.name === newField.name);
@@ -27,7 +27,7 @@ export function diffSchemas(oldState, newState) {
         if (oldField.type !== newField.type) changes.type = { from: oldField.type, to: newField.type };
         if (oldField.nullable !== newField.nullable) changes.nullable = { from: oldField.nullable, to: newField.nullable };
         if (oldField.default !== newField.default) changes.default = { from: oldField.default, to: newField.default };
-        
+
         if (Object.keys(changes).length > 0) {
           modifiedFields.push({ name: newField.name, changes });
         }

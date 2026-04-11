@@ -169,7 +169,7 @@ A five-section privacy policy page. Static content — no state, no effects. Ren
 | 2. Database Connection Strings | **Explicitly not stored** — transient server-memory usage only; connection closed after `information_schema` query |
 | 3. How We Use Information | Service provision; AI queries passed anonymously to OpenAI with no PII in system prompts |
 | 4. Data Security | RLS + zero-trust; magic link + token authentication |
-| 5. Contact Us | `privacy@schemaforge.com` |
+| 5. Contact Us | `privacy@Modellr.com` |
 
 ## Content Accuracy Notes
 
@@ -187,7 +187,7 @@ A five-section privacy policy page. Static content — no state, no effects. Ren
 | **`new Date()` for "Last updated"** | Always shows today — misleading versioning |
 | **"Google" sign-in mentioned** | Not implemented in `Login.tsx` — only GitHub OAuth and email/password |
 | **Supabase Storage claim inaccurate** | Schemas stored in Postgres table, not Supabase Storage bucket |
-| **Contact email hardcoded** | `privacy@schemaforge.com` — must be kept in sync if contact channels change |
+| **Contact email hardcoded** | `privacy@Modellr.com` — must be kept in sync if contact channels change |
 | **No legal review indicator** | No version number, no attorney sign-off note — standard best practice for privacy policies |
 
 ---
@@ -221,15 +221,15 @@ Same dynamic date issue as `Privacy.tsx` — always shows today's date.
 | 1. Agreement to Terms | Standard acceptance clause — accessing the service implies agreement |
 | 2. Accounts | Accurate information requirement; user responsibility for credentials |
 | 3. Acceptable Use | No illegal schemas; no reverse-engineering canvas protocol; no AI API abuse; no WebSocket spam |
-| 4. Intellectual Property | **User owns all schemas/exports they create** — SchemaForge claims no ownership over user-generated data |
+| 4. Intellectual Property | **User owns all schemas/exports they create** — Modellr claims no ownership over user-generated data |
 | 5. Limitation of Liability | Standard no-consequential-damages disclaimer |
 
 ## Notable Content
 
 **Section 4 — IP ownership** is a meaningful user-facing commitment:
-> *"Any database schemas, exported files (SQL, Prisma, DBML), and data structures you architect and export using SchemaForge are entirely your intellectual property. We claim no ownership over the database designs you create."*
+> *"Any database schemas, exported files (SQL, Prisma, DBML), and data structures you architect and export using Modellr are entirely your intellectual property. We claim no ownership over the database designs you create."*
 
-This is clear and legally significant — user data is user-owned. No license grant to SchemaForge for the schema data.
+This is clear and legally significant — user data is user-owned. No license grant to Modellr for the schema data.
 
 **Section 3 — Acceptable Use** is product-specific rather than generic:
 > *"You agree not to reverse engineer the canvas drawing protocol, abuse the AI API limits, or spam the collaboration WebSocket channels."*
@@ -241,7 +241,7 @@ References concrete technical features (canvas protocol, AI limits, WebSocket) �
 | | Detail |
 |---|---|
 | **`new Date()` for "Last updated"** | Same issue as `Privacy.tsx` — always shows today |
-| **"SchemaForge Inc." referenced** | Section 5 mentions "SchemaForge Inc." — may not reflect the actual legal entity name |
+| **"Modellr Inc." referenced** | Section 5 mentions "Modellr Inc." — may not reflect the actual legal entity name |
 | **No version number** | No ToS version tracked — users can't tell if terms changed since they accepted |
 | **No acceptance flow** | No "I agree to Terms" checkbox during sign-up — purely a display page |
 
@@ -276,4 +276,4 @@ References concrete technical features (canvas protocol, AI limits, WebSocket) �
 
 ---
 
-*Generated documentation for SchemaForge — `src/pages/Pricing.tsx`, `Privacy.tsx`, `Terms.tsx`*
+*Generated documentation for Modellr — `src/pages/Pricing.tsx`, `Privacy.tsx`, `Terms.tsx`*

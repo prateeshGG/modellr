@@ -12,7 +12,7 @@ export const GettingStartedArticle = () => (
     <p>All three are synchronized in real time.</p>
 
     <h2>Create a schema</h2>
-    
+
     <h3>Option 1 — Start from scratch</h3>
     <ol className="docs-list">
       <li>Open <code>/app</code></li>
@@ -160,7 +160,7 @@ export const ExportSqlArticle = () => (
     </ul>
 
     <h2>DBML export</h2>
-    <p>Useful for sharing or version control. DBML is the native syntax Engine of SchemaForge under the hood.</p>
+    <p>Useful for sharing or version control. DBML is the native syntax Engine of Modellr under the hood.</p>
 
     <h2>Image export</h2>
     <ul className="docs-list">

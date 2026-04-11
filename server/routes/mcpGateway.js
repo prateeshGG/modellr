@@ -75,7 +75,7 @@ router.post('/call', async (req, res) => {
 
   try {
     switch (tool) {
-      case 'schemaforge_list_schemas': {
+      case 'Modellr_list_schemas': {
         const { data, error } = await supabase
           .from('schemas')
           .select('id, name, updated_at')
@@ -86,7 +86,7 @@ router.post('/call', async (req, res) => {
         return res.json({ result: data });
       }
 
-      case 'schemaforge_read_schema': {
+      case 'Modellr_read_schema': {
         const { id } = args;
         if (!id) throw new Error("Missing 'id' argument");
 
@@ -101,7 +101,7 @@ router.post('/call', async (req, res) => {
         return res.json({ result: data });
       }
 
-      case 'schemaforge_update_schema': {
+      case 'Modellr_update_schema': {
         const { id, tables, relationships } = args;
         if (!id || !tables) throw new Error("Missing 'id' or 'tables' arguments");
 
@@ -128,7 +128,7 @@ router.post('/call', async (req, res) => {
         return res.json({ result: { success: true, message: `Schema ${id} updated remotely.` } });
       }
 
-      case 'schemaforge_add_table': {
+      case 'Modellr_add_table': {
         const { id, table } = args;
         if (!id || !table) throw new Error("Missing 'id' or 'table' arguments");
 
@@ -153,7 +153,7 @@ router.post('/call', async (req, res) => {
         return res.json({ result: { success: true, message: `Table ${table.name} added to schema ${id}.` } });
       }
 
-      case 'schemaforge_modify_table': {
+      case 'Modellr_modify_table': {
         const { id, tableName, updates } = args;
         if (!id || !tableName || !updates) throw new Error("Missing 'id', 'tableName', or 'updates' arguments");
 
@@ -181,7 +181,7 @@ router.post('/call', async (req, res) => {
         return res.json({ result: { success: true, message: `Table ${tableName} modified in schema ${id}.` } });
       }
 
-      case 'schemaforge_generate_postgres_sql': {
+      case 'Modellr_generate_postgres_sql': {
         const { id } = args;
         if (!id) throw new Error("Missing 'id' argument");
 
@@ -199,7 +199,7 @@ router.post('/call', async (req, res) => {
         return res.json({ result: { sql } });
       }
 
-      case 'schemaforge_diff_schemas': {
+      case 'Modellr_diff_schemas': {
         const { oldId, newId } = args;
         if (!oldId || !newId) throw new Error("Missing 'oldId' or 'newId' arguments");
 
@@ -218,7 +218,7 @@ router.post('/call', async (req, res) => {
         return res.json({ result: diff });
       }
 
-      case 'schemaforge_generate_migration': {
+      case 'Modellr_generate_migration': {
         const { oldId, newId } = args;
         if (!oldId || !newId) throw new Error("Missing 'oldId' or 'newId' arguments");
 

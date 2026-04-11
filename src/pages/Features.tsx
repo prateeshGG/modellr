@@ -8,7 +8,7 @@ export function Features() {
 
   return (
     <div style={{ background: 'var(--canvas-bg)', minHeight: '100vh', color: 'var(--text-primary)', display: 'flex', flexDirection: 'column' }}>
-      
+
       <PublicNav />
 
       <div style={{ maxWidth: '1000px', margin: '0 auto', padding: '64px 20px', flex: 1 }}>
@@ -20,7 +20,7 @@ export function Features() {
         </div>
 
         <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(400px, 1fr))', gap: '32px' }}>
-          
+
           <div style={{ background: 'var(--surface-base)', padding: '40px', borderRadius: '24px', border: '1px solid var(--border-subtle)' }}>
             <div style={{ marginBottom: '24px', color: 'var(--brand)' }}><Bot size={32} /></div>
             <h3 style={{ fontSize: '24px', fontWeight: 700, marginBottom: '16px' }}>AI Schema Generation</h3>
@@ -33,7 +33,7 @@ export function Features() {
             <div style={{ marginBottom: '24px', color: 'var(--brand)' }}><Users size={32} /></div>
             <h3 style={{ fontSize: '24px', fontWeight: 700, marginBottom: '16px' }}>Real-time Collaboration</h3>
             <p style={{ color: 'var(--text-secondary)', lineHeight: 1.7, fontSize: '16px' }}>
-              Powered by Yjs CRDTs, SchemaForge enables true multiplayer editing. Invite your backend team and watch their live cursors fly around the canvas. All edits, table creations, and line drawings synchronize natively in milliseconds with zero merge conflicts.
+              Powered by Yjs CRDTs, Modellr enables true multiplayer editing. Invite your backend team and watch their live cursors fly around the canvas. All edits, table creations, and line drawings synchronize natively in milliseconds with zero merge conflicts.
             </p>
           </div>
 
@@ -49,7 +49,7 @@ export function Features() {
             <div style={{ marginBottom: '24px', color: 'var(--brand)' }}><Database size={32} /></div>
             <h3 style={{ fontSize: '24px', fontWeight: 700, marginBottom: '16px' }}>Live DB Introspection</h3>
             <p style={{ color: 'var(--text-secondary)', lineHeight: 1.7, fontSize: '16px' }}>
-              Already have a deployed Postgres database? Paste a secure read-only connection string into our Live Import tool, and watch SchemaForge automatically reverse-engineer your `information_schema` into a beautiful, fully laid-out visual canvas.
+              Already have a deployed Postgres database? Paste a secure read-only connection string into our Live Import tool, and watch Modellr automatically reverse-engineer your `information_schema` into a beautiful, fully laid-out visual canvas.
             </p>
           </div>
 

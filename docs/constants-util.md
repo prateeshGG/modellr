@@ -303,4 +303,4 @@ Maximum number of schema history snapshots stored per schema. Enforced at the ap
 
 ---
 
-*Generated documentation for SchemaForge — `src/utils/constants.ts`*
+*Generated documentation for Modellr — `src/utils/constants.ts`*

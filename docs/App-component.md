@@ -333,4 +333,4 @@ This is the simplest possible auth guard pattern — no higher-order component, 
 
 ---
 
-*Generated documentation for SchemaForge — `src/App.tsx`*
+*Generated documentation for Modellr — `src/App.tsx`*

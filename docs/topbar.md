@@ -505,4 +505,4 @@ const commitName = () => {
 
 ---
 
-*Generated documentation for SchemaForge — `src/components/topbar/TopBar.tsx`*
+*Generated documentation for Modellr — `src/components/topbar/TopBar.tsx`*

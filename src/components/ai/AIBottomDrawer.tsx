@@ -41,7 +41,7 @@ export const AIBottomDrawer: React.FC<{ isOpen: boolean; onClose: () => void }> 
     if (!input.trim() || loading) return;
     const userPrompt = input.trim();
     setInput('');
-    
+
     const userMsg: Message = { id: Date.now().toString(), role: 'user', content: userPrompt };
     setMessages(prev => [...prev, userMsg]);
     setLoading(true);
@@ -62,7 +62,7 @@ export const AIBottomDrawer: React.FC<{ isOpen: boolean; onClose: () => void }> 
       });
 
       const data = await resp.json();
-      
+
       if (!resp.ok) throw new Error(data.error || 'Failed to fetch AI response');
 
       const assistantMsg: Message = {
@@ -72,7 +72,7 @@ export const AIBottomDrawer: React.FC<{ isOpen: boolean; onClose: () => void }> 
         operations: data.response.operations,
         applied: false
       };
-      
+
       setMessages(prev => [...prev, assistantMsg]);
     } catch (err: any) {
       setMessages(prev => [...prev, { id: Date.now().toString(), role: 'assistant', content: `Error: ${err.message}` }]);
@@ -92,7 +92,7 @@ export const AIBottomDrawer: React.FC<{ isOpen: boolean; onClose: () => void }> 
     <div className="ai-drawer">
       <div className="ai-drawer__header">
         <div style={{ display: 'flex', alignItems: 'center', gap: '8px', fontWeight: 600 }}>
-          <Bot size={18} color="#A09AEB" /> SchemaForge AI
+          <Bot size={18} color="#A09AEB" /> Modellr AI
         </div>
         <button className="ai-drawer__close" onClick={onClose}>
           <ChevronDown size={20} />
@@ -105,7 +105,7 @@ export const AIBottomDrawer: React.FC<{ isOpen: boolean; onClose: () => void }> 
             {msg.role === 'assistant' && <Bot className="ai-avatar" size={16} />}
             <div className="ai-bubble">
               {msg.content && <p>{msg.content}</p>}
-              
+
               {/* Diff Card */}
               {msg.operations && msg.operations.length > 0 && !msg.applied && (
                 <div className="ai-diff-card">
@@ -119,7 +119,7 @@ export const AIBottomDrawer: React.FC<{ isOpen: boolean; onClose: () => void }> 
                           {op.action.replace('_', ' ').toUpperCase()}
                         </span>
                         <span>
-                          {op.tableName} {op.fieldName ? `(${op.fieldName})` : ''} 
+                          {op.tableName} {op.fieldName ? `(${op.fieldName})` : ''}
                           {op.relationTargetTable ? ` → ${op.relationTargetTable}` : ''}
                         </span>
                       </div>

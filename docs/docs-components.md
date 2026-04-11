@@ -2,7 +2,7 @@
 
 > **Location:** `src/components/docs/`  
 > **Type:** React Components — TypeScript/TSX  
-> **Purpose:** Two components that form the in-app documentation section — a layout shell with a grouped sidebar navigation, and a collection of six static article content components covering SchemaForge concepts from beginner to advanced.
+> **Purpose:** Two components that form the in-app documentation section — a layout shell with a grouped sidebar navigation, and a collection of six static article content components covering Modellr concepts from beginner to advanced.
 
 ---
 
@@ -54,7 +54,7 @@ const navGroups = [
   {
     title: 'Introduction',
     items: [
-      { id: 'intro',         label: 'Welcome to SchemaForge' },
+      { id: 'intro',         label: 'Welcome to Modellr' },
       { id: 'normalization', label: 'Normalization 101' },
       { id: 'canvas',        label: 'The Visual Editor' },
       { id: 'relationships', label: 'Understanding Relationships' },
@@ -95,7 +95,7 @@ const navGroups = [
   │     ├── "Documentation" logo/heading
   │     └── <nav>
   │           ├── Group: "Introduction"
-  │           │     ├── Welcome to SchemaForge    [docs-nav-item / --active]
+  │           │     ├── Welcome to Modellr    [docs-nav-item / --active]
   │           │     ├── Normalization 101
   │           │     ├── The Visual Editor
   │           │     └── Understanding Relationships
@@ -158,7 +158,7 @@ All articles use a shared set of CSS classes defined in the docs stylesheet:
 
 | Export | Article ID (in `DocsLayout`) | Topic |
 |---|---|---|
-| `IntroArticle` | `'intro'` | Welcome — what SchemaForge is, why visual modeling |
+| `IntroArticle` | `'intro'` | Welcome — what Modellr is, why visual modeling |
 | `NormalizationArticle` | `'normalization'` | Database normalization — beginner analogy-first |
 | `CanvasArticle` | `'canvas'` | Visual editor — interactions, naming conventions, shortcuts |
 | `RelationshipsArticle` | `'relationships'` | FK relationships, crow's foot notation, 1:1 and 1:N |
@@ -174,13 +174,13 @@ All articles use a shared set of CSS classes defined in the docs stylesheet:
 **Audience:** All users (emphasizes no-code accessibility)
 
 **Sections:**
-- Hero copy: SchemaForge for architects and students
+- Hero copy: Modellr for architects and students
 - Alert callout: "Visual Designing for Students" — reassures non-code users
 - "Why Visual Modeling Matters?" — three benefits: catch errors early, collaborate, focus on logic
 
 ```jsx
 <article className="docs-article">
-  <h1>Welcome to SchemaForge</h1>
+  <h1>Welcome to Modellr</h1>
   <div className="docs-alert">...</div>
   <h2>Why Visual Modeling Matters?</h2>
   <ul className="docs-list">...</ul>
@@ -236,7 +236,7 @@ F      - Fit the entire schema on your screen
 - 1:1 and 1:N definitions with real-world examples
 - Alert callout: "Foreign Keys (FK)" — `user_id` as the glue between User and Order
 
-> The article only covers one-to-one and one-to-many. **Many-to-many** is not mentioned, though SchemaForge supports it as a cardinality option.
+> The article only covers one-to-one and one-to-many. **Many-to-many** is not mentioned, though Modellr supports it as a cardinality option.
 
 ---
 
@@ -246,16 +246,16 @@ F      - Fit the entire schema on your screen
 
 **Sections:**
 - What MCP is — AI coding assistant (Cursor/Windsurf) bridge
-- "Connecting Your Workspace" — JSON config snippet with the `@schemaforge/mcp-server` npm package
+- "Connecting Your Workspace" — JSON config snippet with the `@Modellr/mcp-server` npm package
 - "Why use this?" — AI fetches the visual canvas and writes migrations automatically
 
 **Config snippet:**
 ```json
 {
   "mcpServers": {
-    "schemaforge": {
+    "Modellr": {
       "command": "npx",
-      "args": ["-y", "@schemaforge/mcp-server"],
+      "args": ["-y", "@Modellr/mcp-server"],
       "env": {
         "SCHEMA_FORGE_TOKEN": "sfk_live_your_token_here"
       }
@@ -266,7 +266,7 @@ F      - Fit the entire schema on your screen
 
 > The `SCHEMA_FORGE_TOKEN` format (`sfk_live_*`) matches the prefix-based API key lookup in `mcpGateway.js` — consistent with the backend implementation.
 
-> `@schemaforge/mcp-server` is documented as an npm package — this should exist and be published at the time this feature is promoted to users.
+> `@Modellr/mcp-server` is documented as an npm package — this should exist and be published at the time this feature is promoted to users.
 
 ---
 
@@ -345,4 +345,4 @@ Docs.tsx (page)
 
 ---
 
-*Generated documentation for SchemaForge — `src/components/docs/`*
+*Generated documentation for Modellr — `src/components/docs/`*

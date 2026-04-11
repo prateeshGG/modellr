@@ -1,8 +1,8 @@
-# SchemaForge MCP Server - Comprehensive Documentation
+# Modellr MCP Server - Comprehensive Documentation
 
 ## Overview
 
-The SchemaForge MCP (Model Context Protocol) Server is a bridge that enables AI agents (like Claude, Cursor, Windsurf) to interact with SchemaForge database schema diagrams. It implements the Model Context Protocol standard, allowing AI assistants to read, modify, and generate SQL from visual database schemas stored in SchemaForge.
+The Modellr MCP (Model Context Protocol) Server is a bridge that enables AI agents (like Claude, Cursor, Windsurf) to interact with Modellr database schema diagrams. It implements the Model Context Protocol standard, allowing AI assistants to read, modify, and generate SQL from visual database schemas stored in Modellr.
 
 **Location**: `mcp-server/index.js`  
 **Package**: `mcp-server/package.json`  
@@ -17,9 +17,9 @@ The SchemaForge MCP (Model Context Protocol) Server is a bridge that enables AI 
 
 Model Context Protocol (MCP) is a standardized way for AI agents to access external tools and data sources. This server acts as a protocol adapter that:
 
-1. **Exposes SchemaForge capabilities** as MCP tools
+1. **Exposes Modellr capabilities** as MCP tools
 2. **Authenticates requests** using bearer tokens
-3. **Proxies tool calls** to the SchemaForge API
+3. **Proxies tool calls** to the Modellr API
 4. **Supports multiple transport modes** (stdio for local, SSE for cloud)
 
 ### Deployment Modes
@@ -48,7 +48,7 @@ The server supports two distinct operational modes:
 SCHEMA_FORGE_TOKEN=sfk_live_xxxxxxxxxxxxx
 ```
 
-**Purpose**: Authentication token for SchemaForge API  
+**Purpose**: Authentication token for Modellr API  
 **Format**: Starts with `sfk_live_` or `sfk_test_`  
 **Behavior**: Server exits immediately if missing (in local mode)
 
@@ -58,9 +58,9 @@ SCHEMA_FORGE_TOKEN=sfk_live_xxxxxxxxxxxxx
 SCHEMA_FORGE_API_URL=http://localhost:3001/api/mcp/call
 ```
 
-**Purpose**: Override the SchemaForge API endpoint  
+**Purpose**: Override the Modellr API endpoint  
 **Default**: `http://localhost:3001/api/mcp/call` (local development)  
-**Production**: Would be `https://api.schemaforge.com/api/mcp/call`
+**Production**: Would be `https://api.Modellr.com/api/mcp/call`
 
 ```bash
 PORT=3000
@@ -110,7 +110,7 @@ import {
 ```javascript
 const server = new Server(
   {
-    name: 'schemaforge_mcp',
+    name: 'Modellr_mcp',
     version: '1.0.0',
   },
   {
@@ -122,7 +122,7 @@ const server = new Server(
 ```
 
 **Server Metadata**:
-- **Name**: `schemaforge_mcp` - Identifier for the MCP server
+- **Name**: `Modellr_mcp` - Identifier for the MCP server
 - **Version**: `1.0.0` - Semantic version
 - **Capabilities**: Declares that this server provides `tools`
 
@@ -130,9 +130,9 @@ const server = new Server(
 
 ## Available Tools
 
-The server exposes 8 tools for interacting with SchemaForge schemas:
+The server exposes 8 tools for interacting with Modellr schemas:
 
-### 1. `schemaforge_list_schemas`
+### 1. `Modellr_list_schemas`
 
 **Description**: Lists all available database schemas for the authenticated user
 
@@ -159,7 +159,7 @@ The server exposes 8 tools for interacting with SchemaForge schemas:
 
 ---
 
-### 2. `schemaforge_read_schema`
+### 2. `Modellr_read_schema`
 
 **Description**: Reads the complete structural state of a database schema canvas
 
@@ -203,7 +203,7 @@ The server exposes 8 tools for interacting with SchemaForge schemas:
 
 ---
 
-### 3. `schemaforge_update_schema`
+### 3. `Modellr_update_schema`
 
 **Description**: Completely overwrites the remote database schema canvas
 
@@ -231,7 +231,7 @@ The server exposes 8 tools for interacting with SchemaForge schemas:
 
 ---
 
-### 4. `schemaforge_add_table`
+### 4. `Modellr_add_table`
 
 **Description**: Adds a new table to an existing schema without affecting other tables
 
@@ -270,7 +270,7 @@ The server exposes 8 tools for interacting with SchemaForge schemas:
 
 ---
 
-### 5. `schemaforge_modify_table`
+### 5. `Modellr_modify_table`
 
 **Description**: Updates a specific table in the schema
 
@@ -309,7 +309,7 @@ The server exposes 8 tools for interacting with SchemaForge schemas:
 
 ---
 
-### 6. `schemaforge_generate_postgres_sql`
+### 6. `Modellr_generate_postgres_sql`
 
 **Description**: Generates standard PostgreSQL DDL (Data Definition Language) for the schema
 
@@ -346,7 +346,7 @@ CREATE TABLE orders (
 
 ---
 
-### 7. `schemaforge_diff_schemas`
+### 7. `Modellr_diff_schemas`
 
 **Description**: Compares two schema versions and returns structural differences
 
@@ -395,7 +395,7 @@ CREATE TABLE orders (
 
 ---
 
-### 8. `schemaforge_generate_migration`
+### 8. `Modellr_generate_migration`
 
 **Description**: Generates PostgreSQL migration SQL (ALTER/CREATE/DROP statements)
 
@@ -499,7 +499,7 @@ server.setRequestHandler(CallToolRequestSchema, async (request) => {
 
 **Flow**:
 1. Extract tool name and arguments from request
-2. Forward request to SchemaForge API with authentication
+2. Forward request to Modellr API with authentication
 3. Parse response and format for MCP
 4. Handle errors gracefully with descriptive messages
 
@@ -517,7 +517,7 @@ server.setRequestHandler(CallToolRequestSchema, async (request) => {
 ```javascript
 const transport = new StdioServerTransport();
 await server.connect(transport);
-console.error('[SchemaForge MCP] Connected and listening on stdio.');
+console.error('[Modellr MCP] Connected and listening on stdio.');
 ```
 
 **Characteristics**:
@@ -530,7 +530,7 @@ console.error('[SchemaForge MCP] Connected and listening on stdio.');
 ```json
 {
   "mcpServers": {
-    "schemaforge": {
+    "Modellr": {
       "command": "node",
       "args": ["path/to/mcp-server/index.js"],
       "env": {
@@ -562,7 +562,7 @@ app.post("/messages", async (req, res) => {
 
 const port = parseInt(process.env.PORT);
 app.listen(port, "0.0.0.0", () => {
-  console.error(`[SchemaForge MCP] SSE Server listening on 0.0.0.0:${port}`);
+  console.error(`[Modellr MCP] SSE Server listening on 0.0.0.0:${port}`);
 });
 ```
 
@@ -604,7 +604,7 @@ if (!TOKEN) {
 
 ```javascript
 run().catch((error) => {
-  console.error('[SchemaForge MCP] Fatal error:', error);
+  console.error('[Modellr MCP] Fatal error:', error);
   process.exit(1);
 });
 ```
@@ -624,7 +624,7 @@ run().catch((error) => {
 {
   "name": "mcp-server",
   "version": "1.0.0",
-  "description": "Standard Model Context Protocol server connecting AI Agents to SchemaForge diagrams.",
+  "description": "Standard Model Context Protocol server connecting AI Agents to Modellr diagrams.",
   "main": "index.js",
   "type": "module"
 }
@@ -640,13 +640,13 @@ run().catch((error) => {
 ```json
 {
   "bin": {
-    "schemaforge-mcp": "./index.js"
+    "Modellr-mcp": "./index.js"
   }
 }
 ```
 
 **Purpose**: Allows installation as global command  
-**Usage**: `npx schemaforge-mcp` or `schemaforge-mcp` (if installed globally)
+**Usage**: `npx Modellr-mcp` or `Modellr-mcp` (if installed globally)
 
 ### Scripts
 
@@ -674,7 +674,7 @@ run().catch((error) => {
 **MCP Tool Call**:
 ```json
 {
-  "tool": "schemaforge_list_schemas",
+  "tool": "Modellr_list_schemas",
   "arguments": {}
 }
 ```
@@ -699,7 +699,7 @@ run().catch((error) => {
 **Step 1 - Read Schema**:
 ```json
 {
-  "tool": "schemaforge_read_schema",
+  "tool": "Modellr_read_schema",
   "arguments": { "id": "abc-123" }
 }
 ```
@@ -707,7 +707,7 @@ run().catch((error) => {
 **Step 2 - Modify Table**:
 ```json
 {
-  "tool": "schemaforge_modify_table",
+  "tool": "Modellr_modify_table",
   "arguments": {
     "id": "abc-123",
     "tableName": "users",
@@ -732,7 +732,7 @@ run().catch((error) => {
 **MCP Tool Call**:
 ```json
 {
-  "tool": "schemaforge_generate_migration",
+  "tool": "Modellr_generate_migration",
   "arguments": {
     "oldId": "old-id",
     "newId": "new-id"
@@ -777,9 +777,9 @@ CREATE INDEX idx_users_email ON users(email);
 All logs use `console.error()` to avoid interfering with stdio transport:
 
 ```javascript
-console.error('[SchemaForge MCP] Connected and listening on stdio.');
-console.error(`[SchemaForge MCP] SSE Server listening on 0.0.0.0:${port}`);
-console.error('[SchemaForge MCP] Fatal error:', error);
+console.error('[Modellr MCP] Connected and listening on stdio.');
+console.error(`[Modellr MCP] SSE Server listening on 0.0.0.0:${port}`);
+console.error('[Modellr MCP] Fatal error:', error);
 ```
 
 ### Debug Information
@@ -810,7 +810,7 @@ console.error('[SchemaForge MCP] Fatal error:', error);
    ```json
    {
      "mcpServers": {
-       "schemaforge": {
+       "Modellr": {
          "command": "node",
          "args": ["/absolute/path/to/mcp-server/index.js"],
          "env": {
@@ -825,7 +825,7 @@ console.error('[SchemaForge MCP] Fatal error:', error);
 
 4. **Test Connection**:
    ```
-   Ask AI: "List my SchemaForge schemas"
+   Ask AI: "List my Modellr schemas"
    ```
 
 ---
@@ -835,7 +835,7 @@ console.error('[SchemaForge MCP] Fatal error:', error);
 1. **Set Environment Variables**:
    ```bash
    SCHEMA_FORGE_TOKEN=sfk_live_xxxxx
-   SCHEMA_FORGE_API_URL=https://api.schemaforge.com/api/mcp/call
+   SCHEMA_FORGE_API_URL=https://api.Modellr.com/api/mcp/call
    PORT=3000
    ```
 
@@ -943,7 +943,7 @@ console.error('[SchemaForge MCP] Fatal error:', error);
 
 ## Conclusion
 
-The SchemaForge MCP Server is a robust, production-ready bridge between AI agents and SchemaForge's visual database design platform. It provides a standardized interface for schema manipulation, SQL generation, and version comparison, enabling AI-assisted database design workflows.
+The Modellr MCP Server is a robust, production-ready bridge between AI agents and Modellr's visual database design platform. It provides a standardized interface for schema manipulation, SQL generation, and version comparison, enabling AI-assisted database design workflows.
 
 **Key Strengths**:
 - ✅ Standards-compliant MCP implementation
@@ -962,5 +962,5 @@ The SchemaForge MCP Server is a robust, production-ready bridge between AI agent
 
 ---
 
-*Documentation generated for SchemaForge MCP Server v1.0.0*  
+*Documentation generated for Modellr MCP Server v1.0.0*  
 *Last Updated: 2024*

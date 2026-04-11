@@ -2,7 +2,7 @@
 
 > **Location:** `server/routes/mcpGateway.js`  
 > **Type:** Express Router Module  
-> **Purpose:** Authenticated gateway that exposes SchemaForge schema data and operations to external MCP (Model Context Protocol) clients. Validates `sfk_live_*` bearer tokens, resolves the user context, and dispatches named tool calls against Supabase schema data.
+> **Purpose:** Authenticated gateway that exposes Modellr schema data and operations to external MCP (Model Context Protocol) clients. Validates `sfk_live_*` bearer tokens, resolves the user context, and dispatches named tool calls against Supabase schema data.
 
 ---
 
@@ -27,7 +27,7 @@
 
 ## 1. File Overview
 
-`mcpGateway.js` is the **programmatic API layer** of SchemaForge — it allows external AI agents, IDE extensions (e.g. VS Code with MCP support), and automation pipelines to read and modify SchemaForge schemas without a browser session.
+`mcpGateway.js` is the **programmatic API layer** of Modellr — it allows external AI agents, IDE extensions (e.g. VS Code with MCP support), and automation pipelines to read and modify Modellr schemas without a browser session.
 
 It exposes a single endpoint (`POST /call`) that acts as a **tool dispatcher** — similar in concept to a JSON-RPC or function-calling interface. The caller names a tool and passes arguments; the gateway validates ownership and executes the operation against Supabase.
 
@@ -40,14 +40,14 @@ It exposes a single endpoint (`POST /call`) that acts as a **tool dispatcher** �
 
 | Tool Name | Operation |
 |---|---|
-| `schemaforge_list_schemas` | List all schemas owned by the user |
-| `schemaforge_read_schema` | Read full canvas state of one schema |
-| `schemaforge_update_schema` | Replace a schema's full canvas state |
-| `schemaforge_add_table` | Append a new table to an existing schema |
-| `schemaforge_modify_table` | Patch fields/properties of an existing table |
-| `schemaforge_generate_postgres_sql` | Generate PostgreSQL DDL SQL from a schema |
-| `schemaforge_diff_schemas` | Compute a structural diff between two schemas |
-| `schemaforge_generate_migration` | Generate a SQL migration script between two schemas |
+| `Modellr_list_schemas` | List all schemas owned by the user |
+| `Modellr_read_schema` | Read full canvas state of one schema |
+| `Modellr_update_schema` | Replace a schema's full canvas state |
+| `Modellr_add_table` | Append a new table to an existing schema |
+| `Modellr_modify_table` | Patch fields/properties of an existing table |
+| `Modellr_generate_postgres_sql` | Generate PostgreSQL DDL SQL from a schema |
+| `Modellr_diff_schemas` | Compute a structural diff between two schemas |
+| `Modellr_generate_migration` | Generate a SQL migration script between two schemas |
 
 ---
 
@@ -99,14 +99,14 @@ mcpGateway.js
 │   ├── last_used_at update          (line 64)
 │   └── req.ctx injection + next()   (lines 67–68)
 ├── POST /call (tool dispatcher)     (lines 72–247)
-│   ├── schemaforge_list_schemas     (lines 78–87)
-│   ├── schemaforge_read_schema      (lines 89–102)
-│   ├── schemaforge_update_schema    (lines 104–129)
-│   ├── schemaforge_add_table        (lines 131–154)
-│   ├── schemaforge_modify_table     (lines 156–182)
-│   ├── schemaforge_generate_postgres_sql (lines 184–200)
-│   ├── schemaforge_diff_schemas     (lines 202–219)
-│   ├── schemaforge_generate_migration   (lines 221–239)
+│   ├── Modellr_list_schemas     (lines 78–87)
+│   ├── Modellr_read_schema      (lines 89–102)
+│   ├── Modellr_update_schema    (lines 104–129)
+│   ├── Modellr_add_table        (lines 131–154)
+│   ├── Modellr_modify_table     (lines 156–182)
+│   ├── Modellr_generate_postgres_sql (lines 184–200)
+│   ├── Modellr_diff_schemas     (lines 202–219)
+│   ├── Modellr_generate_migration   (lines 221–239)
 │   └── default (unknown tool)       (lines 241–242)
 └── export default router            (line 249)
 ```
@@ -193,7 +193,7 @@ Request arrives at /mcp/*
 
 ```json
 {
-  "tool": "schemaforge_read_schema",
+  "tool": "Modellr_read_schema",
   "arguments": {
     "id": "schema-uuid-here"
   }
@@ -223,7 +223,7 @@ Errors return:
 
 ---
 
-### `schemaforge_list_schemas`
+### `Modellr_list_schemas`
 
 **Lines:** 78–87
 
@@ -250,7 +250,7 @@ supabase.from('schemas')
 
 ---
 
-### `schemaforge_read_schema`
+### `Modellr_read_schema`
 
 **Lines:** 89–102
 
@@ -280,7 +280,7 @@ Returns the full canvas state of a single schema (all tables, fields, and relati
 
 ---
 
-### `schemaforge_update_schema`
+### `Modellr_update_schema`
 
 **Lines:** 104–129
 
@@ -306,7 +306,7 @@ Replaces a schema's entire canvas state (full overwrite of tables and relationsh
 
 ---
 
-### `schemaforge_add_table`
+### `Modellr_add_table`
 
 **Lines:** 131–154
 
@@ -333,7 +333,7 @@ Appends a new table object to an existing schema's canvas state without overwrit
 
 ---
 
-### `schemaforge_modify_table`
+### `Modellr_modify_table`
 
 **Lines:** 156–182
 
@@ -362,7 +362,7 @@ Applies a partial update (patch) to a specific table within a schema.
 
 ---
 
-### `schemaforge_generate_postgres_sql`
+### `Modellr_generate_postgres_sql`
 
 **Lines:** 184–200
 
@@ -387,7 +387,7 @@ Generates PostgreSQL DDL SQL (`CREATE TABLE`, foreign key constraints, etc.) for
 
 ---
 
-### `schemaforge_diff_schemas`
+### `Modellr_diff_schemas`
 
 **Lines:** 202–219
 
@@ -411,7 +411,7 @@ Computes a structural diff between two schema versions — which tables were add
 
 ---
 
-### `schemaforge_generate_migration`
+### `Modellr_generate_migration`
 
 **Lines:** 221–239
 
@@ -529,7 +529,7 @@ Tool Dispatcher (switch on req.body.tool)
 - **Switch-based tool dispatch:** A `switch(tool)` in a single POST handler is a common and readable pattern for RPC-style APIs. Avoids requiring separate route registrations for each tool.
 - **Background `last_used_at` update:** `.then()` with no `.catch()` — intentionally fire-and-forget to avoid adding latency to the auth path. A failed timestamp update is non-critical.
 - **Read-modify-write pattern:** `add_table` and `modify_table` both fetch current state, mutate in memory, then write back — a simple but non-atomic approach.
-- **`count` query for ownership check:** `schemaforge_update_schema` uses `{ count: 'exact', head: true }` to verify ownership without fetching the full canvas state — efficient for large schemas.
+- **`count` query for ownership check:** `Modellr_update_schema` uses `{ count: 'exact', head: true }` to verify ownership without fetching the full canvas state — efficient for large schemas.
 
 ---
 
@@ -542,8 +542,8 @@ Tool Dispatcher (switch on req.body.tool)
 | **No tool argument schema validation** | Arguments are destructured and checked for presence, but not validated for type or format. Unexpected argument shapes could cause runtime errors. |
 | **`last_used_at` failures are silent** | If the background update fails, there's no log or alert. |
 | **Error status is always `400`** | All tool-level errors (including "not found") return `400`. A `404` for missing schemas would be more semantically correct. Only the "unknown tool" case correctly returns `404`. |
-| **No pagination on list** | `schemaforge_list_schemas` returns all schemas without limit or cursor-based pagination. |
-| **`relationships` defaults to `[]` silently** | In `schemaforge_update_schema`, if `relationships` is omitted, it silently becomes `[]` — potentially deleting all existing relationships. |
+| **No pagination on list** | `Modellr_list_schemas` returns all schemas without limit or cursor-based pagination. |
+| **`relationships` defaults to `[]` silently** | In `Modellr_update_schema`, if `relationships` is omitted, it silently becomes `[]` — potentially deleting all existing relationships. |
 
 ---
 
@@ -556,7 +556,7 @@ POST /api/mcp/call
 Authorization: Bearer sfk_live_a3f9c2d8e1b4f7a09c6d2e5f8a3b1c4d
 Content-Type: application/json
 
-{ "tool": "schemaforge_list_schemas", "arguments": {} }
+{ "tool": "Modellr_list_schemas", "arguments": {} }
 ```
 
 ### Read a Schema
@@ -566,7 +566,7 @@ POST /api/mcp/call
 Authorization: Bearer sfk_live_...
 Content-Type: application/json
 
-{ "tool": "schemaforge_read_schema", "arguments": { "id": "uuid-here" } }
+{ "tool": "Modellr_read_schema", "arguments": { "id": "uuid-here" } }
 ```
 
 ### Add a Table
@@ -577,7 +577,7 @@ Authorization: Bearer sfk_live_...
 Content-Type: application/json
 
 {
-  "tool": "schemaforge_add_table",
+  "tool": "Modellr_add_table",
   "arguments": {
     "id": "schema-uuid",
     "table": {
@@ -600,7 +600,7 @@ POST /api/mcp/call
 Authorization: Bearer sfk_live_...
 Content-Type: application/json
 
-{ "tool": "schemaforge_generate_postgres_sql", "arguments": { "id": "schema-uuid" } }
+{ "tool": "Modellr_generate_postgres_sql", "arguments": { "id": "schema-uuid" } }
 ```
 
 ### Generate Migration Between Two Schemas
@@ -611,7 +611,7 @@ Authorization: Bearer sfk_live_...
 Content-Type: application/json
 
 {
-  "tool": "schemaforge_generate_migration",
+  "tool": "Modellr_generate_migration",
   "arguments": {
     "oldId": "old-schema-uuid",
     "newId": "new-schema-uuid"
@@ -621,4 +621,4 @@ Content-Type: application/json
 
 ---
 
-*Generated documentation for SchemaForge — `server/routes/mcpGateway.js`*
+*Generated documentation for Modellr — `server/routes/mcpGateway.js`*

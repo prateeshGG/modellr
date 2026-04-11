@@ -115,7 +115,7 @@ All styles are 100% inline — no CSS class names.
 
 **`z-index: 99999`** — intentionally very high. Ensures the dialog renders above all other overlays (palettes, modals, editor panels).
 
-**Backdrop click → close** — clicking the semi-transparent backdrop calls `closeDialog()`. Unlike most other SchemaForge modals which use `e.target === e.currentTarget`, this uses a separate absolute-positioned backdrop `<div>` with its own `onClick`.
+**Backdrop click → close** — clicking the semi-transparent backdrop calls `closeDialog()`. Unlike most other Modellr modals which use `e.target === e.currentTarget`, this uses a separate absolute-positioned backdrop `<div>` with its own `onClick`.
 
 **Confirm button style** — uses `var(--alert-error)` as the background (red). This is a **destructive action color** — implying `type='confirm'` dialogs are used exclusively (or primarily) for destructive operations like delete. A non-destructive confirm (e.g. "Replace schema?") would visually suggest danger even when not truly destructive.
 
@@ -297,4 +297,4 @@ This pattern keeps dialog/toast UI out of feature components entirely — no JSX
 
 ---
 
-*Generated documentation for SchemaForge — `src/components/shared/`*
+*Generated documentation for Modellr — `src/components/shared/`*

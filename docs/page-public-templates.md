@@ -237,4 +237,4 @@ The ideal flow would pass a `?template={id}` query parameter to `/login`, then a
 
 ---
 
-*Generated documentation for SchemaForge — `src/pages/PublicTemplates.tsx`*
+*Generated documentation for Modellr — `src/pages/PublicTemplates.tsx`*

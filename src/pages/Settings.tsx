@@ -7,9 +7,9 @@ export function Settings() {
   const { session } = useAuthStore();
   const setToast = useUIStore((s) => s.showToast);
   const showDialog = useUIStore((s) => s.showDialog);
-  
+
   const [activeTab, setActiveTab] = useState<'profile' | 'api'>('profile');
-  
+
   const [displayName, setDisplayName] = useState('');
   const [isSaving, setIsSaving] = useState(false);
 
@@ -81,7 +81,7 @@ export function Settings() {
       });
       const data = await res.json();
       if (!res.ok) throw new Error(data.error);
-      
+
       setNewlyGeneratedKey(data.rawKey);
       setIsCopied(false);
       setApiKeys([data.newKey, ...apiKeys]);
@@ -123,13 +123,13 @@ export function Settings() {
   };
 
   const navItemStyle = (tabName: 'profile' | 'api') => ({
-    padding: '8px 16px', 
-    borderRadius: '8px', 
-    background: activeTab === tabName ? 'var(--surface-base)' : 'transparent', 
-    color: activeTab === tabName ? 'var(--text-primary)' : 'var(--text-secondary)', 
-    fontWeight: activeTab === tabName ? 600 : 400, 
-    cursor: 'pointer', 
-    fontSize: '14px', 
+    padding: '8px 16px',
+    borderRadius: '8px',
+    background: activeTab === tabName ? 'var(--surface-base)' : 'transparent',
+    color: activeTab === tabName ? 'var(--text-primary)' : 'var(--text-secondary)',
+    fontWeight: activeTab === tabName ? 600 : 400,
+    cursor: 'pointer',
+    fontSize: '14px',
     border: activeTab === tabName ? '1px solid var(--border-subtle)' : '1px solid transparent'
   });
 
@@ -138,7 +138,7 @@ export function Settings() {
 
       {/* Main Container */}
       <main style={{ maxWidth: '1000px', margin: '0 auto', width: '100%', padding: '48px 24px', flex: 1, display: 'flex', gap: '48px' }}>
-        
+
         {/* Sidebar */}
         <aside style={{ width: '240px', display: 'flex', flexDirection: 'column', gap: '8px' }}>
           <div onClick={() => { setActiveTab('profile'); setNewlyGeneratedKey(null); }} style={navItemStyle('profile')}>Profile</div>
@@ -149,7 +149,7 @@ export function Settings() {
 
         {/* Content Pane */}
         <section style={{ flex: 1 }}>
-          
+
           {activeTab === 'api' && (
             <>
               <h1 style={{ fontSize: '20px', fontWeight: 600, margin: '0 0 32px 0' }}>Developer API & MCP Access</h1>
@@ -160,23 +160,23 @@ export function Settings() {
                     {/* Fix #91: removed stale 'Phase 5' label — MCP is fully live */}
                   </div>
                   <div style={{ display: 'flex', gap: '8px', alignItems: 'center' }}>
-                    <input 
-                      type="text" 
-                      value={newKeyLabel} 
-                      onChange={(e) => setNewKeyLabel(e.target.value)} 
-                      placeholder="Key name..." 
+                    <input
+                      type="text"
+                      value={newKeyLabel}
+                      onChange={(e) => setNewKeyLabel(e.target.value)}
+                      placeholder="Key name..."
                       style={{ background: 'var(--canvas-bg)', border: '1px solid var(--border-subtle)', borderRadius: '6px', padding: '6px 10px', color: 'var(--text-primary)', fontSize: '12px', width: '150px', outline: 'none' }}
                     />
-                    <button 
+                    <button
                       onClick={handleGenerateKey}
                       style={{ background: 'var(--brand)', color: 'white', border: 'none', padding: '6px 14px', borderRadius: '6px', fontSize: '12px', fontWeight: 600, cursor: 'pointer' }}>
                       + Generate New Key
                     </button>
                   </div>
                 </div>
-                
+
                 <p style={{ fontSize: '13px', color: 'var(--text-secondary)', lineHeight: 1.5, marginBottom: '24px' }}>
-                  Use this key to connect Cursor or Windsurf to your SchemaForge projects. The MCP server lets your IDE read and update your schemas directly from the terminal.
+                  Use this key to connect Cursor or Windsurf to your Modellr projects. The MCP server lets your IDE read and update your schemas directly from the terminal.
                 </p>
 
                 {newlyGeneratedKey && (
@@ -189,7 +189,7 @@ export function Settings() {
                       <div style={{ flex: 1, padding: '10px 14px', fontSize: '13px', fontFamily: 'monospace', color: 'var(--text-primary)' }}>
                         {newlyGeneratedKey}
                       </div>
-                      <button 
+                      <button
                         onClick={handleCopyKey}
                         style={{ background: isCopied ? '#4ade80' : 'var(--surface-base)', border: 'none', borderLeft: '1px solid var(--border-subtle)', padding: '0 16px', color: isCopied ? '#000' : 'var(--text-primary)', cursor: 'pointer', fontSize: '12px', fontWeight: 600, transition: 'all 0.2s', width: '80px' }}>
                         {isCopied ? 'Copied!' : 'Copy'}
@@ -210,7 +210,7 @@ export function Settings() {
                           <div style={{ fontSize: '13px', fontWeight: 600, color: 'var(--text-primary)', marginBottom: '4px' }}>{key.label}</div>
                           <div style={{ fontSize: '12px', fontFamily: 'monospace', color: 'var(--text-muted)' }}>{key.key_prefix}•••••••••••••••••</div>
                         </div>
-                        <button 
+                        <button
                           onClick={() => handleDeleteKey(key.id)}
                           style={{ background: 'transparent', border: '1px solid var(--border-subtle)', padding: '6px 12px', borderRadius: '6px', color: 'var(--alert-error)', fontSize: '12px', cursor: 'pointer', fontWeight: 500 }}>
                           Revoke
@@ -223,14 +223,14 @@ export function Settings() {
                 <div style={{ paddingTop: '24px', borderTop: '1px solid var(--border-subtle)', marginTop: '24px' }}>
                   <div style={{ fontSize: '12px', fontWeight: 600, color: 'var(--text-secondary)', marginBottom: '12px' }}>MCP Setup Instructions</div>
                   <div style={{ background: 'var(--canvas-bg)', borderRadius: '8px', padding: '16px', fontFamily: 'monospace', fontSize: '12px', color: 'var(--text-muted)', lineHeight: 1.6 }}>
-                    <span style={{ color: 'var(--text-secondary)' }}># Add this to your Cursor / Windsurf settings (mcp.json):</span><br/>
-                    {`"mcpServers": {`}<br/>
-                    &nbsp;&nbsp;{`"schemaforge": {`} <br/>
-                    &nbsp;&nbsp;&nbsp;&nbsp;{`"command": "npx",`}<br/>
+                    <span style={{ color: 'var(--text-secondary)' }}># Add this to your Cursor / Windsurf settings (mcp.json):</span><br />
+                    {`"mcpServers": {`}<br />
+                    &nbsp;&nbsp;{`"Modellr": {`} <br />
+                    &nbsp;&nbsp;&nbsp;&nbsp;{`"command": "npx",`}<br />
                     {/* Fix #12: use npx with the published package, not a hardcoded local dev path */}
-                    &nbsp;&nbsp;&nbsp;&nbsp;{`"args": ["schemaforge-mcp"],`}<br/>
-                    &nbsp;&nbsp;&nbsp;&nbsp;{`"env": { "SCHEMA_FORGE_TOKEN": "YOUR_RAW_KEY_HERE", "SCHEMA_FORGE_URL": "${window.location.origin}" }`}<br/>
-                    &nbsp;&nbsp;{`}`}<br/>
+                    &nbsp;&nbsp;&nbsp;&nbsp;{`"args": ["Modellr-mcp"],`}<br />
+                    &nbsp;&nbsp;&nbsp;&nbsp;{`"env": { "SCHEMA_FORGE_TOKEN": "YOUR_RAW_KEY_HERE", "SCHEMA_FORGE_URL": "${window.location.origin}" }`}<br />
+                    &nbsp;&nbsp;{`}`}<br />
                     {`}`}
                   </div>
                 </div>
@@ -241,17 +241,17 @@ export function Settings() {
           {activeTab === 'profile' && (
             <>
               <h1 style={{ fontSize: '20px', fontWeight: 600, margin: '0 0 32px 0' }}>Profile Settings</h1>
-              
+
               {/* Fix #61: wrap profile fields in a form so Enter key submits */}
               <form onSubmit={(e) => { e.preventDefault(); handleSaveProfile(); }} style={{ display: 'flex', flexDirection: 'column', gap: '24px', marginBottom: '48px', maxWidth: '400px' }}>
                 <div>
                   <label style={{ display: 'block', fontSize: '11px', fontWeight: 700, letterSpacing: '0.05em', color: 'var(--text-muted)', marginBottom: '8px', textTransform: 'uppercase' }}>Display Name</label>
-                  <input 
-                    type="text" 
+                  <input
+                    type="text"
                     value={displayName}
                     onChange={(e) => setDisplayName(e.target.value)}
                     placeholder="Enter your name"
-                    style={{ width: '100%', background: 'var(--surface-base)', border: '1px solid var(--border-subtle)', borderRadius: '8px', padding: '12px', color: 'var(--text-primary)', fontSize: '14px', outline: 'none' }} 
+                    style={{ width: '100%', background: 'var(--surface-base)', border: '1px solid var(--border-subtle)', borderRadius: '8px', padding: '12px', color: 'var(--text-primary)', fontSize: '14px', outline: 'none' }}
                   />
                 </div>
                 <div>

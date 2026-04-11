@@ -2,7 +2,7 @@
 
 > **Location:** `server/routes/openai.js`  
 > **Type:** Express Router Module  
-> **Purpose:** Acts as the backend AI proxy layer for SchemaForge, bridging the frontend to OpenAI's API. Exposes three distinct endpoints for schema modification via structured AI output, real-time streaming text, and full schema generation from a natural language prompt.
+> **Purpose:** Acts as the backend AI proxy layer for Modellr, bridging the frontend to OpenAI's API. Exposes three distinct endpoints for schema modification via structured AI output, real-time streaming text, and full schema generation from a natural language prompt.
 
 ---
 
@@ -31,7 +31,7 @@
 
 ## 1. File Overview
 
-`openai.js` is the **AI intelligence layer** of SchemaForge's backend. It proxies three distinct categories of OpenAI API calls, each serving a different feature on the frontend:
+`openai.js` is the **AI intelligence layer** of Modellr's backend. It proxies three distinct categories of OpenAI API calls, each serving a different feature on the frontend:
 
 | Endpoint | Feature | Output Type |
 |---|---|---|
@@ -262,7 +262,7 @@ res.json({ success: true, response: parsedResult })
 **Full path (when mounted):** `POST /api/openai/stream`
 
 #### Purpose
-A lightweight SSE (Server-Sent Events) proxy for real-time streaming responses. Used for AI-powered contextual suggestions, field description generation, or freeform chat within the SchemaForge UI.
+A lightweight SSE (Server-Sent Events) proxy for real-time streaming responses. Used for AI-powered contextual suggestions, field description generation, or freeform chat within the Modellr UI.
 
 #### Request Body
 
@@ -323,7 +323,7 @@ data: [DONE]
 **Full path (when mounted):** `POST /api/openai/generate`
 
 #### Purpose
-Given a plain-text application description, generates a complete, ready-to-use database schema (tables + fields + relationships) in JSON format. This powers the "generate schema from scratch" feature in SchemaForge.
+Given a plain-text application description, generates a complete, ready-to-use database schema (tables + fields + relationships) in JSON format. This powers the "generate schema from scratch" feature in Modellr.
 
 #### Request Body
 
@@ -391,7 +391,7 @@ res.json(data)    ← Forward the raw completion response
 ### `/modify` System Prompt
 
 ```
-You are SchemaForge AI, an expert Database Architect acting directly on a visual schema canvas.
+You are Modellr AI, an expert Database Architect acting directly on a visual schema canvas.
 Given the current JSON context of the user's schema and their prompt, output the exact sequence of
 structural Operations needed to modify their schema to fulfill their request.
 Ensure all field types conform to standard PostgreSQL formatting.
@@ -558,4 +558,4 @@ Content-Type: application/json
 
 ---
 
-*Generated documentation for SchemaForge — `server/routes/openai.js`*
+*Generated documentation for Modellr — `server/routes/openai.js`*

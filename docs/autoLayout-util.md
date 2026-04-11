@@ -354,4 +354,4 @@ const newPos = positions.get(table.id) ?? table.position; // keep original if no
 
 ---
 
-*Generated documentation for SchemaForge — `src/utils/autoLayout.ts`*
+*Generated documentation for Modellr — `src/utils/autoLayout.ts`*

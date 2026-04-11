@@ -165,4 +165,4 @@ The only coupling is the string-typed article ID — both `DocsLayout` (sidebar)
 
 ---
 
-*Generated documentation for SchemaForge — `src/pages/Docs.tsx`*
+*Generated documentation for Modellr — `src/pages/Docs.tsx`*

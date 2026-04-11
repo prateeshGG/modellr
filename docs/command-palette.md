@@ -407,4 +407,4 @@ The `disabled` badge label "Phase 2" is shown for all disabled commands — curr
 
 ---
 
-*Generated documentation for SchemaForge — `src/components/palette/CommandPalette.tsx`*
+*Generated documentation for Modellr — `src/components/palette/CommandPalette.tsx`*

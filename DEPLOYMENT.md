@@ -1,10 +1,10 @@
-# SchemaForge Deployment Guide
+# Modellr Deployment Guide
 
-This document outlines the production architecture and deployment steps for SchemaForge, ensuring the application can be maintained, restarted, or moved easily in the future.
+This document outlines the production architecture and deployment steps for Modellr, ensuring the application can be maintained, restarted, or moved easily in the future.
 
 ## Architecture Overview
 
-SchemaForge relies on a decoupled architecture for maximum performance and cost-efficiency:
+Modellr relies on a decoupled architecture for maximum performance and cost-efficiency:
 1.  **Frontend (React/Vite)**: Hosted on Vercel.
 2.  **Backend (Node.js/Yjs WebSockets)**: Hosted on an AWS EC2 Instance.
 3.  **Database / Auth**: Hosted on Supabase (PostgreSQL + GoTrue Auth).
@@ -50,8 +50,8 @@ Once the software above is installed, pull down the code and start it:
 
 ```bash
 # 1. Clone your project (replace with your repo URL)
-git clone https://github.com/prateesh7777/SchemaForge.git
-cd SchemaForge/server
+git clone https://github.com/prateesh7777/Modellr.git
+cd Modellr/server
 
 # 2. Install dependencies
 npm install
@@ -63,7 +63,7 @@ nano .env
 
 ```bash
 # 4. Start the server using PM2
-pm2 start index.js --name "schemaforge-backend"
+pm2 start index.js --name "Modellr-backend"
 
 # 5. Save the PM2 process so it restarts if the AWS EC2 server reboots
 pm2 save
@@ -115,7 +115,7 @@ Whenever you push code to GitHub (or use the Vercel CLI `vercel --prod`), Vercel
 
 ## 3. Database Deployment (Supabase)
 
-SchemaForge uses Supabase for database storage, Row Level Security (RLS), and Authentication.
+Modellr uses Supabase for database storage, Row Level Security (RLS), and Authentication.
 
 1. **Database Schema**: 
    Ensure your Supabase PostgreSQL instance has the `schemas` table deployed. The table tracks ownership (`owner_id`), visibility (`is_public`), and the JSON string payload for offline sync.
@@ -129,8 +129,8 @@ SchemaForge uses Supabase for database storage, Row Level Security (RLS), and Au
 
 *   **If the Real-time Collaborative Canvas isn't syncing:**
     *   SSH into your EC2 instance (`ssh ubuntu@13.61.7.14`).
-    *   Check server logs: `pm2 logs schemaforge-backend`.
-    *   Restart the server if frozen: `pm2 restart schemaforge-backend`.
+    *   Check server logs: `pm2 logs Modellr-backend`.
+    *   Restart the server if frozen: `pm2 restart Modellr-backend`.
 *   **If AI Generation fails:**
     *   Verify the `OPENAI_API_KEY` in the `/server/.env` file on the EC2 instance hasn't expired.
 *   **Need to change backend IP?**

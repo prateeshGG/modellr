@@ -2,7 +2,7 @@
 
 > **Location:** `supabase/schema.sql`  
 > **Type:** PostgreSQL SQL Script  
-> **Purpose:** Defines and initializes the entire SchemaForge database on Supabase — creating all tables, enabling Row Level Security (RLS), defining per-table access policies, and setting up an auth trigger to auto-provision user profiles on signup.
+> **Purpose:** Defines and initializes the entire Modellr database on Supabase — creating all tables, enabling Row Level Security (RLS), defining per-table access policies, and setting up an auth trigger to auto-provision user profiles on signup.
 
 ---
 
@@ -27,7 +27,7 @@
 
 ## 1. File Overview
 
-This file is the **single source of truth** for the SchemaForge Supabase database structure. It must be run once (in order) against a fresh Supabase project to set up:
+This file is the **single source of truth** for the Modellr Supabase database structure. It must be run once (in order) against a fresh Supabase project to set up:
 
 - **4 tables** across the `public` schema
 - **RLS enabled** on all 4 tables
@@ -161,7 +161,7 @@ CREATE TABLE public.snapshots (
 
 ### `public.api_keys`
 
-**Lines:** 43–51 | **Purpose:** Stores SchemaForge MCP API keys (`sfk_live_*`) for external programmatic access via the MCP Gateway.
+**Lines:** 43–51 | **Purpose:** Stores Modellr MCP API keys (`sfk_live_*`) for external programmatic access via the MCP Gateway.
 
 ```sql
 CREATE TABLE public.api_keys (
@@ -380,4 +380,4 @@ Every time a new user signs up (a row is inserted into `auth.users` by Supabase 
 
 ---
 
-*Generated documentation for SchemaForge — `supabase/schema.sql`*
+*Generated documentation for Modellr — `supabase/schema.sql`*

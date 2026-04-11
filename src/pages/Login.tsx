@@ -8,7 +8,7 @@ type LoginView = 'auth' | 'forgot';
 export function Login() {
   const { session } = useAuthStore();
   const [view, setView] = useState<LoginView>('auth');
-  const [email, setEmail]       = useState('');
+  const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [resetEmail, setResetEmail] = useState('');
   const [isLoading, setIsLoading] = useState(false);
@@ -143,7 +143,7 @@ export function Login() {
       ) : (
         /* ── Auth view (sign-in / sign-up) ── */
         <div style={cardStyle}>
-          <h1 style={{ fontSize: '20px', marginBottom: '8px' }}>Welcome to SchemaForge</h1>
+          <h1 style={{ fontSize: '20px', marginBottom: '8px' }}>Welcome to Modellr</h1>
           <p style={{ fontSize: '14px', color: 'var(--text-secondary)', marginBottom: '24px' }}>
             Sign in or create an account to access your cloud schemas.
           </p>

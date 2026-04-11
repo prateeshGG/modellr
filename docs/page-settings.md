@@ -264,15 +264,15 @@ A static code block with a template `mcp.json` config:
 
 ```json
 "mcpServers": {
-  "schemaforge": {
+  "Modellr": {
     "command": "node",
-    "args": ["C:/Web Development/SchemaForge/mcp-server/index.js"],
+    "args": ["C:/Web Development/Modellr/mcp-server/index.js"],
     "env": { "SCHEMA_FORGE_TOKEN": "YOUR_RAW_KEY_HERE" }
   }
 }
 ```
 
-> ⚠️ **Hardcoded local path:** The `args` path `"C:/Web Development/SchemaForge/mcp-server/index.js"` is the **developer's local machine path** — not a published npm package path or a relative path. Any user copy-pasting this will get a path that doesn't exist on their system. Should reference a published npm package (e.g. `npx @schemaforge/mcp`) or an environment-relative path.
+> ⚠️ **Hardcoded local path:** The `args` path `"C:/Web Development/Modellr/mcp-server/index.js"` is the **developer's local machine path** — not a published npm package path or a relative path. Any user copy-pasting this will get a path that doesn't exist on their system. Should reference a published npm package (e.g. `npx @Modellr/mcp`) or an environment-relative path.
 
 ---
 
@@ -350,7 +350,7 @@ Sidebar items use `<div onClick>` — no `role="tab"` or `aria-selected` for ARI
 
 | | Detail |
 |---|---|
-| **MCP config has hardcoded local path** | `"C:/Web Development/SchemaForge/mcp-server/index.js"` is a dev machine path — unusable for real users |
+| **MCP config has hardcoded local path** | `"C:/Web Development/Modellr/mcp-server/index.js"` is a dev machine path — unusable for real users |
 | **`fetchApiKeys` silently fails** | Network/server errors log to console only — no UI error shown; API tab renders as if empty on failure |
 | **"Delete account" is locked** | Shows `'info'` toast: `"Account deletion is locked during Beta."` — no Supabase user deletion implemented |
 | **"Billing" and "Notifications" are placeholder tabs** | No tab content, no navigation, just disabled labels with "(Coming Soon)" — no popover or tooltip |
@@ -395,4 +395,4 @@ DELETE /api/keys/:id        → handleDeleteKey()
 
 ---
 
-*Generated documentation for SchemaForge — `src/pages/Settings.tsx`*
+*Generated documentation for Modellr — `src/pages/Settings.tsx`*

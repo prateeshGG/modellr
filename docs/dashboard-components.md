@@ -623,4 +623,4 @@ Dashboard.tsx (page)
 
 ---
 
-*Generated documentation for SchemaForge — `src/components/dashboard/`*
+*Generated documentation for Modellr — `src/components/dashboard/`*

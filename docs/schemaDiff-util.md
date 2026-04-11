@@ -2,7 +2,7 @@
 
 > **Location:** `server/utils/schemaDiff.js`  
 > **Type:** Pure Utility Function — ES Module  
-> **Purpose:** Compares two SchemaForge canvas states and returns a structured diff object describing exactly what changed — which tables were added, removed, or modified, and which relationships were added or removed. Used by both `mcpGateway.js` and `migrationGenerator.js`.
+> **Purpose:** Compares two Modellr canvas states and returns a structured diff object describing exactly what changed — which tables were added, removed, or modified, and which relationships were added or removed. Used by both `mcpGateway.js` and `migrationGenerator.js`.
 
 ---
 
@@ -32,7 +32,7 @@ The function answers the question:
 
 The diff is consumed by:
 - `migrationGenerator.js` — to generate SQL `ALTER TABLE` / `CREATE TABLE` / `DROP TABLE` statements.
-- `mcpGateway.js` (`schemaforge_diff_schemas` tool) — to return a human-readable structural diff to MCP clients.
+- `mcpGateway.js` (`Modellr_diff_schemas` tool) — to return a human-readable structural diff to MCP clients.
 
 ---
 
@@ -351,9 +351,9 @@ diffSchemas(null, null);  // returns all-empty diff
 
 | Consumer | Usage |
 |---|---|
-| `server/routes/mcpGateway.js` | `schemaforge_diff_schemas` tool — returns the raw diff to MCP clients |
+| `server/routes/mcpGateway.js` | `Modellr_diff_schemas` tool — returns the raw diff to MCP clients |
 | `server/utils/migrationGenerator.js` | Receives the diff as input to `generateMigration()` |
 
 ---
 
-*Generated documentation for SchemaForge — `server/utils/schemaDiff.js`*
+*Generated documentation for Modellr — `server/utils/schemaDiff.js`*

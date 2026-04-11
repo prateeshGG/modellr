@@ -2,7 +2,7 @@
 
 > **Location:** `src/store/`  
 > **Type:** Zustand State Stores — TypeScript  
-> **Purpose:** Six modules that form the complete client-side state layer of SchemaForge — authentication, schema canvas data, UI ephemeral state, version history snapshots, real-time collaboration (Yjs/WebSockets), and the shared ID generator utility.
+> **Purpose:** Six modules that form the complete client-side state layer of Modellr — authentication, schema canvas data, UI ephemeral state, version history snapshots, real-time collaboration (Yjs/WebSockets), and the shared ID generator utility.
 
 ---
 
@@ -202,7 +202,7 @@ Calls Supabase to invalidate the session server-side, then clears local state. T
 
 ## File Overview
 
-The **central state store** for SchemaForge — holds all canvas content (tables, fields, relationships, notes, groups) and exposes a comprehensive action API. Wrapped with **zundo's `temporal` middleware** for full undo/redo history.
+The **central state store** for Modellr — holds all canvas content (tables, fields, relationships, notes, groups) and exposes a comprehensive action API. Wrapped with **zundo's `temporal` middleware** for full undo/redo history.
 
 The store logic is intentionally separated into `createSchemaLogic` (a factory function) from the store creation with `temporal` wrapping — enabling reuse and testing.
 
@@ -933,4 +933,4 @@ function getLocalUser(): { name: string; color: string }
 
 ---
 
-*Generated documentation for SchemaForge — `src/store/`*
+*Generated documentation for Modellr — `src/store/`*

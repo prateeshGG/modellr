@@ -10,11 +10,11 @@ export const DashboardSidebar: React.FC<DashboardSidebarProps> = ({ onSignOut })
   const location = useLocation();
 
   const navItems = [
-    { label: 'My Projects',          path: '/app',              icon: '☐' },
-    { label: 'Community Templates',  path: '/app/templates',    icon: '◈' },
-    { label: 'Team Workspace',       path: '#team',             icon: '👥', disabled: true },
-    { label: 'Developer API',        path: '/app/settings#api', icon: '⚙' },
-    { label: 'Documentation',        path: '/docs',             icon: '📖' },
+    { label: 'My Projects', path: '/app', icon: '☐' },
+    { label: 'Community Templates', path: '/app/templates', icon: '◈' },
+    { label: 'Team Workspace', path: '#team', icon: '👥', disabled: true },
+    { label: 'Developer API', path: '/app/settings#api', icon: '⚙' },
+    { label: 'Documentation', path: '/docs', icon: '📖' },
   ];
 
   // Fix #72: strip hash from item path before comparing to location.pathname
@@ -46,7 +46,7 @@ export const DashboardSidebar: React.FC<DashboardSidebarProps> = ({ onSignOut })
     <aside className="dashboard-sidebar" aria-label="Dashboard navigation">
       <div className="dashboard-logo">
         <div className="dashboard-logo-icon">SF</div>
-        SchemaForge
+        Modellr
       </div>
 
       <nav className="sidebar-nav" role="navigation">

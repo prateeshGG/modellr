@@ -2,7 +2,7 @@
 
 > **Location:** `server/routes/mysql.js`  
 > **Type:** Express Router Module  
-> **Purpose:** Introspects a live MySQL database via a connection string and returns a structured schema representation (tables, fields, relationships) suitable for visual schema editing in SchemaForge.
+> **Purpose:** Introspects a live MySQL database via a connection string and returns a structured schema representation (tables, fields, relationships) suitable for visual schema editing in Modellr.
 
 ---
 
@@ -31,7 +31,7 @@ This file defines a single Express **POST** route (`/`) responsible for **MySQL 
 2. Queries `information_schema` to extract tables, columns, and constraints (Primary Keys & Foreign Keys).
 3. Normalizes raw MySQL types into a set of generic dialect types.
 4. Builds an in-memory graph of tables and their inter-relationships.
-5. Returns this graph as a JSON response that the SchemaForge frontend can consume to render a visual schema diagram.
+5. Returns this graph as a JSON response that the Modellr frontend can consume to render a visual schema diagram.
 
 This route is mounted externally (likely in `server/index.js` or equivalent) under a path like `/api/introspect/mysql`.
 
@@ -88,7 +88,7 @@ The file is intentionally **flat and self-contained** — no external service ab
 **Lines:** 6–14  
 **Signature:** `function getDialectType(myType: string): string`
 
-Converts a raw MySQL `data_type` string (as returned from `information_schema.columns`) into a normalized, dialect-agnostic type string that SchemaForge uses internally.
+Converts a raw MySQL `data_type` string (as returned from `information_schema.columns`) into a normalized, dialect-agnostic type string that Modellr uses internally.
 
 #### Type Mapping Table
 
@@ -384,4 +384,4 @@ mysql://user:password@127.0.0.1:3306/database_name?ssl=true
 
 ---
 
-*Generated documentation for SchemaForge — `server/routes/mysql.js`*
+*Generated documentation for Modellr — `server/routes/mysql.js`*

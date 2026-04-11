@@ -2,7 +2,7 @@
 
 > **Location:** `src/components/editor/`  
 > **Type:** React Components — TypeScript/TSX  
-> **Purpose:** Two components that together form the code output panel in the SchemaForge editor — a low-level CodeMirror 6 wrapper (`CodeEditor`) and a higher-level format-switching panel (`CodePanel`) that drives it with live schema exports.
+> **Purpose:** Two components that together form the code output panel in the Modellr editor — a low-level CodeMirror 6 wrapper (`CodeEditor`) and a higher-level format-switching panel (`CodePanel`) that drives it with live schema exports.
 
 ---
 
@@ -227,7 +227,7 @@ An empty `<div>` — CodeMirror 6 appends its own DOM tree inside `containerRef.
 
 ## File Overview
 
-The **code output panel** of the SchemaForge editor — a toolbar + read-only `CodeEditor` combination that live-generates schema code in the selected format. Supports five output formats with format tabs, a line count indicator, a copy-to-clipboard button, and a footer AI shortcut button.
+The **code output panel** of the Modellr editor — a toolbar + read-only `CodeEditor` combination that live-generates schema code in the selected format. Supports five output formats with format tabs, a line count indicator, a copy-to-clipboard button, and a footer AI shortcut button.
 
 ## Dependencies & Imports
 
@@ -413,4 +413,4 @@ CodePanel
 
 ---
 
-*Generated documentation for SchemaForge — `src/components/editor/`*
+*Generated documentation for Modellr — `src/components/editor/`*

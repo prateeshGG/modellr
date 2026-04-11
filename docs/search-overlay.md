@@ -412,4 +412,4 @@ hits: SearchHit[]
 
 ---
 
-*Generated documentation for SchemaForge — `src/components/search/SearchOverlay.tsx`*
+*Generated documentation for Modellr — `src/components/search/SearchOverlay.tsx`*
