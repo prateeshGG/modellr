@@ -2,6 +2,7 @@ import { useNavigate } from 'react-router-dom';
 import { PublicNav } from '../components/layout/PublicNav';
 import { Footer } from '../components/layout/Footer';
 import { ArrowRight, Calendar } from 'lucide-react';
+import '../styles/public-dark.css';
 
 const STATIC_POSTS = [
   {
@@ -10,7 +11,7 @@ const STATIC_POSTS = [
     excerpt: 'Today we are thrilled to announce Modellr. We built it because we were tired of wrestling with legacy diagramming tools while working with modern ORMs like Prisma and Drizzle.',
     date: 'April 11, ' + new Date().getFullYear(),
     category: 'Company',
-    readTime: '3 min read'
+    readTime: '3 min read',
   },
   {
     id: 'why-visual-diagrams-fail',
@@ -18,7 +19,7 @@ const STATIC_POSTS = [
     excerpt: 'Static diagrams are out of date the minute you write your first migration. Here is how a synchronized workflow fixes the disconnect between architecture and code.',
     date: 'April 10, ' + new Date().getFullYear(),
     category: 'Engineering',
-    readTime: '5 min read'
+    readTime: '5 min read',
   },
   {
     id: 'prisma-vs-drizzle-schema-design',
@@ -26,69 +27,75 @@ const STATIC_POSTS = [
     excerpt: 'Both ORMs are taking the TypeScript world by storm. We take a deep dive into how you should approach relational database design depending on which stack you choose.',
     date: 'April 5, ' + new Date().getFullYear(),
     category: 'Database',
-    readTime: '8 min read'
-  }
+    readTime: '8 min read',
+  },
 ];
+
+const CATEGORY_COLORS: Record<string, string> = {
+  Company:     '#ae7aff',
+  Engineering: '#00e5a0',
+  Database:    '#f59e0b',
+};
 
 export function BlogIndex() {
   const navigate = useNavigate();
 
   return (
-    <div style={{ background: 'var(--canvas-bg)', color: 'var(--text-primary)', minHeight: '100vh', display: 'flex', flexDirection: 'column', fontFamily: 'var(--sans)' }}>
-      <PublicNav />
+    <div className="pd-root">
+      <PublicNav dark />
 
-      <main style={{ flex: 1, padding: '100px 20px', maxWidth: '1000px', margin: '0 auto', width: '100%' }}>
-        <div style={{ textAlign: 'center', marginBottom: '80px' }}>
-          <h1 style={{ fontSize: 'min(4rem, 10vw)', fontWeight: 900, letterSpacing: '-0.03em', marginBottom: '24px' }}>
-            The Modellr Blog
-          </h1>
-          <p style={{ fontSize: '1.2rem', color: 'var(--text-secondary)', maxWidth: '600px', margin: '0 auto', lineHeight: 1.6 }}>
+      {/* ── Hero ── */}
+      <div className="pd-hero" style={{ paddingTop: '140px' }}>
+        <div className="pd-hero-dot-grid" aria-hidden />
+        <div className="pd-hero-glow" aria-hidden />
+        <div style={{ position: 'relative', zIndex: 1 }}>
+          <div className="pd-label">// Blog</div>
+          <h1 className="pd-h1">The Modellr Blog</h1>
+          <p className="pd-lead">
             Thoughts on data architecture, modern backend development, and building tools for developers.
           </p>
         </div>
+      </div>
 
-        <div style={{ display: 'grid', gridTemplateColumns: '1fr', gap: '32px' }}>
-          {STATIC_POSTS.map((post) => (
-            <article
-              key={post.id}
-              onClick={() => navigate(`/blog/${post.id}`)}
-              style={{ background: 'var(--surface-base)', border: '1px solid var(--border-subtle)', borderRadius: '16px', padding: '40px', cursor: 'pointer', transition: 'transform 0.2s, box-shadow 0.2s', display: 'flex', flexDirection: 'column' }}
-              onMouseEnter={(e) => {
-                e.currentTarget.style.transform = 'translateY(-4px)';
-                e.currentTarget.style.boxShadow = '0 12px 24px -8px rgba(0,0,0,0.1)';
-              }}
-              onMouseLeave={(e) => {
-                e.currentTarget.style.transform = 'translateY(0)';
-                e.currentTarget.style.boxShadow = 'none';
-              }}
-            >
-              <div style={{ display: 'flex', alignItems: 'center', gap: '16px', marginBottom: '16px', fontSize: '13px' }}>
-                <span style={{ color: 'var(--brand)', fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.05em' }}>
-                  {post.category}
-                </span>
-                <span style={{ color: 'var(--border-hi)' }}>•</span>
-                <span style={{ color: 'var(--text-muted)', display: 'flex', alignItems: 'center', gap: '6px' }}>
-                  <Calendar size={14} /> {post.date}
-                </span>
-                <span style={{ color: 'var(--border-hi)' }}>•</span>
-                <span style={{ color: 'var(--text-muted)' }}>{post.readTime}</span>
-              </div>
+      {/* ── Posts ── */}
+      <section className="pd-section">
+        <div className="pd-inner--narrow" style={{ maxWidth: '860px' }}>
+          <div style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
+            {STATIC_POSTS.map(post => (
+              <article
+                key={post.id}
+                className="pd-blog-card"
+                onClick={() => navigate(`/blog/${post.id}`)}
+                role="button"
+                tabIndex={0}
+                onKeyDown={e => e.key === 'Enter' && navigate(`/blog/${post.id}`)}
+              >
+                <div style={{ display: 'flex', alignItems: 'center', gap: '14px', marginBottom: '14px', flexWrap: 'wrap' }}>
+                  <span style={{ fontFamily: 'var(--pd-mono)', fontSize: '11px', fontWeight: 700, color: CATEGORY_COLORS[post.category] ?? 'var(--pd-brand)', letterSpacing: '0.08em' }}>
+                    {post.category}
+                  </span>
+                  <span style={{ color: 'var(--pd-border-hi)' }}>·</span>
+                  <span style={{ color: 'var(--pd-muted)', display: 'flex', alignItems: 'center', gap: '5px', fontSize: '12px', fontFamily: 'var(--pd-mono)' }}>
+                    <Calendar size={12} /> {post.date}
+                  </span>
+                  <span style={{ color: 'var(--pd-border-hi)' }}>·</span>
+                  <span style={{ color: 'var(--pd-muted)', fontSize: '12px', fontFamily: 'var(--pd-mono)' }}>{post.readTime}</span>
+                </div>
 
-              <h2 style={{ fontSize: '28px', fontWeight: 800, margin: '0 0 16px 0', letterSpacing: '-0.02em', lineHeight: 1.3 }}>
-                {post.title}
-              </h2>
+                <h2 style={{ fontFamily: 'var(--pd-display)', fontSize: 'clamp(1.2rem, 2.5vw, 1.6rem)', fontWeight: 800, color: 'var(--pd-text)', margin: '0 0 12px 0', letterSpacing: '-0.02em', lineHeight: 1.2 }}>
+                  {post.title}
+                </h2>
 
-              <p style={{ color: 'var(--text-secondary)', fontSize: '16px', lineHeight: 1.6, margin: '0 0 24px 0', flex: 1 }}>
-                {post.excerpt}
-              </p>
+                <p className="pd-body-text" style={{ margin: '0 0 20px 0' }}>{post.excerpt}</p>
 
-              <div style={{ color: 'var(--text-primary)', fontWeight: 600, fontSize: '14px', display: 'flex', alignItems: 'center', gap: '8px' }}>
-                Read article <ArrowRight size={16} />
-              </div>
-            </article>
-          ))}
+                <div style={{ fontFamily: 'var(--pd-mono)', fontSize: '13px', color: 'var(--pd-brand)', display: 'flex', alignItems: 'center', gap: '6px' }}>
+                  Read article <ArrowRight size={14} />
+                </div>
+              </article>
+            ))}
+          </div>
         </div>
-      </main>
+      </section>
 
       <Footer />
     </div>

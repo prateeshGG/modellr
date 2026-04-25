@@ -3,17 +3,33 @@ import { useAuthStore } from '../store/authStore';
 import { supabase } from '../lib/supabase';
 import { useUIStore } from '../store/ui';
 
+const D = {
+  bg:        '#050507',
+  surface:   '#0c0c10',
+  surfaceHi: '#13131a',
+  border:    '#1e1e2e',
+  borderHi:  '#2e2e4e',
+  brand:     '#ae7aff',
+  brandGlow: 'rgba(174,122,255,0.15)',
+  accent:    '#00e5a0',
+  text:      '#e8e8f0',
+  muted:     '#6b6b80',
+  red:       '#f87171',
+  green:     '#4ade80',
+  mono:      "'Geist Mono', monospace",
+  display:   "'Syne', 'Geist', sans-serif",
+  body:      "'Instrument Sans', 'Geist', sans-serif",
+} as const;
+
 export function Settings() {
   const { session } = useAuthStore();
-  const setToast = useUIStore((s) => s.showToast);
+  const setToast   = useUIStore((s) => s.showToast);
   const showDialog = useUIStore((s) => s.showDialog);
 
   const [activeTab, setActiveTab] = useState<'profile' | 'api'>('profile');
-
   const [displayName, setDisplayName] = useState('');
   const [isSaving, setIsSaving] = useState(false);
 
-  // API Key State
   const [apiKeys, setApiKeys] = useState<any[]>([]);
   const [loadingKeys, setLoadingKeys] = useState(false);
   const [newlyGeneratedKey, setNewlyGeneratedKey] = useState<string | null>(null);
@@ -29,15 +45,10 @@ export function Settings() {
   const handleSaveProfile = async () => {
     if (!session?.user) return;
     setIsSaving(true);
-    const { error } = await supabase.auth.updateUser({
-      data: { display_name: displayName }
-    });
+    const { error } = await supabase.auth.updateUser({ data: { display_name: displayName } });
     setIsSaving(false);
-    if (error) {
-      setToast('Failed to update profile: ' + error.message, 'error');
-    } else {
-      setToast('Profile updated successfully!', 'success');
-    }
+    if (error) setToast('Failed to update profile: ' + error.message, 'error');
+    else setToast('Profile updated successfully!', 'success');
   };
 
   const fetchApiKeys = async () => {
@@ -45,13 +56,12 @@ export function Settings() {
     try {
       const baseUrl = import.meta.env.VITE_API_URL || 'http://localhost:3001';
       const res = await fetch(`${baseUrl}/api/keys`, {
-        headers: { 'Authorization': `Bearer ${session?.access_token}` }
+        headers: { 'Authorization': `Bearer ${session?.access_token}` },
       });
       const data = await res.json();
       if (!res.ok) throw new Error(data.error);
       setApiKeys(data);
     } catch (err: any) {
-      // Fix #11: surface failure as a toast instead of silently logging
       setToast('Failed to load API keys: ' + (err?.message || 'Unknown error'), 'error');
     } finally {
       setLoadingKeys(false);
@@ -59,33 +69,24 @@ export function Settings() {
   };
 
   useEffect(() => {
-    if (activeTab === 'api' && session?.access_token) {
-      fetchApiKeys();
-    }
+    if (activeTab === 'api' && session?.access_token) fetchApiKeys();
   }, [activeTab, session?.access_token]);
 
   const handleGenerateKey = async () => {
-    if (!newKeyLabel.trim()) {
-      setToast('Please provide a name for your key.', 'error');
-      return;
-    }
+    if (!newKeyLabel.trim()) { setToast('Please provide a name for your key.', 'error'); return; }
     try {
       const baseUrl = import.meta.env.VITE_API_URL || 'http://localhost:3001';
       const res = await fetch(`${baseUrl}/api/keys/generate`, {
         method: 'POST',
-        headers: {
-          'Authorization': `Bearer ${session?.access_token}`,
-          'Content-Type': 'application/json'
-        },
-        body: JSON.stringify({ label: newKeyLabel })
+        headers: { 'Authorization': `Bearer ${session?.access_token}`, 'Content-Type': 'application/json' },
+        body: JSON.stringify({ label: newKeyLabel }),
       });
       const data = await res.json();
       if (!res.ok) throw new Error(data.error);
-
       setNewlyGeneratedKey(data.rawKey);
       setIsCopied(false);
       setApiKeys([data.newKey, ...apiKeys]);
-      setNewKeyLabel('My Secret Key'); // Reset for next time
+      setNewKeyLabel('My Secret Key');
     } catch (err: any) {
       setToast('Failed to generate key: ' + err.message, 'error');
     }
@@ -108,111 +109,144 @@ export function Settings() {
           const baseUrl = import.meta.env.VITE_API_URL || 'http://localhost:3001';
           const res = await fetch(`${baseUrl}/api/keys/${id}`, {
             method: 'DELETE',
-            headers: { 'Authorization': `Bearer ${session?.access_token}` }
+            headers: { 'Authorization': `Bearer ${session?.access_token}` },
           });
-          if (!res.ok) {
-            const data = await res.json();
-            throw new Error(data.error);
-          }
+          if (!res.ok) { const d = await res.json(); throw new Error(d.error); }
           setApiKeys(prev => prev.filter(k => k.id !== id));
         } catch (err: any) {
           setToast('Failed to delete key: ' + err.message, 'error');
         }
-      }
+      },
     });
   };
 
-  const navItemStyle = (tabName: 'profile' | 'api') => ({
-    padding: '8px 16px',
-    borderRadius: '8px',
-    background: activeTab === tabName ? 'var(--surface-base)' : 'transparent',
-    color: activeTab === tabName ? 'var(--text-primary)' : 'var(--text-secondary)',
-    fontWeight: activeTab === tabName ? 600 : 400,
+  /* ── Shared styles ── */
+  const tabStyle = (t: 'profile' | 'api') => ({
+    padding: '9px 14px',
+    borderRadius: '5px',
+    background: activeTab === t ? D.surfaceHi : 'transparent',
+    color: activeTab === t ? D.text : D.muted,
+    fontWeight: activeTab === t ? 600 : 400,
     cursor: 'pointer',
-    fontSize: '14px',
-    border: activeTab === tabName ? '1px solid var(--border-subtle)' : '1px solid transparent'
-  });
+    fontSize: '13px',
+    border: `1px solid ${activeTab === t ? D.border : 'transparent'}`,
+    fontFamily: D.body,
+    transition: 'all 0.15s',
+  } as React.CSSProperties);
+
+  const inputStyle: React.CSSProperties = {
+    width: '100%',
+    background: D.surface,
+    border: `1px solid ${D.border}`,
+    borderRadius: '4px',
+    padding: '10px 12px',
+    color: D.text,
+    fontSize: '13px',
+    outline: 'none',
+    fontFamily: D.body,
+    boxSizing: 'border-box',
+    transition: 'border-color 0.15s',
+  };
+
+  const labelStyle: React.CSSProperties = {
+    display: 'block',
+    fontFamily: D.mono,
+    fontSize: '10px',
+    fontWeight: 700,
+    letterSpacing: '0.08em',
+    color: D.muted,
+    marginBottom: '7px',
+    textTransform: 'uppercase',
+  };
 
   return (
-    <div style={{ display: 'flex', width: '100%', minHeight: '100%', color: 'var(--text-primary)' }}>
+    <div style={{ display: 'flex', width: '100%', minHeight: '100%', color: D.text, background: D.bg }}>
+      <main style={{ maxWidth: '960px', margin: '0 auto', width: '100%', padding: '48px 32px', flex: 1, display: 'flex', gap: '40px', boxSizing: 'border-box' }}>
 
-      {/* Main Container */}
-      <main style={{ maxWidth: '1000px', margin: '0 auto', width: '100%', padding: '48px 24px', flex: 1, display: 'flex', gap: '48px' }}>
-
-        {/* Sidebar */}
-        <aside style={{ width: '240px', display: 'flex', flexDirection: 'column', gap: '8px' }}>
-          <div onClick={() => { setActiveTab('profile'); setNewlyGeneratedKey(null); }} style={navItemStyle('profile')}>Profile</div>
-          <div style={{ padding: '8px 16px', borderRadius: '8px', color: 'var(--text-muted)', fontSize: '14px', cursor: 'not-allowed' }}>Billing (Coming Soon)</div>
-          <div onClick={() => { setActiveTab('api'); setNewlyGeneratedKey(null); }} style={navItemStyle('api')}>Developer API</div>
-          <div style={{ padding: '8px 16px', borderRadius: '8px', color: 'var(--text-muted)', fontSize: '14px', cursor: 'not-allowed' }}>Notifications (Coming Soon)</div>
+        {/* ── Sidebar nav ── */}
+        <aside style={{ width: '200px', flexShrink: 0, display: 'flex', flexDirection: 'column', gap: '4px' }}>
+          <div style={{ fontFamily: D.mono, fontSize: '10px', fontWeight: 700, letterSpacing: '0.1em', color: D.muted, textTransform: 'uppercase', padding: '0 14px', marginBottom: '10px' }}>
+            Settings
+          </div>
+          <div onClick={() => { setActiveTab('profile'); setNewlyGeneratedKey(null); }} style={tabStyle('profile')}>Profile</div>
+          <div style={{ ...tabStyle('profile'), color: D.muted, cursor: 'not-allowed', opacity: 0.4 }}>Billing (Soon)</div>
+          <div onClick={() => { setActiveTab('api'); setNewlyGeneratedKey(null); }} style={tabStyle('api')}>Developer API</div>
+          <div style={{ ...tabStyle('profile'), color: D.muted, cursor: 'not-allowed', opacity: 0.4 }}>Notifications (Soon)</div>
         </aside>
 
-        {/* Content Pane */}
-        <section style={{ flex: 1 }}>
+        {/* ── Content ── */}
+        <section style={{ flex: 1, minWidth: 0 }}>
 
+          {/* ── API tab ── */}
           {activeTab === 'api' && (
             <>
-              <h1 style={{ fontSize: '20px', fontWeight: 600, margin: '0 0 32px 0' }}>Developer API & MCP Access</h1>
-              <div style={{ background: 'var(--surface-base)', border: '1px solid var(--brand)', borderRadius: '12px', padding: '24px', marginBottom: '40px', position: 'relative' }}>
-                <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '16px', justifyContent: 'space-between' }}>
-                  <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-                    <div style={{ fontWeight: 600, fontSize: '14px' }}>MCP Server Configuration</div>
-                    {/* Fix #91: removed stale 'Phase 5' label — MCP is fully live */}
-                  </div>
+              <div style={{ marginBottom: '32px' }}>
+                <div style={{ fontFamily: D.mono, fontSize: '11px', color: D.accent, letterSpacing: '0.08em', marginBottom: '8px' }}>// Developer API</div>
+                <h1 style={{ fontFamily: D.display, fontSize: '22px', fontWeight: 800, margin: 0, color: D.text }}>API & MCP Access</h1>
+              </div>
+
+              <div style={{ background: D.surface, border: `1px solid ${D.brand}`, borderRadius: '6px', padding: '24px', marginBottom: '32px', boxShadow: `0 0 24px rgba(174,122,255,0.08)` }}>
+                {/* Header row */}
+                <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '14px', flexWrap: 'wrap', gap: '10px' }}>
+                  <div style={{ fontFamily: D.display, fontWeight: 700, fontSize: '15px', color: D.text }}>MCP Server Configuration</div>
                   <div style={{ display: 'flex', gap: '8px', alignItems: 'center' }}>
                     <input
                       type="text"
                       value={newKeyLabel}
-                      onChange={(e) => setNewKeyLabel(e.target.value)}
+                      onChange={e => setNewKeyLabel(e.target.value)}
                       placeholder="Key name..."
-                      style={{ background: 'var(--canvas-bg)', border: '1px solid var(--border-subtle)', borderRadius: '6px', padding: '6px 10px', color: 'var(--text-primary)', fontSize: '12px', width: '150px', outline: 'none' }}
+                      style={{ ...inputStyle, width: '140px', fontSize: '12px', padding: '7px 10px' }}
                     />
                     <button
                       onClick={handleGenerateKey}
-                      style={{ background: 'var(--brand)', color: 'white', border: 'none', padding: '6px 14px', borderRadius: '6px', fontSize: '12px', fontWeight: 600, cursor: 'pointer' }}>
-                      + Generate New Key
+                      style={{ background: D.brand, color: '#fff', border: 'none', padding: '7px 14px', borderRadius: '4px', fontSize: '12px', fontWeight: 600, cursor: 'pointer', fontFamily: D.mono, whiteSpace: 'nowrap' }}
+                    >
+                      + Generate Key
                     </button>
                   </div>
                 </div>
 
-                <p style={{ fontSize: '13px', color: 'var(--text-secondary)', lineHeight: 1.5, marginBottom: '24px' }}>
+                <p style={{ fontSize: '13px', color: D.muted, lineHeight: 1.6, marginBottom: '20px' }}>
                   Use this key to connect Cursor or Windsurf to your Modellr projects. The MCP server lets your IDE read and update your schemas directly from the terminal.
                 </p>
 
+                {/* Newly generated key */}
                 {newlyGeneratedKey && (
-                  <div style={{ background: 'rgba(34, 197, 94, 0.1)', border: '1px solid rgba(34, 197, 94, 0.3)', borderRadius: '8px', padding: '16px', marginBottom: '24px' }}>
-                    <div style={{ fontSize: '13px', fontWeight: 600, color: '#4ade80', marginBottom: '8px' }}>Store this key securely!</div>
-                    <div style={{ fontSize: '12px', color: 'var(--text-secondary)', marginBottom: '12px' }}>
-                      Make sure to copy your personal access token now. You won't be able to see it again!
-                    </div>
-                    <div style={{ display: 'flex', background: 'var(--canvas-bg)', border: '1px solid var(--border-subtle)', borderRadius: '6px', overflow: 'hidden' }}>
-                      <div style={{ flex: 1, padding: '10px 14px', fontSize: '13px', fontFamily: 'monospace', color: 'var(--text-primary)' }}>
+                  <div style={{ background: 'rgba(74,222,128,0.06)', border: '1px solid rgba(74,222,128,0.2)', borderRadius: '4px', padding: '14px 16px', marginBottom: '20px' }}>
+                    <div style={{ fontFamily: D.mono, fontSize: '11px', fontWeight: 700, color: D.green, marginBottom: '6px', letterSpacing: '0.06em' }}>⚠ STORE THIS KEY — you won't see it again</div>
+                    <div style={{ display: 'flex', background: D.bg, border: `1px solid ${D.border}`, borderRadius: '4px', overflow: 'hidden' }}>
+                      <div style={{ flex: 1, padding: '9px 12px', fontSize: '12px', fontFamily: D.mono, color: D.text, wordBreak: 'break-all' }}>
                         {newlyGeneratedKey}
                       </div>
                       <button
                         onClick={handleCopyKey}
-                        style={{ background: isCopied ? '#4ade80' : 'var(--surface-base)', border: 'none', borderLeft: '1px solid var(--border-subtle)', padding: '0 16px', color: isCopied ? '#000' : 'var(--text-primary)', cursor: 'pointer', fontSize: '12px', fontWeight: 600, transition: 'all 0.2s', width: '80px' }}>
+                        style={{ background: isCopied ? D.green : D.surfaceHi, border: 'none', borderLeft: `1px solid ${D.border}`, padding: '0 14px', color: isCopied ? '#050507' : D.text, cursor: 'pointer', fontSize: '11px', fontWeight: 700, fontFamily: D.mono, transition: 'all 0.2s', minWidth: '70px' }}
+                      >
                         {isCopied ? 'Copied!' : 'Copy'}
                       </button>
                     </div>
                   </div>
                 )}
 
+                {/* Key list */}
                 {loadingKeys ? (
-                  <div style={{ fontSize: '13px', color: 'var(--text-muted)' }}>Loading keys...</div>
+                  <div style={{ fontFamily: D.mono, fontSize: '12px', color: D.muted }}>Loading keys…</div>
                 ) : apiKeys.length === 0 ? (
-                  <div style={{ fontSize: '13px', color: 'var(--text-muted)' }}>No API keys generated yet.</div>
+                  <div style={{ fontFamily: D.mono, fontSize: '12px', color: D.muted }}>No API keys generated yet.</div>
                 ) : (
-                  <div style={{ display: 'flex', flexDirection: 'column', gap: '12px', marginBottom: '32px' }}>
+                  <div style={{ display: 'flex', flexDirection: 'column', gap: '8px', marginBottom: '24px' }}>
                     {apiKeys.map(key => (
-                      <div key={key.id} style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', background: 'var(--canvas-bg)', border: '1px solid var(--border-subtle)', borderRadius: '8px', padding: '12px 16px' }}>
+                      <div key={key.id} style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', background: D.bg, border: `1px solid ${D.border}`, borderRadius: '4px', padding: '10px 14px' }}>
                         <div>
-                          <div style={{ fontSize: '13px', fontWeight: 600, color: 'var(--text-primary)', marginBottom: '4px' }}>{key.label}</div>
-                          <div style={{ fontSize: '12px', fontFamily: 'monospace', color: 'var(--text-muted)' }}>{key.key_prefix}•••••••••••••••••</div>
+                          <div style={{ fontSize: '13px', fontWeight: 600, color: D.text, marginBottom: '3px', fontFamily: D.body }}>{key.label}</div>
+                          <div style={{ fontSize: '11px', fontFamily: D.mono, color: D.muted }}>{key.key_prefix}•••••••••••••••••</div>
                         </div>
                         <button
                           onClick={() => handleDeleteKey(key.id)}
-                          style={{ background: 'transparent', border: '1px solid var(--border-subtle)', padding: '6px 12px', borderRadius: '6px', color: 'var(--alert-error)', fontSize: '12px', cursor: 'pointer', fontWeight: 500 }}>
+                          style={{ background: 'transparent', border: `1px solid ${D.border}`, padding: '5px 10px', borderRadius: '4px', color: D.red, fontSize: '11px', cursor: 'pointer', fontWeight: 600, fontFamily: D.mono, transition: 'border-color 0.15s' }}
+                          onMouseEnter={e => (e.currentTarget.style.borderColor = D.red)}
+                          onMouseLeave={e => (e.currentTarget.style.borderColor = D.border)}
+                        >
                           Revoke
                         </button>
                       </div>
@@ -220,16 +254,16 @@ export function Settings() {
                   </div>
                 )}
 
-                <div style={{ paddingTop: '24px', borderTop: '1px solid var(--border-subtle)', marginTop: '24px' }}>
-                  <div style={{ fontSize: '12px', fontWeight: 600, color: 'var(--text-secondary)', marginBottom: '12px' }}>MCP Setup Instructions</div>
-                  <div style={{ background: 'var(--canvas-bg)', borderRadius: '8px', padding: '16px', fontFamily: 'monospace', fontSize: '12px', color: 'var(--text-muted)', lineHeight: 1.6 }}>
-                    <span style={{ color: 'var(--text-secondary)' }}># Add this to your Cursor / Windsurf settings (mcp.json):</span><br />
+                {/* MCP setup */}
+                <div style={{ paddingTop: '20px', borderTop: `1px solid ${D.border}` }}>
+                  <div style={{ fontFamily: D.mono, fontSize: '10px', fontWeight: 700, color: D.muted, marginBottom: '10px', letterSpacing: '0.08em', textTransform: 'uppercase' }}>MCP Setup Instructions</div>
+                  <div style={{ background: D.bg, borderRadius: '4px', padding: '14px 16px', fontFamily: D.mono, fontSize: '12px', color: D.muted, lineHeight: 1.7, border: `1px solid ${D.border}`, borderLeft: `3px solid ${D.brand}` }}>
+                    <span style={{ color: D.muted }}># Add to Cursor / Windsurf mcp.json:</span><br />
                     {`"mcpServers": {`}<br />
-                    &nbsp;&nbsp;{`"Modellr": {`} <br />
+                    &nbsp;&nbsp;{`"Modellr": {`}<br />
                     &nbsp;&nbsp;&nbsp;&nbsp;{`"command": "npx",`}<br />
-                    {/* Fix #12: use npx with the published package, not a hardcoded local dev path */}
                     &nbsp;&nbsp;&nbsp;&nbsp;{`"args": ["Modellr-mcp"],`}<br />
-                    &nbsp;&nbsp;&nbsp;&nbsp;{`"env": { "SCHEMA_FORGE_TOKEN": "YOUR_RAW_KEY_HERE", "SCHEMA_FORGE_URL": "${window.location.origin}" }`}<br />
+                    &nbsp;&nbsp;&nbsp;&nbsp;<span style={{ color: '#7dd3fc' }}>{`"env": { "SCHEMA_FORGE_TOKEN": "YOUR_RAW_KEY_HERE", "SCHEMA_FORGE_URL": "${window.location.origin}" }`}</span><br />
                     &nbsp;&nbsp;{`}`}<br />
                     {`}`}
                   </div>
@@ -238,43 +272,71 @@ export function Settings() {
             </>
           )}
 
+          {/* ── Profile tab ── */}
           {activeTab === 'profile' && (
             <>
-              <h1 style={{ fontSize: '20px', fontWeight: 600, margin: '0 0 32px 0' }}>Profile Settings</h1>
+              <div style={{ marginBottom: '32px' }}>
+                <div style={{ fontFamily: D.mono, fontSize: '11px', color: D.accent, letterSpacing: '0.08em', marginBottom: '8px' }}>// Profile</div>
+                <h1 style={{ fontFamily: D.display, fontSize: '22px', fontWeight: 800, margin: 0, color: D.text }}>Profile Settings</h1>
+              </div>
 
-              {/* Fix #61: wrap profile fields in a form so Enter key submits */}
-              <form onSubmit={(e) => { e.preventDefault(); handleSaveProfile(); }} style={{ display: 'flex', flexDirection: 'column', gap: '24px', marginBottom: '48px', maxWidth: '400px' }}>
+              <form
+                onSubmit={e => { e.preventDefault(); handleSaveProfile(); }}
+                style={{ display: 'flex', flexDirection: 'column', gap: '20px', marginBottom: '48px', maxWidth: '380px' }}
+              >
                 <div>
-                  <label style={{ display: 'block', fontSize: '11px', fontWeight: 700, letterSpacing: '0.05em', color: 'var(--text-muted)', marginBottom: '8px', textTransform: 'uppercase' }}>Display Name</label>
+                  <label style={labelStyle}>Display Name</label>
                   <input
                     type="text"
                     value={displayName}
-                    onChange={(e) => setDisplayName(e.target.value)}
+                    onChange={e => setDisplayName(e.target.value)}
                     placeholder="Enter your name"
-                    style={{ width: '100%', background: 'var(--surface-base)', border: '1px solid var(--border-subtle)', borderRadius: '8px', padding: '12px', color: 'var(--text-primary)', fontSize: '14px', outline: 'none' }}
+                    style={inputStyle}
+                    onFocus={e => (e.currentTarget.style.borderColor = D.brand)}
+                    onBlur={e => (e.currentTarget.style.borderColor = D.border)}
                   />
                 </div>
                 <div>
-                  <label style={{ display: 'block', fontSize: '11px', fontWeight: 700, letterSpacing: '0.05em', color: 'var(--text-muted)', marginBottom: '8px', textTransform: 'uppercase' }}>Email</label>
-                  <input type="email" defaultValue={session?.user?.email || ''} readOnly style={{ width: '100%', background: 'var(--surface-base)', border: '1px solid var(--border-subtle)', borderRadius: '8px', padding: '12px', color: 'var(--text-secondary)', fontSize: '14px', outline: 'none', opacity: 0.7 }} />
+                  <label style={labelStyle}>Email</label>
+                  <input
+                    type="email"
+                    defaultValue={session?.user?.email || ''}
+                    readOnly
+                    style={{ ...inputStyle, opacity: 0.5, cursor: 'not-allowed' }}
+                  />
                 </div>
-                <div style={{ display: 'flex', gap: '12px' }}>
-                  <button type="submit" disabled={isSaving} style={{ padding: '10px 20px', background: 'var(--text-primary)', color: 'var(--canvas-bg)', border: 'none', borderRadius: '8px', fontWeight: 600, cursor: isSaving ? 'not-allowed' : 'pointer', fontSize: '13px', opacity: isSaving ? 0.7 : 1 }}>
-                    {isSaving ? 'Saving...' : 'Save changes'}
+                <div style={{ display: 'flex', gap: '10px' }}>
+                  <button
+                    type="submit"
+                    disabled={isSaving}
+                    style={{ padding: '10px 20px', background: D.brand, color: '#fff', border: 'none', borderRadius: '4px', fontWeight: 600, cursor: isSaving ? 'not-allowed' : 'pointer', fontSize: '13px', opacity: isSaving ? 0.6 : 1, fontFamily: D.mono, boxShadow: `0 0 16px ${D.brandGlow}` }}
+                  >
+                    {isSaving ? 'Saving…' : 'Save changes'}
                   </button>
-                  <button type="button" onClick={() => setDisplayName(session?.user?.user_metadata?.display_name || '')} style={{ padding: '10px 20px', background: 'transparent', color: 'var(--text-secondary)', border: '1px solid var(--border-subtle)', borderRadius: '8px', fontWeight: 600, cursor: 'pointer', fontSize: '13px' }}>Cancel</button>
+                  <button
+                    type="button"
+                    onClick={() => setDisplayName(session?.user?.user_metadata?.display_name || '')}
+                    style={{ padding: '10px 20px', background: 'transparent', color: D.muted, border: `1px solid ${D.border}`, borderRadius: '4px', fontWeight: 600, cursor: 'pointer', fontSize: '13px', fontFamily: D.mono }}
+                  >
+                    Cancel
+                  </button>
                 </div>
               </form>
 
-              <div>
-                <div style={{ fontSize: '12px', fontWeight: 600, color: 'var(--alert-error)', marginBottom: '16px' }}>Danger zone</div>
-                <button onClick={() => setToast('Account deletion is locked during Beta.', 'info')} style={{ padding: '10px 20px', background: 'transparent', color: 'var(--alert-error)', border: '1px solid var(--border-subtle)', borderRadius: '8px', fontWeight: 600, cursor: 'pointer', fontSize: '13px' }}>
+              {/* Danger zone */}
+              <div style={{ borderTop: `1px solid ${D.border}`, paddingTop: '28px' }}>
+                <div style={{ fontFamily: D.mono, fontSize: '10px', fontWeight: 700, color: D.red, marginBottom: '14px', letterSpacing: '0.08em', textTransform: 'uppercase' }}>Danger Zone</div>
+                <button
+                  onClick={() => setToast('Account deletion is locked during Beta.', 'info')}
+                  style={{ padding: '9px 18px', background: 'transparent', color: D.red, border: `1px solid rgba(248,113,113,0.3)`, borderRadius: '4px', fontWeight: 600, cursor: 'pointer', fontSize: '12px', fontFamily: D.mono, transition: 'border-color 0.15s' }}
+                  onMouseEnter={e => (e.currentTarget.style.borderColor = D.red)}
+                  onMouseLeave={e => (e.currentTarget.style.borderColor = 'rgba(248,113,113,0.3)')}
+                >
                   Delete account
                 </button>
               </div>
             </>
           )}
-
         </section>
       </main>
     </div>

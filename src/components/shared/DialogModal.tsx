@@ -6,6 +6,8 @@ export function DialogModal() {
   const closeDialog  = useUIStore((s) => s.closeDialog);
   const confirmBtnRef = useRef<HTMLButtonElement>(null);
 
+  const modalRef = useRef<HTMLDivElement>(null);
+
   // Fix #13a: trap focus and handle Escape key
   useEffect(() => {
     if (!dialogConfig?.isOpen) return;
@@ -17,6 +19,27 @@ export function DialogModal() {
       if (e.key === 'Escape') {
         e.preventDefault();
         closeDialog();
+        return;
+      }
+
+      if (e.key === 'Tab' && modalRef.current) {
+        const focusableElements = modalRef.current.querySelectorAll(
+          'button, [href], input, select, textarea, [tabindex]:not([tabindex="-1"])'
+        );
+        const firstElement = focusableElements[0] as HTMLElement;
+        const lastElement = focusableElements[focusableElements.length - 1] as HTMLElement;
+
+        if (e.shiftKey) { // Shift + Tab
+          if (document.activeElement === firstElement) {
+            e.preventDefault();
+            lastElement.focus();
+          }
+        } else { // Tab
+          if (document.activeElement === lastElement) {
+            e.preventDefault();
+            firstElement.focus();
+          }
+        }
       }
     };
     window.addEventListener('keydown', onKeyDown);
@@ -40,7 +63,10 @@ export function DialogModal() {
         aria-hidden="true"
       />
 
-      <div style={{ position: 'relative', background: 'var(--surface-raised)', borderRadius: '16px', padding: '32px', width: '100%', maxWidth: '440px', border: '1px solid var(--border-subtle)', boxShadow: '0 25px 50px -12px rgba(0,0,0,0.5)', display: 'flex', flexDirection: 'column', gap: '24px' }}>
+      <div 
+        ref={modalRef}
+        style={{ position: 'relative', background: 'var(--surface-raised)', borderRadius: '16px', padding: '32px', width: '100%', maxWidth: '440px', border: '1px solid var(--border-subtle)', boxShadow: '0 25px 50px -12px rgba(0,0,0,0.5)', display: 'flex', flexDirection: 'column', gap: '24px' }}
+      >
         <div>
           <h2 id="dialog-title" style={{ fontSize: '20px', fontWeight: 700, margin: 0, marginBottom: '8px', color: 'var(--text-primary)' }}>
             {dialogConfig.title}

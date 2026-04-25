@@ -2,11 +2,19 @@ import { create } from 'zustand';
 import { supabase } from '../lib/supabase';
 import type { User, Session } from '@supabase/supabase-js';
 
+interface Profile {
+  id: string;
+  display_name: string;
+  avatar_url: string | null;
+  tier: 'free' | 'pro';
+}
+
 interface AuthState {
   user: User | null;
   session: Session | null;
+  profile: Profile | null;
   isLoading: boolean;
-  ensureProfile: (user: User) => Promise<void>;  // Fix #52: was missing from interface
+  ensureProfile: (user: User) => Promise<Profile | null>;
   initialize: () => void;
   signOut: () => Promise<void>;
 }
@@ -14,51 +22,56 @@ interface AuthState {
 export const useAuthStore = create<AuthState>((set, get) => ({
   user: null,
   session: null,
+  profile: null,
   isLoading: true,
 
   ensureProfile: async (user: User) => {
-    if (!user) return;
+    if (!user) return null;
     
-    // Check if profile exists
+    // Fetch Profile
     const { data, error } = await supabase
       .from('users')
-      .select('id')
+      .select('*')
       .eq('id', user.id)
       .single();
 
     if (error || !data) {
       console.log('[Auth] Profile missing, creating fallback...');
-      await supabase.from('users').insert({
+      const newProfile = {
         id: user.id,
         display_name: user.user_metadata?.full_name || user.email?.split('@')[0] || 'User',
         avatar_url: user.user_metadata?.avatar_url || null,
-      });
+        tier: 'free' as const
+      };
+      const { data: created } = await supabase.from('users').insert(newProfile).select().single();
+      return created || newProfile;
     }
+    return data;
   },
 
   initialize: async () => {
     try {
       const { data: { session } } = await supabase.auth.getSession();
+      let profile = null;
       if (session?.user) {
-        await get().ensureProfile(session.user);
+        profile = await get().ensureProfile(session.user);
       }
-      set({ session, user: session?.user || null, isLoading: false });
+      set({ session, user: session?.user || null, profile, isLoading: false });
     } catch {
-      // Fix #35: always clear loading state so the app doesn't get stuck
-      set({ session: null, user: null, isLoading: false });
+      set({ session: null, user: null, profile: null, isLoading: false });
     }
 
-    // Listen for auth changes (login, logout, token refresh)
     supabase.auth.onAuthStateChange(async (_event, newSession) => {
+      let profile = null;
       if (newSession?.user) {
-        await get().ensureProfile(newSession.user);
+        profile = await get().ensureProfile(newSession.user);
       }
-      set({ session: newSession, user: newSession?.user || null });
+      set({ session: newSession, user: newSession?.user || null, profile });
     });
   },
 
   signOut: async () => {
     await supabase.auth.signOut();
-    set({ user: null, session: null });
+    set({ user: null, session: null, profile: null });
   }
 }));

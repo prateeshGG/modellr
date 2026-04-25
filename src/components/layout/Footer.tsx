@@ -4,59 +4,128 @@ import { useNavigate } from 'react-router-dom';
 export const Footer: React.FC = () => {
   const navigate = useNavigate();
 
+  const linkStyle: React.CSSProperties = {
+    cursor: 'pointer',
+    color: '#6b6b80',
+    fontSize: '14px',
+    transition: 'color 0.15s',
+    fontFamily: "'Instrument Sans', 'Geist', sans-serif",
+  };
+
+  const onHover = (e: React.MouseEvent<HTMLSpanElement>) => (e.currentTarget.style.color = '#e8e8f0');
+  const onLeave = (e: React.MouseEvent<HTMLSpanElement>) => (e.currentTarget.style.color = '#6b6b80');
+
+  const Link: React.FC<{ to: string; children: React.ReactNode }> = ({ to, children }) => (
+    <span
+      onClick={() => navigate(to)}
+      style={linkStyle}
+      onMouseEnter={onHover}
+      onMouseLeave={onLeave}
+    >
+      {children}
+    </span>
+  );
+
+  const cols = [
+    {
+      heading: 'Product',
+      links: [
+        { label: 'Templates', to: '/templates' },
+        { label: 'Pricing',   to: '/pricing' },
+        { label: 'Docs',      to: '/docs' },
+        { label: 'Features',  to: '/features' },
+      ],
+    },
+    {
+      heading: 'Use Cases',
+      links: [
+        { label: 'SaaS Schema',       to: '/use-cases/saas-database-schema' },
+        { label: 'E-commerce Schema', to: '/use-cases/ecommerce-schema' },
+        { label: 'Auth Schema',       to: '/use-cases/auth-schema' },
+      ],
+    },
+    {
+      heading: 'Compare',
+      links: [
+        { label: 'vs dbdiagram', to: '/compare/dbdiagram' },
+        { label: 'vs DrawSQL',   to: '/compare/drawsql' },
+      ],
+    },
+    {
+      heading: 'Company',
+      links: [
+        { label: 'About',   to: '/about' },
+        { label: 'Blog',    to: '/blog' },
+        { label: 'Contact', to: '/contact' },
+      ],
+    },
+    {
+      heading: 'Legal',
+      links: [
+        { label: 'Privacy Policy',   to: '/privacy' },
+        { label: 'Terms of Service', to: '/terms' },
+      ],
+    },
+  ];
+
   return (
-    <footer style={{ borderTop: '1px solid var(--border-subtle)', padding: '80px 20px 40px', background: 'var(--canvas-bg)', color: 'var(--text-secondary)' }}>
+    <footer style={{
+      borderTop: '1px solid #1e1e2e',
+      padding: '72px 5% 36px',
+      background: '#0c0c10',
+      color: '#6b6b80',
+    }}>
       <div style={{ maxWidth: '1200px', margin: '0 auto', display: 'flex', justifyContent: 'space-between', flexWrap: 'wrap', gap: '48px' }}>
-        <div>
+
+        {/* Brand */}
+        <div style={{ maxWidth: '240px' }}>
           <div
             onClick={() => navigate('/')}
-            style={{ cursor: 'pointer', display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '16px', fontWeight: 800, color: 'var(--text-primary)', fontSize: '1.2rem' }}
+            style={{ cursor: 'pointer', display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '14px' }}
           >
-            <div style={{ width: '20px', height: '20px', background: 'var(--brand)', borderRadius: '4px' }}></div>
-            Modellr
+            <div style={{ width: '22px', height: '22px', background: '#ae7aff', borderRadius: '4px', display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#fff', fontSize: '10px', fontWeight: 700 }}>M</div>
+            <span style={{ fontFamily: "'Syne', 'Geist', sans-serif", fontWeight: 800, fontSize: '18px', color: '#e8e8f0' }}>Modellr</span>
           </div>
-          <p style={{ maxWidth: '250px', lineHeight: 1.6, fontSize: '14px' }}>
-            The intelligent choice for modern data architecture and relational diagramming natively built for modern frameworks.
+          <p style={{ fontSize: '13px', lineHeight: 1.65, color: '#6b6b80', fontFamily: "'Instrument Sans', 'Geist', sans-serif" }}>
+            The intelligent choice for modern data architecture — built natively for Prisma, Drizzle, and modern stacks.
           </p>
         </div>
-        <div style={{ display: 'flex', gap: '64px', flexWrap: 'wrap' }}>
-          <div style={{ display: 'flex', flexDirection: 'column', gap: '16px', fontSize: '14px' }}>
-            <strong style={{ color: 'var(--text-primary)', textTransform: 'uppercase', letterSpacing: '0.05em', fontSize: '12px' }}>Product</strong>
-            <span onClick={() => navigate('/templates')} style={{ cursor: 'pointer' }}>Templates</span>
-            <span onClick={() => navigate('/pricing')} style={{ cursor: 'pointer' }}>Pricing</span>
-            <span onClick={() => navigate('/docs')} style={{ cursor: 'pointer' }}>Docs</span>
-          </div>
 
-          <div style={{ display: 'flex', flexDirection: 'column', gap: '16px', fontSize: '14px' }}>
-            <strong style={{ color: 'var(--text-primary)', textTransform: 'uppercase', letterSpacing: '0.05em', fontSize: '12px' }}>Use Cases</strong>
-            <span onClick={() => navigate('/use-cases/saas-database-schema')} style={{ cursor: 'pointer' }}>SaaS Schema</span>
-            <span onClick={() => navigate('/use-cases/ecommerce-schema')} style={{ cursor: 'pointer' }}>E-commerce Schema</span>
-            <span onClick={() => navigate('/use-cases/auth-schema')} style={{ cursor: 'pointer' }}>Auth Schema</span>
-          </div>
-
-          <div style={{ display: 'flex', flexDirection: 'column', gap: '16px', fontSize: '14px' }}>
-            <strong style={{ color: 'var(--text-primary)', textTransform: 'uppercase', letterSpacing: '0.05em', fontSize: '12px' }}>Compare</strong>
-            <span onClick={() => navigate('/compare/dbdiagram')} style={{ cursor: 'pointer' }}>vs dbdiagram</span>
-            <span onClick={() => navigate('/compare/drawsql')} style={{ cursor: 'pointer' }}>vs DrawSQL</span>
-          </div>
-
-          <div style={{ display: 'flex', flexDirection: 'column', gap: '16px', fontSize: '14px' }}>
-            <strong style={{ color: 'var(--text-primary)', textTransform: 'uppercase', letterSpacing: '0.05em', fontSize: '12px' }}>Company</strong>
-            <span onClick={() => navigate('/about')} style={{ cursor: 'pointer' }}>About</span>
-            <span onClick={() => navigate('/blog')} style={{ cursor: 'pointer' }}>Blog</span>
-            <span onClick={() => navigate('/contact')} style={{ cursor: 'pointer' }}>Contact</span>
-          </div>
-
-          <div style={{ display: 'flex', flexDirection: 'column', gap: '16px', fontSize: '14px' }}>
-            <strong style={{ color: 'var(--text-primary)', textTransform: 'uppercase', letterSpacing: '0.05em', fontSize: '12px' }}>Legal</strong>
-            <span onClick={() => navigate('/privacy')} style={{ cursor: 'pointer' }}>Privacy Policy</span>
-            <span onClick={() => navigate('/terms')} style={{ cursor: 'pointer' }}>Terms of Service</span>
-          </div>
+        {/* Nav columns */}
+        <div style={{ display: 'flex', gap: '48px', flexWrap: 'wrap' }}>
+          {cols.map(col => (
+            <div key={col.heading} style={{ display: 'flex', flexDirection: 'column', gap: '14px' }}>
+              <strong style={{
+                fontFamily: "'Geist Mono', monospace",
+                color: '#e8e8f0',
+                fontSize: '11px',
+                letterSpacing: '0.08em',
+                textTransform: 'uppercase',
+              }}>
+                {col.heading}
+              </strong>
+              {col.links.map(l => <Link key={l.to} to={l.to}>{l.label}</Link>)}
+            </div>
+          ))}
         </div>
       </div>
-      <div style={{ maxWidth: '1200px', margin: '64px auto 0', display: 'flex', justifyContent: 'space-between', fontSize: '13px', borderTop: '1px solid var(--border-subtle)', paddingTop: '24px' }}>
+
+      {/* Bottom bar */}
+      <div style={{
+        maxWidth: '1200px',
+        margin: '56px auto 0',
+        display: 'flex',
+        justifyContent: 'space-between',
+        alignItems: 'center',
+        fontSize: '12px',
+        borderTop: '1px solid #1e1e2e',
+        paddingTop: '24px',
+        flexWrap: 'wrap',
+        gap: '8px',
+        fontFamily: "'Geist Mono', monospace",
+      }}>
         <span>© {new Date().getFullYear()} Modellr Inc. All rights reserved.</span>
-        <span>Designed natively on the grid.</span>
+        <span style={{ color: '#2e2e4e' }}>Designed natively on the grid.</span>
       </div>
     </footer>
   );

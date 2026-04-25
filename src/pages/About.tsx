@@ -2,119 +2,125 @@ import { useNavigate } from 'react-router-dom';
 import { PublicNav } from '../components/layout/PublicNav';
 import { Footer } from '../components/layout/Footer';
 import { Zap, Code2, Database, Bot, CheckCircle2 } from 'lucide-react';
+import '../styles/public-dark.css';
 
 export function About() {
   const navigate = useNavigate();
 
   return (
-    <div style={{ background: 'var(--canvas-bg)', color: 'var(--text-primary)', minHeight: '100vh', display: 'flex', flexDirection: 'column', fontFamily: 'var(--sans)' }}>
-      <PublicNav />
-      
-      {/* 1. Hero */}
-      <section style={{ textAlign: 'center', padding: '100px 20px 64px' }}>
-        <h1 style={{ fontSize: 'min(3.5rem, 8vw)', fontWeight: 900, letterSpacing: '-0.03em', margin: '0 0 24px 0' }}>Built for developers who <span style={{ color: 'var(--brand)' }}>want to move fast</span></h1>
-        <p style={{ fontSize: '1.2rem', color: 'var(--text-secondary)', margin: '0 auto 40px auto', maxWidth: '600px', lineHeight: 1.6 }}>
-          Designing databases shouldn’t slow you down.
-        </p>
-      </section>
+    <div className="pd-root">
+      <PublicNav dark />
 
-      {/* 2. Why this exists */}
-      <section style={{ maxWidth: '800px', margin: '0 auto 100px', padding: '0 20px' }}>
-        <h2 style={{ fontSize: '32px', fontWeight: 800, letterSpacing: '-0.02em', marginBottom: '32px' }}>Why we built this</h2>
-        <div style={{ fontSize: '18px', color: 'var(--text-secondary)', lineHeight: 1.8 }}>
-          <p style={{ marginBottom: '24px' }}>Designing a database today is still more painful than it should be.</p>
-          <p style={{ marginBottom: '24px' }}>You switch between SQL, ORM docs, and diagram tools — trying to keep everything in sync.</p>
-          <p style={{ marginBottom: '40px' }}>It breaks your flow. It wastes time. And the result is often messy.</p>
-          
-          <p style={{ fontWeight: 600, color: 'var(--text-primary)', marginBottom: '24px' }}>This platform was built to fix that.</p>
-          <p style={{ marginBottom: '24px' }}>One place where you can:</p>
-          
-          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))', gap: '16px', marginBottom: '32px' }}>
-            <div style={{ background: 'var(--surface-base)', border: '1px solid var(--border-subtle)', padding: '24px', borderRadius: '12px', display: 'flex', alignItems: 'center', gap: '12px' }}>
-              <div style={{ color: 'var(--brand)' }}><Database size={24} /></div>
-              <span style={{ fontWeight: 600, color: 'var(--text-primary)' }}>design visually</span>
-            </div>
-            <div style={{ background: 'var(--surface-base)', border: '1px solid var(--border-subtle)', padding: '24px', borderRadius: '12px', display: 'flex', alignItems: 'center', gap: '12px' }}>
-              <div style={{ color: 'var(--brand)' }}><Code2 size={24} /></div>
-              <span style={{ fontWeight: 600, color: 'var(--text-primary)' }}>write code</span>
-            </div>
-            <div style={{ background: 'var(--surface-base)', border: '1px solid var(--border-subtle)', padding: '24px', borderRadius: '12px', display: 'flex', alignItems: 'center', gap: '12px' }}>
-              <div style={{ color: 'var(--brand)' }}><Bot size={24} /></div>
-              <span style={{ fontWeight: 600, color: 'var(--text-primary)' }}>generate with AI</span>
-            </div>
-          </div>
-          
-          <p style={{ fontWeight: 700, color: 'var(--brand)' }}>— all working together in real time.</p>
+      {/* ── Hero ── */}
+      <div className="pd-hero" style={{ paddingTop: '140px' }}>
+        <div className="pd-hero-dot-grid" aria-hidden />
+        <div className="pd-hero-glow" aria-hidden />
+        <div style={{ position: 'relative', zIndex: 1 }}>
+          <div className="pd-label">// About</div>
+          <h1 className="pd-h1">
+            Built for developers who{' '}
+            <span style={{ WebkitTextStroke: '1.5px var(--pd-text)', WebkitTextFillColor: 'transparent', fontStyle: 'italic' }}>
+              want to move fast.
+            </span>
+          </h1>
+          <p className="pd-lead">Designing databases shouldn't slow you down.</p>
         </div>
-      </section>
+      </div>
 
-      {/* 3. Philosophy */}
-      <section style={{ maxWidth: '800px', margin: '0 auto 100px', padding: '0 20px' }}>
-        <h2 style={{ fontSize: '32px', fontWeight: 800, letterSpacing: '-0.02em', marginBottom: '40px' }}>Our philosophy</h2>
-        
-        <div style={{ display: 'flex', flexDirection: 'column', gap: '48px' }}>
-          <div>
-            <div style={{ display: 'flex', alignItems: 'center', gap: '12px', marginBottom: '12px' }}>
-              <div style={{ color: 'var(--brand)' }}><Zap size={24} /></div>
-              <h3 style={{ fontSize: '20px', fontWeight: 700, margin: 0 }}>1. Speed over complexity</h3>
-            </div>
-            <p style={{ color: 'var(--text-secondary)', lineHeight: 1.6, fontSize: '18px' }}>Tools should help you think faster — not slow you down with configuration and friction.</p>
-          </div>
-          
-          <div>
-            <div style={{ display: 'flex', alignItems: 'center', gap: '12px', marginBottom: '12px' }}>
-              <div style={{ color: 'var(--brand)' }}><Code2 size={24} /></div>
-              <h3 style={{ fontSize: '20px', fontWeight: 700, margin: 0 }}>2. Developers first</h3>
-            </div>
-            <p style={{ color: 'var(--text-secondary)', lineHeight: 1.6, fontSize: '18px' }}>Built for real workflows: Prisma, Drizzle, modern stacks. Not generic enterprise diagramming.</p>
-          </div>
-          
-          <div>
-            <div style={{ display: 'flex', alignItems: 'center', gap: '12px', marginBottom: '12px' }}>
-              <div style={{ color: 'var(--brand)' }}><Database size={24} /></div>
-              <h3 style={{ fontSize: '20px', fontWeight: 700, margin: 0 }}>3. One source of truth</h3>
-            </div>
-            <p style={{ color: 'var(--text-secondary)', lineHeight: 1.6, fontSize: '18px' }}>Your schema should live in one place — not scattered across code, diagrams, and docs.</p>
-          </div>
+      {/* ── Why we built this ── */}
+      <section className="pd-section">
+        <div className="pd-inner--narrow">
+          <div className="pd-label">// Origin</div>
+          <h2 className="pd-h2">Why we built this</h2>
 
-          <div>
-            <div style={{ display: 'flex', alignItems: 'center', gap: '12px', marginBottom: '12px' }}>
-              <div style={{ color: 'var(--brand)' }}><Bot size={24} /></div>
-              <h3 style={{ fontSize: '20px', fontWeight: 700, margin: 0 }}>4. AI as a tool, not a gimmick</h3>
+          <div className="pd-diff">
+            <div className="pd-diff__tabs">
+              <span className="pd-diff__tab pd-diff__tab--inactive">before.workflow</span>
+              <span className="pd-diff__tab pd-diff__tab--active">after.workflow</span>
             </div>
-            <p style={{ color: 'var(--text-secondary)', lineHeight: 1.6, fontSize: '18px' }}>AI should actually build and improve your schema — not just autocomplete it.</p>
+            <div className="pd-diff__body">
+              <div className="pd-diff-line pd-diff-line--removed"><span className="pd-diff-sign">−</span> Switch between SQL, ORM docs, and diagram tools</div>
+              <div className="pd-diff-line pd-diff-line--removed"><span className="pd-diff-sign">−</span> Lose flow. Waste time. End up with a messy schema.</div>
+              <div className="pd-diff-line pd-diff-line--removed" style={{ marginBottom: '16px' }}><span className="pd-diff-sign">−</span> Repeat for every single project</div>
+              <div className="pd-diff-line pd-diff-line--added"><span className="pd-diff-sign">+</span> Design visually, write code, or generate with AI</div>
+              <div className="pd-diff-line pd-diff-line--added"><span className="pd-diff-sign">+</span> All working together in real time</div>
+              <div className="pd-diff-line pd-diff-line--added"><span className="pd-diff-sign">+</span> One source of truth for your schema</div>
+            </div>
           </div>
         </div>
       </section>
 
-      {/* 4. What makes this different */}
-      <section style={{ maxWidth: '800px', margin: '0 auto 100px', padding: '0 20px', background: 'var(--surface-base)', borderRadius: '16px', border: '1px solid var(--border-subtle)' }}>
-        <div style={{ padding: '48px' }}>
-          <h2 style={{ fontSize: '32px', fontWeight: 800, letterSpacing: '-0.02em', marginBottom: '32px' }}>What makes this different</h2>
-          <div style={{ fontSize: '18px', color: 'var(--text-secondary)', lineHeight: 1.8 }}>
-            <p style={{ marginBottom: '24px' }}>Most tools force you into one way of working.</p>
-            <p style={{ marginBottom: '24px', fontWeight: 600, color: 'var(--text-primary)' }}>This platform adapts to how you think:</p>
-            
-            <ul style={{ listStyle: 'none', padding: 0, margin: '0 0 32px 0', display: 'flex', flexDirection: 'column', gap: '16px' }}>
-              <li style={{ display: 'flex', alignItems: 'center', gap: '12px' }}><CheckCircle2 size={20} color="var(--brand)" /> <span><strong style={{ color: 'var(--text-primary)' }}>visual</strong> when you want clarity</span></li>
-              <li style={{ display: 'flex', alignItems: 'center', gap: '12px' }}><CheckCircle2 size={20} color="var(--brand)" /> <span><strong style={{ color: 'var(--text-primary)' }}>code</strong> when you want control</span></li>
-              <li style={{ display: 'flex', alignItems: 'center', gap: '12px' }}><CheckCircle2 size={20} color="var(--brand)" /> <span><strong style={{ color: 'var(--text-primary)' }}>AI</strong> when you want speed</span></li>
-            </ul>
-            
-            <p style={{ fontWeight: 700, color: 'var(--brand)', margin: 0 }}>All perfectly in sync.</p>
+      {/* ── Philosophy ── */}
+      <section className="pd-section--alt">
+        <div className="pd-inner">
+          <div className="pd-label">// Philosophy</div>
+          <h2 className="pd-h2">Our principles</h2>
+          <div className="pd-grid-2">
+            {[
+              { icon: <Zap size={22} />, title: '1. Speed over complexity', desc: 'Tools should help you think faster — not slow you down with configuration and friction.' },
+              { icon: <Code2 size={22} />, title: '2. Developers first', desc: 'Built for real workflows: Prisma, Drizzle, modern stacks. Not generic enterprise diagramming.' },
+              { icon: <Database size={22} />, title: '3. One source of truth', desc: 'Your schema should live in one place — not scattered across code, diagrams, and docs.' },
+              { icon: <Bot size={22} />, title: '4. AI as a tool, not a gimmick', desc: 'AI should actually build and improve your schema — not just autocomplete it.' },
+            ].map((item, i) => (
+              <div key={i} className="pd-card">
+                <div className="pd-card__icon">{item.icon}</div>
+                <h3 className="pd-h3">{item.title}</h3>
+                <p className="pd-body-text">{item.desc}</p>
+              </div>
+            ))}
           </div>
         </div>
       </section>
 
-      {/* 5. Closing */}
-      <section style={{ textAlign: 'center', padding: '100px 20px', background: 'var(--surface-base)', borderTop: '1px solid var(--border-subtle)', marginTop: 'auto' }}>
-        <h2 style={{ fontSize: '40px', fontWeight: 800, letterSpacing: '-0.03em', margin: '0 0 24px 0' }}>Build faster. <span style={{ color: 'var(--brand)' }}>Ship sooner.</span></h2>
-        <p style={{ color: 'var(--text-secondary)', fontSize: '18px', marginBottom: '16px', maxWidth: '600px', margin: '0 auto 16px' }}>
-          Whether you're building a side project or your next product, your database shouldn't be the bottleneck.
-        </p>
-        <p style={{ color: 'var(--text-primary)', fontWeight: 600, fontSize: '18px', marginBottom: '40px' }}>Start with a better foundation.</p>
-        <button onClick={() => navigate('/login')} style={{ background: 'var(--text-primary)', color: 'var(--canvas-bg)', padding: '16px 32px', borderRadius: '12px', fontSize: '1.2rem', fontWeight: 600, border: 'none', cursor: 'pointer' }}>Start building free</button>
+      {/* ── What makes this different ── */}
+      <section className="pd-section">
+        <div className="pd-inner--narrow">
+          <div className="pd-label">// Differentiator</div>
+          <h2 className="pd-h2">What makes this different</h2>
+          <p className="pd-body-text" style={{ marginBottom: '32px' }}>Most tools force you into one way of working. This platform adapts to how you think:</p>
+
+          <div className="pd-code-block">
+            {[
+              { mode: 'visual', when: 'when you want clarity' },
+              { mode: 'code',   when: 'when you want control' },
+              { mode: 'AI',     when: 'when you want speed' },
+            ].map(({ mode, when }) => (
+              <div key={mode} style={{ marginBottom: '8px' }}>
+                <span className="tok-keyword">use </span>
+                <span className="tok-name">{mode} </span>
+                <span className="tok-comment">// {when}</span>
+              </div>
+            ))}
+            <div style={{ marginTop: '12px', color: 'var(--pd-accent)', fontWeight: 600 }}>// All perfectly in sync.</div>
+          </div>
+
+          <div style={{ marginTop: '32px', display: 'flex', flexDirection: 'column', gap: '12px' }}>
+            {[
+              { label: 'visual', desc: 'when you want clarity' },
+              { label: 'code',   desc: 'when you want control' },
+              { label: 'AI',     desc: 'when you want speed' },
+            ].map(({ label, desc }) => (
+              <div key={label} style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
+                <CheckCircle2 size={18} style={{ color: 'var(--pd-brand)', flexShrink: 0 }} />
+                <span className="pd-body-text">
+                  <strong style={{ color: 'var(--pd-text)' }}>{label}</strong> — {desc}
+                </span>
+              </div>
+            ))}
+          </div>
+        </div>
       </section>
+
+      {/* ── CTA ── */}
+      <div className="pd-cta pd-section--alt">
+        <div className="pd-cta-glow-l" aria-hidden />
+        <div className="pd-cta-glow-r" aria-hidden />
+        <div className="pd-cta-inner">
+          <h2 className="pd-cta-h2">Build faster. Ship sooner.</h2>
+          <p className="pd-cta-sub">Your database shouldn't be the bottleneck.</p>
+          <button className="pd-btn-primary" onClick={() => navigate('/login')}>Start building free →</button>
+        </div>
+      </div>
 
       <Footer />
     </div>

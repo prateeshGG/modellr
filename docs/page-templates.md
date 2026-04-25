@@ -207,8 +207,6 @@ If a new template is added to `TEMPLATES` without a matching category ID or a ca
 
 `onUse` passes `selectedTemplateId` as a closure — if `selectedTemplateId` somehow changes between modal open and "Use" click (it can't in practice since it's set before the modal renders), the wrong template would be used. In practice this is safe.
 
-As documented in the `TemplatePreviewModal` docs — this modal has a known bug: the preview canvas renders `SchemaCanvas` without `ReactFlowProvider`, causing hook violations when templates are preselected. The `onUse` callback here feeds into `handleUseTemplate`, which does a fresh `getTemplate(templateId)` call — so even if the modal preview is broken, the create flow itself is independent.
-
 ---
 
 ## JSX Structure
@@ -255,7 +253,6 @@ As documented in the `TemplatePreviewModal` docs — this modal has a known bug:
 | **Inconsistent schema name suffix** | `TemplatesPage` creates `"{Label} Starter"`, `Dashboard` creates `"{Label} Template"` — same operation, two different naming conventions |
 | **Category filter is fragile** | Relies on template ID or label substring matching category ID strings. Adding templates without updating categories breaks filtering |
 | **No unauthenticated state** | `if (!session?.user?.id) return;` in `handleUseTemplate` silently does nothing — guests can view the gallery but "Use Template" silently no-ops. No "Log in to use" prompt |
-| **`TemplatePreviewModal` known bug** | The modal renders `SchemaCanvas` without `ReactFlowProvider` — causes a hook violation on initial render. Documented in `dashboard-components.md` |
 | **Thumbnail is text-only** | `template-thumb` renders label + table count text, not an actual visual preview. CSS class suggests an image/canvas was planned |
 | **No search/filter input** | Only category sidebar — no text search across template names or descriptions |
 | **`count` can be `null`** | `count !== null && count >= 3` — explicitly handles Supabase `count` being `null` (e.g. RLS error). Safe check |

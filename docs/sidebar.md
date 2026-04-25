@@ -134,16 +134,7 @@ y: 100 + (tables.length * 20)
 />
 ```
 
-Controlled `<input>` — filters client-side as the user types. The `sf:focus-filter` custom event (fired by `useKeyboardShortcuts` on `Ctrl+F`) targets this element:
-
-```ts
-// In useKeyboardShortcuts.ts:
-window.addEventListener('sf:focus-filter', () => {
-  document.querySelector('.sidebar__filter')?.focus();
-});
-```
-
-The filter uses `querySelector('.sidebar__filter')` — this works only when the sidebar is open and the input is in the DOM. If the sidebar is collapsed, the filter input is not rendered and the focus attempt silently no-ops.
+Controlled `<input>` — filters client-side as the user types. The `sf:focus-filter` custom event (fired by `useKeyboardShortcuts` on `Ctrl+F`) targets this element. If the sidebar is collapsed, the listener first expands the sidebar to ensure the input is mounted before applying focus.
 
 ### Table Rows
 
@@ -296,11 +287,7 @@ Unlike `CommandPalette` where template commands were invisible due to a categori
 )}
 ```
 
-A secondary "New table" button at the bottom. Spawns at a **fixed position** `{ x: 120, y: 120 }` — unlike the header "+" which uses the cascade offset, this always places the table at the same position regardless of how many tables already exist.
-
-This means if the user creates a table via the footer button multiple times, each new table spawns at exactly `120, 120` — stacked on top of each other.
-
-> ⚠️ **Minor issue:** Footer button always uses `{ x: 120, y: 120 }` — tables stack if created multiple times without moving. The header "+" uses the cascade offset formula. The two "New table" buttons are not consistent.
+A secondary "New table" button at the bottom. It applies a cascade offset just like the header "+" button, meaning new tables won't stack entirely on top of each other.
 
 ---
 
@@ -333,9 +320,7 @@ Three icon buttons when collapsed:
 
 **`useUIStore.getState().toggleSidebar()`** — called via `getState()` rather than the hook's subscription. This is valid in an event handler (no stale closure issue) but bypasses React's subscription mechanism. Functionally correct.
 
-**History icon always shown** — even when `isHost === false`. Clicking it would expand the sidebar but the History section wouldn't exist in the DOM (gated by `{isHost && ...}`). The icon rail doesn't respect the `isHost` guard.
-
-> **UX issue:** The `⏱` History icon appears in the collapsed rail regardless of `isHost`. Guests see the icon, click it, the sidebar expands, and the History section is simply absent. No error, but a confusing experience.
+**History icon gated** — The History icon respects the `isHost` guard and is hidden from guests so they cannot expand into an empty section.
 
 ---
 
@@ -344,10 +329,7 @@ Three icon buttons when collapsed:
 | | Detail |
 |---|---|
 | **Sidebar clicking a table doesn't pan canvas** | `setSelection` only — no `sf:focus-table` event. `SearchOverlay` does pan; sidebar does not |
-| **Footer "New table" always at `{120, 120}`** | Stacks tables; header "+" uses cascade offset — inconsistent behavior |
 | **Snapshot restore available in `readOnly`** | Snapshot buttons are not hidden for guests — calling `restoreSnapshot` in read-only mode modifies local schema state but won't broadcast via Yjs |
-| **`⏱` History icon shown to all users** | Collapsed icon rail doesn't check `isHost` — guests see the icon but find no History section after expanding |
-| **`sf:focus-filter` fails when sidebar is collapsed** | `querySelector('.sidebar__filter')` returns `null` when the sidebar is closed — the keyboard shortcut silently no-ops |
 | **`filter` not memoized** | `tables.filter(...)` runs on every render — fine for typical schema sizes, could be `useMemo` for very large schemas |
 | **Template import has no confirmation** | `importTables(t.tables, t.relationships)` replaces entire canvas immediately |
 | **`createSnapshot` auto-labels** | Snapshot names are `"Snapshot N"` — users cannot rename a snapshot from the sidebar |

@@ -3,13 +3,9 @@ import { useSchemaStore } from '../../store/schema';
 import type { Table, Relationship } from '../../types/schema';
 import type { AIStatus } from '../../hooks/useAI';
 import { generateSchemaFromPrompt } from '../../hooks/useAI';
+import { getBackendBase } from '../../lib/api-utils';
+import { getAuthHeader } from '../../lib/auth-utils';
 import './AISuggest.css';
-
-// Fix #6: always route AI calls through backend proxy — API key lives on EC2, never in the browser.
-// VITE_API_URL is set in production; falls back to '' (relative) in dev where Vite proxies /api/*.
-function getBackendBase(): string {
-  return (import.meta as any).env?.VITE_API_URL ?? '';
-}
 
 function tableToText(table: Table): string {
   return `Table "${table.name}" (${table.fields
@@ -48,13 +44,14 @@ export const AISuggestPanel: React.FC<AISuggestPanelProps> = ({ table, onClose }
       }).join('\n')}`
       : '';
 
-
     try {
-      // Fix #6: use backend proxy endpoint instead of api.openai.com directly
       const res = await fetch(`${getBackendBase()}/api/openai/stream`, {
         method: 'POST',
         signal: ctrl.signal,
-        headers: { 'Content-Type': 'application/json' },
+        headers: { 
+          'Content-Type': 'application/json',
+          ...getAuthHeader()
+        },
         body: JSON.stringify({
           messages: [
             {
@@ -114,7 +111,6 @@ Keep each point to 1-2 sentences. Be direct and practical.`,
 
   useEffect(() => { run(); return () => abortRef.current?.abort(); }, []);
 
-  // Auto-scroll as text streams in
   useEffect(() => {
     if (scrollRef.current) scrollRef.current.scrollTop = scrollRef.current.scrollHeight;
   }, [text]);
@@ -215,7 +211,6 @@ export const AIGenerateDialog: React.FC<AIGenerateDialogProps> = ({ onClose }) =
       const { ACCENT_COLORS } = await import('../../utils/constants');
       const schema = await generateSchemaFromPrompt(prompt.trim(), ctrl.signal);
 
-      // Build tables
       const tableIdMap = new Map<string, string>();
       const tables = (schema.tables ?? []).map((t: any, idx: number) => {
         const id = nanoid();
@@ -244,7 +239,6 @@ export const AIGenerateDialog: React.FC<AIGenerateDialogProps> = ({ onClose }) =
         };
       });
 
-      // Build relationships
       const rels = (schema.relationships ?? []).map((r: any) => {
         const srcTable = tables.find((t: any) => t.name === r.from);
         const tgtTable = tables.find((t: any) => t.name === r.to);
@@ -267,7 +261,6 @@ export const AIGenerateDialog: React.FC<AIGenerateDialogProps> = ({ onClose }) =
       setPreview(tables.map((t: any) => `${t.name} (${t.fields.length} fields)`));
       setStatus('done');
 
-      // Apply to canvas
       importTables(tables, rels);
       setTimeout(() => window.dispatchEvent(new CustomEvent('sf:fit-view')), 150);
     } catch (e: any) {

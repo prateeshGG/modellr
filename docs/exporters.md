@@ -238,7 +238,6 @@ Converts SQL default values to Prisma format:
 | **Back-relation pluralization** | `one-to-many` → `srcModels` (plural `s`), `one-to-one` → `srcModel?` (optional) |
 | **`uuid` → `String`** | Prisma doesn't have a native UUID type — maps to `String`. The `@default(uuid())` is added separately. |
 | **Always PostgreSQL datasource** | `provider = "postgresql"` is hardcoded — no other dialect output |
-| **`references: [id]`** | Relation references always target `id` — not the actual `targetField` from the relationship endpoint |
 | **Field name padding** | `.padEnd(20)` creates column-aligned output in the model file |
 
 ---
@@ -368,7 +367,6 @@ Back-relation field name is `sourceTable.name + 's'` for `one-to-many`, or `sour
 
 | | Detail |
 |---|---|
-| **Dead code on line 52** | `lines.push(\`fields: [${constName}.${rel.sourceFieldId}]\`)` — this pushes a line using the UUID `sourceFieldId`, then the next block (lines 54–59) correctly resolves and pushes the actual field name. The UUID line is a **bug** — it emits incorrect code before the correct line. |
 | **`bigserial` not in import** | The import statement on line 10 doesn't include `bigserial` but the field builder emits `bigserial(...)` — would cause a runtime import error if used |
 | **`foreignKey`, `index` imported but unused** | These are in the import statement (line 10) but never called in the output |
 | **`int` PK → `serial`** | Integer PKs are automatically upgraded to `serial` — assumes auto-increment, which may not always be correct |
@@ -724,7 +722,7 @@ link.click();
 | **Async** | ❌ | ❌ | ❌ | ❌ | ❌ | ✅ |
 | **Multi-dialect** | Header only | PostgreSQL only | PostgreSQL only | Dialect-agnostic | PG + MySQL | N/A |
 | **FK support** | ✅ | ✅ | ✅ | ✅ | ❌ | N/A |
-| **Known bug** | None | `references: [id]` hardcoded | Duplicate line 52 | None | No FK migrations | Filename hardcoded |
+| **Known bugs / Caveats** | None | None | None | None | No FK migrations | Filename hardcoded |
 
 ---
 

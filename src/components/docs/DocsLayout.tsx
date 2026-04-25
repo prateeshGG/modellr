@@ -36,10 +36,10 @@ export const DocsLayout: React.FC<DocsLayoutProps> = ({ currentArticle, onSelect
   return (
     <div className="docs-container">
       <aside className="docs-sidebar">
-        <div className="docs-logo" style={{ fontSize: '18px', color: 'var(--text-primary)', marginBottom: '8px' }}>
+        <div className="docs-logo" style={{ fontSize: '17px', marginBottom: '6px' }}>
           Documentation
         </div>
-        <div style={{ color: 'var(--text-secondary)', fontSize: '12px', marginBottom: '32px', lineHeight: 1.4 }}>
+        <div style={{ color: '#6b6b80', fontSize: '12px', marginBottom: '28px', lineHeight: 1.5, fontFamily: "'Instrument Sans','Geist',sans-serif" }}>
           Learn how to design, generate, and export database schemas.
         </div>
 

@@ -16,6 +16,43 @@ const CARDINALITY_LABELS: Record<Cardinality, string> = {
   'many-to-many': 'N : M',
 };
 
+const DebouncedInput: React.FC<{
+  value: string;
+  onChange: (val: string) => void;
+  className?: string;
+  placeholder?: string;
+  spellCheck?: boolean;
+  disabled?: boolean;
+  type?: string;
+}> = ({ value, onChange, className, placeholder, spellCheck, disabled, type = 'text' }) => {
+  const [localValue, setLocalValue] = React.useState(value);
+  const timerRef = React.useRef<any>(null);
+
+  React.useEffect(() => {
+    setLocalValue(value);
+  }, [value]);
+
+  const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    setLocalValue(e.target.value);
+    if (timerRef.current) clearTimeout(timerRef.current);
+    timerRef.current = setTimeout(() => {
+      onChange(e.target.value);
+    }, 300);
+  };
+
+  return (
+    <input
+      type={type}
+      className={className}
+      value={localValue}
+      onChange={handleChange}
+      placeholder={placeholder}
+      spellCheck={spellCheck}
+      disabled={disabled}
+    />
+  );
+};
+
 export const RightPanel: React.FC = () => {
   const { tables, relationships, updateField, updateTable, addField, removeField, removeRelationship, updateRelationship, removeTable, dialect } = useSchemaStore() as any;
   const { clearSelection, selection, rightPanelOpen, toggleRightPanel, readOnly } = useUIStore();
@@ -171,10 +208,10 @@ const FieldEditor: React.FC<FieldEditorProps> = ({ field, dialect, onUpdate, onD
     <div className="field-editor">
       <div className="panel-section">
         <label className="panel-label">Name</label>
-        <input
+        <DebouncedInput
           className="panel-input"
           value={field.name}
-          onChange={(e) => onUpdate({ name: e.target.value })}
+          onChange={(val) => onUpdate({ name: val })}
           spellCheck={false}
           disabled={readOnly}
         />
@@ -309,10 +346,10 @@ const TableEditor: React.FC<{
     <div className="table-editor">
       <div className="panel-section">
         <label className="panel-label">Table name</label>
-        <input
+        <DebouncedInput
           className="panel-input"
           value={table.name}
-          onChange={(e) => onUpdateTable({ name: e.target.value })}
+          onChange={(val) => onUpdateTable({ name: val })}
           spellCheck={false}
           disabled={readOnly}
         />

@@ -1,30 +1,30 @@
-import { useEffect } from 'react';
+import { useEffect, Suspense, lazy } from 'react';
 import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
 import { useAuthStore } from './store/authStore';
-import Editor from './pages/Editor';
-import Home from './pages/Home';
-import EmbedViewer from './pages/EmbedViewer';
+const Editor = lazy(() => import('./pages/Editor'));
+const Home = lazy(() => import('./pages/Home'));
+const EmbedViewer = lazy(() => import('./pages/EmbedViewer'));
 
-import { Login } from './pages/Login';
-import { Dashboard } from './pages/Dashboard';
-import { Pricing } from './pages/Pricing';
-import { Settings } from './pages/Settings';
-import { Docs } from './pages/Docs';
-import { TemplatesPage } from './pages/TemplatesPage';
-import { Privacy } from './pages/Privacy';
-import { Terms } from './pages/Terms';
-import { Features } from './pages/Features';
-import { PublicTemplates } from './pages/PublicTemplates';
-import { SaasSchema } from './pages/use-cases/SaasSchema';
-import { EcommerceSchema } from './pages/use-cases/EcommerceSchema';
-import { AuthSchema } from './pages/use-cases/AuthSchema';
-import { DbdiagramCompare } from './pages/compare/DbdiagramCompare';
-import { DrawsqlCompare } from './pages/compare/DrawsqlCompare';
-import { CompareIndex } from './pages/compare/CompareIndex';
-import { About } from './pages/About';
-import { Contact } from './pages/Contact';
-import { BlogIndex } from './pages/BlogIndex';
-import { BlogPost } from './pages/BlogPost';
+const Login = lazy(() => import('./pages/Login').then(m => ({ default: m.Login })));
+const Dashboard = lazy(() => import('./pages/Dashboard').then(m => ({ default: m.Dashboard })));
+const Pricing = lazy(() => import('./pages/Pricing').then(m => ({ default: m.Pricing })));
+const Settings = lazy(() => import('./pages/Settings').then(m => ({ default: m.Settings })));
+const Docs = lazy(() => import('./pages/Docs').then(m => ({ default: m.Docs })));
+const TemplatesPage = lazy(() => import('./pages/TemplatesPage').then(m => ({ default: m.TemplatesPage })));
+const Privacy = lazy(() => import('./pages/Privacy').then(m => ({ default: m.Privacy })));
+const Terms = lazy(() => import('./pages/Terms').then(m => ({ default: m.Terms })));
+const Features = lazy(() => import('./pages/Features').then(m => ({ default: m.Features })));
+const PublicTemplates = lazy(() => import('./pages/PublicTemplates').then(m => ({ default: m.PublicTemplates })));
+const SaasSchema = lazy(() => import('./pages/use-cases/SaasSchema').then(m => ({ default: m.SaasSchema })));
+const EcommerceSchema = lazy(() => import('./pages/use-cases/EcommerceSchema').then(m => ({ default: m.EcommerceSchema })));
+const AuthSchema = lazy(() => import('./pages/use-cases/AuthSchema').then(m => ({ default: m.AuthSchema })));
+const DbdiagramCompare = lazy(() => import('./pages/compare/DbdiagramCompare').then(m => ({ default: m.DbdiagramCompare })));
+const DrawsqlCompare = lazy(() => import('./pages/compare/DrawsqlCompare').then(m => ({ default: m.DrawsqlCompare })));
+const CompareIndex = lazy(() => import('./pages/compare/CompareIndex').then(m => ({ default: m.CompareIndex })));
+const About = lazy(() => import('./pages/About').then(m => ({ default: m.About })));
+const Contact = lazy(() => import('./pages/Contact').then(m => ({ default: m.Contact })));
+const BlogIndex = lazy(() => import('./pages/BlogIndex').then(m => ({ default: m.BlogIndex })));
+const BlogPost = lazy(() => import('./pages/BlogPost').then(m => ({ default: m.BlogPost })));
 import { AppLayout } from './components/layout/AppLayout';
 import { DialogModal } from './components/shared/DialogModal';
 
@@ -42,7 +42,8 @@ export default function App() {
   return (
     <BrowserRouter>
       <DialogModal />
-      <Routes>
+      <Suspense fallback={<div style={{ display: 'flex', height: '100vh', alignItems: 'center', justifyContent: 'center', color: 'var(--text-muted)' }}>Loading...</div>}>
+        <Routes>
         {/* Marketing Routes */}
         <Route path="/" element={<Home />} />
         <Route path="/pricing" element={<Pricing />} />
@@ -85,7 +86,8 @@ export default function App() {
             <Editor isSharedView={true} />
           </div>
         } />
-      </Routes>
+        </Routes>
+      </Suspense>
     </BrowserRouter>
   );
 }

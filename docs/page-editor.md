@@ -326,7 +326,7 @@ useEffect(() => {
 
 **Auth guard:** `if (session) return` — authenticated users using the sandbox (possible via visiting `/sandbox` while logged in) don't write to `localStorage`. Their work is not claimed when they return to the dashboard.
 
-**Notes/groups omitted:** Only `tables` and `relationships` are persisted — same gap as `useCloudPersistence`. Notes and groups on the sandbox canvas are not saved.
+**Notes/groups persistence:** `tables`, `relationships`, `notes`, and `groups` are all persisted to `localStorage.sandbox_schema`.
 
 ---
 
@@ -360,7 +360,7 @@ useEffect(() => {
 | `'split'` | ✅ | ✅ | `app-canvas-area--split` |
 | `'code'` | ❌ | ✅ | `app-canvas-area--code` |
 
-`SchemaCanvas` and `CodePanel` mount/unmount based on mode. `SchemaCanvas` is a relatively heavy component (React Flow + Yjs effects) — mounting/unmounting it on mode switch may cause brief layout reflow and re-initialization. Using `display: none` CSS to hide rather than unmount would avoid this.
+`SchemaCanvas` and `CodePanel` use `display: none` to hide rather than unmounting when switching modes. This prevents `SchemaCanvas` (React Flow + Yjs effects) from re-initializing and causing layout reflows on mode switch.
 
 ---
 
@@ -424,10 +424,7 @@ useEffect(() => {
 | **`SandboxLimiter` causes a flicker** | Table is rendered, then removed in the next effect cycle — users may briefly see the over-limit table appear before deletion |
 | **`schemaOwnerId` load window briefly sets `readOnly: true`** | Between mount and when `useCloudPersistence` resolves the owner, guests see `readOnly: true` momentarily even if `allowGuestEdits` is `true` |
 | **`isSharedView` missing from Yjs effect deps** | `[id, isSandbox]` — `isSharedView` not included. Benign in current routing but technically incomplete |
-| **`SchemaCanvas` unmounts on mode switch** | Unmounts on `'code'` mode — React Flow re-initializes on switch back. `display: none` would be smoother |
 | **`sf:open-ai-generate` handled in two places** | `Editor` sets `aiGenOpen = true`. `AIBottomDrawer` also has its own listener (to handle `initialPrompt` from detail). The two listeners are independent — no deduplication needed but could be confusing |
-| **Sandbox notes/groups not persisted** | Only `tables` + `relationships` written to `localStorage.sandbox_schema` |
-| **Auth guard in sandbox subscription** | `if (session) return` — logged-in users on `/sandbox` don't save work (by design), but this is non-obvious and their sandbox work is silently lost if they don't claim it |
 | **Dynamic import of templates on first sandbox visit** | Shows briefly empty canvas before the e-commerce template populates asynchronously |
 | **`useShareLink()` decodes hash on every mount** | `Editor` calls `useShareLink()` unconditionally — even in sandbox/authenticated modes. The hook internally checks for a hash before decoding |
 | **`leaveRoom(false)` on unmount** | The `false` arg on unmount means schema state is not saved to Yjs before leaving. This is correct since cloud persistence (`useCloudPersistence`) handles DB saves independently |

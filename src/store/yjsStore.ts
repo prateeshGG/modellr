@@ -121,8 +121,12 @@ export const useYjsStore = create<YjsState & YjsActions>()((set, get) => ({
 
     const doc = new Y.Doc();
     const localUser = getLocalUser();
+    const token = useAuthStore.getState().session?.access_token;
 
-    const provider = new WebsocketProvider(WS_BASE, roomId, doc, {
+    // Fix #P0: Pass JWT in connection string for server-side verification
+    const wsUrlWithAuth = token ? `${WS_BASE}?token=${token}` : WS_BASE;
+
+    const provider = new WebsocketProvider(wsUrlWithAuth, roomId, doc, {
       connect: true,
     });
 
@@ -184,6 +188,8 @@ export const useYjsStore = create<YjsState & YjsActions>()((set, get) => ({
     let lastGroupsJson = '';
     let lastAllowGuestEditsJson = '';
     
+    let debounceTimer: any = null;
+
     const unsub = useSchemaStore.subscribe((state) => {
       // Ignore if we are currently handling incoming remote changes
       if (get().isApplyingRemote) return;
@@ -208,14 +214,18 @@ export const useYjsStore = create<YjsState & YjsActions>()((set, get) => ({
       lastGroupsJson = groupsJson;
       lastAllowGuestEditsJson = allowGuestEditsJson;
       
-      const ySchemaMap = doc.getMap<string>('schema');
-      doc.transact(() => {
-        ySchemaMap.set('tables',        tablesJson);
-        ySchemaMap.set('relationships', relsJson);
-        ySchemaMap.set('notes', notesJson);
-        ySchemaMap.set('groups', groupsJson);
-        ySchemaMap.set('allowGuestEdits', allowGuestEditsJson);
-      });
+      // Debounce the broadcast to prevent lag during rapid typing
+      if (debounceTimer) clearTimeout(debounceTimer);
+      debounceTimer = setTimeout(() => {
+        const ySchemaMap = doc.getMap<string>('schema');
+        doc.transact(() => {
+          ySchemaMap.set('tables',        tablesJson);
+          ySchemaMap.set('relationships', relsJson);
+          ySchemaMap.set('notes', notesJson);
+          ySchemaMap.set('groups', groupsJson);
+          ySchemaMap.set('allowGuestEdits', allowGuestEditsJson);
+        });
+      }, 300);
     });
 
     provider.on('status', ({ status }: { status: string }) => {

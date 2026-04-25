@@ -1,302 +1,458 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { Maximize2, Minimize2, ExternalLink, Bot, Eye, Code2, Users, Share2, Layers, RefreshCw, Box, History as HistoryIcon, Zap } from 'lucide-react';
+import {
+  Maximize2, Minimize2, Bot, Eye, Code2,
+  Share2, Layers, RefreshCw, ExternalLink, History as HistoryIcon,
+} from 'lucide-react';
 import { Footer } from '../components/layout/Footer';
 import { PublicNav } from '../components/layout/PublicNav';
 import Editor from './Editor';
+import './Home.css';
 
+/* ─── Persona data ─────────────────────────────────────────── */
+const PERSONAS = {
+  indie: {
+    label: 'Indie Hackers',
+    title: 'Launch your SaaS without overthinking your database',
+    tables: ['User', 'Subscription', 'Invoice', 'FeatureFlag'],
+    color: '#00e5a0',
+  },
+  team: {
+    label: 'Dev Teams',
+    title: 'Ship without schema regrets',
+    tables: ['User', 'Team', 'Permission', 'AuditLog'],
+    color: '#ae7aff',
+  },
+  client: {
+    label: 'Client Work',
+    title: 'Communicate clearly with stakeholders',
+    tables: ['Client', 'Project', 'Deliverable', 'Feedback'],
+    color: '#f59e0b',
+  },
+} as const;
+
+type PersonaKey = keyof typeof PERSONAS;
+
+/* ─── Feature cards ────────────────────────────────────────── */
+const FEATURES = [
+  {
+    icon: <Bot size={20} />,
+    comment: '// AI Schema Generation',
+    code: `model Blog {\n  id     String @id\n  posts  Post[]  // ← auto-suggested\n  author User\n}`,
+    badge: 'AI-Powered',
+  },
+  {
+    icon: <RefreshCw size={20} />,
+    comment: '// Real-Time Sync',
+    code: `// Edit code → canvas updates live\n↔  Code  ↔  Visual  ↔  AI\n// Zero switching. Zero overhead.`,
+    badge: 'Live Sync',
+  },
+  {
+    icon: <ExternalLink size={20} />,
+    comment: '// Modern Exports',
+    code: `$ export --format=prisma\n✓ schema.prisma generated\n✓ Relations preserved`,
+    badge: 'One Click',
+  },
+  {
+    icon: <Layers size={20} />,
+    comment: '// Auto Layout',
+    code: `// 20 tables, 0 manual dragging\nelk.layout(graph)\n✓ Clean diagram — instantly`,
+    badge: 'Smart Layout',
+  },
+  {
+    icon: <Share2 size={20} />,
+    comment: '// Collaboration',
+    code: `// Real-time cursors + share links\nconst link = await share(schema)\n// Read-only or editable`,
+    badge: 'Multiplayer',
+  },
+  {
+    icon: <HistoryIcon size={20} />,
+    comment: '// Version History',
+    code: `// Experiment without fear\ngit diff schema@v3 schema@v4\n✓ Roll back anytime`,
+    badge: 'Snapshots',
+  },
+];
+
+/* ─── Component ────────────────────────────────────────────── */
 export default function Home() {
   const navigate = useNavigate();
   const [isFullscreen, setIsFullscreen] = useState(false);
+  const [activePersona, setActivePersona] = useState<PersonaKey>('indie');
+  const [cursorVisible, setCursorVisible] = useState(true);
+
+  // Blinking cursor
+  useEffect(() => {
+    const id = setInterval(() => setCursorVisible(v => !v), 530);
+    return () => clearInterval(id);
+  }, []);
+
+  const persona = PERSONAS[activePersona];
 
   return (
-    <div style={{ background: 'var(--canvas-bg)', color: 'var(--text-primary)', minHeight: '100vh', overflowX: 'hidden', fontFamily: 'var(--sans)' }}>
-      <PublicNav />
+    <div className="home-root">
+      <PublicNav dark />
 
-      {/* 1. Hero Section */}
-      <header style={{ textAlign: 'center', padding: '120px 20px 80px', position: 'relative' }}>
-        <div style={{ position: 'absolute', top: '50%', left: '50%', transform: 'translate(-50%, -50%)', width: '800px', height: '800px', background: 'var(--brand)', filter: 'blur(200px)', opacity: 0.1, zIndex: 0, pointerEvents: 'none' }} />
-        
-        <div style={{ display: 'inline-flex', alignItems: 'center', gap: '8px', padding: '6px 16px', background: 'var(--surface-base)', border: '1px solid var(--border-subtle)', borderRadius: '24px', color: 'var(--brand)', fontSize: '13px', fontWeight: 600, marginBottom: '24px', position: 'relative', zIndex: 1 }}>
-          An AI-first database design tool built for modern developers
+      {/* ── 1. HERO ─────────────────────────────────────────── */}
+      <header className="hero">
+        {/* Dot-grid background */}
+        <div className="hero-grid" aria-hidden />
+        {/* Ambient glow blobs */}
+        <div className="hero-glow hero-glow--brand" aria-hidden />
+        <div className="hero-glow hero-glow--accent" aria-hidden />
+
+        {/* Left column */}
+        <div className="hero-left">
+          <div className="hero-prompt">
+            <span className="hero-prompt__dollar">$</span>
+            <span className="hero-prompt__cmd">schema init</span>
+            <span
+              className="hero-cursor"
+              style={{ opacity: cursorVisible ? 1 : 0 }}
+              aria-hidden
+            />
+          </div>
+
+          <h1 className="hero-h1">
+            Generate schemas<br />
+            <span className="hero-h1--outline">from a prompt.</span>
+          </h1>
+
+          <p className="hero-sub">
+            AI-powered database design that exports directly to Prisma or Drizzle.
+          </p>
+
+          <div className="hero-actions">
+            <button
+              className="btn-primary"
+              onClick={() => navigate('/login')}
+            >
+              Start building free
+            </button>
+            <button
+              className="btn-ghost"
+              onClick={() => document.getElementById('demo-anchor')?.scrollIntoView({ behavior: 'smooth' })}
+            >
+              See how it works →
+            </button>
+          </div>
+
+          <p className="hero-footnote">No signup required · Start instantly in your browser</p>
         </div>
 
-        <h1 style={{ fontSize: 'min(4.2rem, 11vw)', fontWeight: 900, letterSpacing: '-0.03em', lineHeight: 1.1, maxWidth: '900px', margin: '0 auto 1.5rem', position: 'relative', zIndex: 1 }}>
-          Generate production-ready schemas from a <span style={{ color: 'var(--brand)' }}>single prompt.</span>
-        </h1>
-        <p style={{ fontSize: '1.25rem', color: 'var(--text-secondary)', maxWidth: '650px', margin: '0 auto 2.5rem', lineHeight: 1.6, position: 'relative', zIndex: 1 }}>
-          Visualize, write, or generate schemas with AI — then ship directly to Prisma or Drizzle.
-        </p>
-        
-        <div style={{ display: 'flex', gap: '1rem', justifyContent: 'center', position: 'relative', zIndex: 1 }}>
-          <button onClick={() => navigate('/login')} style={{ background: 'var(--brand)', color: '#fff', padding: '1rem 2rem', borderRadius: '12px', fontSize: '1.1rem', fontWeight: 600, border: 'none', cursor: 'pointer', boxShadow: '0 4px 14px 0 rgba(var(--brand-rgb), 0.4)' }}>
-            Start building free
-          </button>
-          <button onClick={() => document.getElementById('demo-anchor')?.scrollIntoView({ behavior: 'smooth' })} style={{ background: 'transparent', color: 'var(--text-primary)', padding: '1rem 2rem', borderRadius: '12px', fontSize: '1.1rem', fontWeight: 600, border: '0.5px solid var(--border-hi)', cursor: 'pointer' }}>
-            See how it works
-          </button>
-        </div>
-        <div style={{ marginTop: '16px', fontSize: '13px', color: 'var(--text-muted)', position: 'relative', zIndex: 1 }}>
-          No signup required. Start instantly in your browser.
+        {/* Right column — live code preview */}
+        <div className="hero-right" aria-hidden>
+          <div className="code-window">
+            <div className="code-window__bar">
+              <span className="code-window__dot code-window__dot--red" />
+              <span className="code-window__dot code-window__dot--yellow" />
+              <span className="code-window__dot code-window__dot--green" />
+              <span className="code-window__bar-label">schema.prisma</span>
+            </div>
+            <div className="code-window__body">
+              <div className="code-line">
+                <span className="tok-keyword">model</span>
+                <span className="tok-name"> User </span>
+                <span className="tok-brace">{'{'}</span>
+              </div>
+              <div className="code-line code-line--indent">
+                <span className="tok-field">id</span>
+                <span className="tok-type">     String  </span>
+                <span className="tok-attr">@id @default(cuid())</span>
+              </div>
+              <div className="code-line code-line--indent">
+                <span className="tok-field">email</span>
+                <span className="tok-type">  String  </span>
+                <span className="tok-attr">@unique</span>
+              </div>
+              <div className="code-line code-line--indent tok-comment">
+                {'// ← auto-suggested by AI'}
+              </div>
+              <div className="code-line code-line--indent">
+                <span className="tok-field">posts</span>
+                <span className="tok-type">  Post[]</span>
+              </div>
+              <div className="code-line code-line--indent">
+                <span className="tok-field">createdAt</span>
+                <span className="tok-type"> DateTime </span>
+                <span className="tok-attr">@default(now())</span>
+              </div>
+              <div className="code-line">
+                <span className="tok-brace">{'}'}</span>
+              </div>
+              <div className="code-line" style={{ marginTop: '12px' }}>
+                <span className="tok-keyword">model</span>
+                <span className="tok-name"> Post </span>
+                <span className="tok-brace">{'{'}</span>
+              </div>
+              <div className="code-line code-line--indent">
+                <span className="tok-field">id</span>
+                <span className="tok-type">       String  </span>
+                <span className="tok-attr">@id @default(cuid())</span>
+              </div>
+              <div className="code-line code-line--indent">
+                <span className="tok-field">author</span>
+                <span className="tok-type">   User    </span>
+                <span className="tok-attr">@relation(fields: [authorId])</span>
+              </div>
+              <div className="code-line code-line--indent">
+                <span className="tok-field">authorId</span>
+                <span className="tok-type"> String</span>
+              </div>
+              <div className="code-line">
+                <span className="tok-brace">{'}'}</span>
+              </div>
+              <div className="code-line" style={{ marginTop: '8px' }}>
+                <span
+                  className="hero-cursor"
+                  style={{ opacity: cursorVisible ? 1 : 0 }}
+                />
+              </div>
+            </div>
+          </div>
         </div>
       </header>
 
-      {/* 2. Conversion Trigger Section (Demo) - Moved Up */}
-      <section id="demo-anchor" style={{ padding: '40px 20px 120px', position: 'relative', zIndex: 2 }}>
-        <div style={{ textAlign: 'center', marginBottom: '40px' }}>
-          <h2 style={{ fontSize: '32px', fontWeight: 800, letterSpacing: '-0.02em', margin: '0 0 24px 0' }}>From idea → schema in seconds</h2>
-          
-          <div style={{ background: 'var(--surface-base)', padding: '16px 24px', borderRadius: '12px', border: '1px solid var(--border-subtle)', display: 'inline-flex', alignItems: 'center', gap: '12px', margin: '0 auto', boxShadow: '0 4px 12px rgba(0,0,0,0.05)' }}>
-            <Bot size={20} color="var(--brand)" />
-            <code style={{ fontSize: '15px', color: 'var(--text-primary)', fontWeight: 600, fontFamily: 'var(--mono)' }}>
-              "Build a SaaS schema with users, billing, and analytics"
-            </code>
-          </div>
+      {/* ── 2. DEMO SANDBOX ─────────────────────────────────── */}
+      <section id="demo-anchor" className="demo-section">
+        <div className="section-label">// Live Sandbox</div>
+        <h2 className="section-h2">From idea → schema in seconds</h2>
+
+        <div className="demo-prompt-pill">
+          <Bot size={16} color="#ae7aff" />
+          <code>"Build a SaaS schema with users, billing, and analytics"</code>
         </div>
-        
-        <div style={{ 
-          margin: '0 auto',
-          ...(isFullscreen ? {
-            position: 'fixed',
-            top: 0,
-            left: 0,
-            right: 0,
-            bottom: 0,
-            height: '100vh',
-            width: '100vw',
-            zIndex: 9999,
-            borderRadius: 0,
-          } : {
-            maxWidth: '1200px', 
-            height: '600px', 
-            borderRadius: '16px',
-          }),
-          overflow: 'hidden', 
-          border: isFullscreen ? 'none' : '1px solid var(--border-subtle)', 
-          boxShadow: '0 25px 50px -12px rgba(0, 0, 0, 0.5)',
-          background: 'var(--surface-base)',
-          transition: 'all 0.3s cubic-bezier(0.4, 0, 0.2, 1)'
-        }}>
-          {/* Glass header for the mock window */}
-          <div style={{ height: '40px', background: 'var(--surface-raised)', borderBottom: '1px solid var(--border-subtle)', display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '0 16px' }}>
-            <div style={{ display: 'flex', gap: '8px', alignItems: 'center' }}>
-              <div style={{ width: '12px', height: '12px', borderRadius: '50%', background: '#EF4444' }} />
-              <div style={{ width: '12px', height: '12px', borderRadius: '50%', background: '#F59E0B' }} />
-              <div style={{ width: '12px', height: '12px', borderRadius: '50%', background: '#10B981' }} />
-              <span style={{ marginLeft: '12px', fontSize: '0.85rem', color: 'var(--text-muted)', fontWeight: 500 }}>Live Sandbox — Try editing!</span>
+
+        <div
+          className="demo-frame"
+          style={isFullscreen ? {
+            position: 'fixed', top: 0, left: 0, right: 0, bottom: 0,
+            height: '100vh', width: '100vw', zIndex: 9999,
+            borderRadius: 0, maxWidth: 'none',
+          } : {}}
+        >
+          <div className="demo-frame__bar">
+            <div className="demo-frame__dots">
+              <span className="code-window__dot code-window__dot--red" />
+              <span className="code-window__dot code-window__dot--yellow" />
+              <span className="code-window__dot code-window__dot--green" />
+              <span className="demo-frame__bar-label">Live Sandbox — Try editing!</span>
             </div>
-            <button 
+            <button
+              className="demo-frame__fullscreen"
               onClick={() => setIsFullscreen(!isFullscreen)}
-              style={{ background: 'transparent', border: 'none', color: 'var(--text-secondary)', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '4px', borderRadius: '4px' }}
-              title={isFullscreen ? "Exit Fullscreen" : "Enter Fullscreen"}
+              title={isFullscreen ? 'Exit Fullscreen' : 'Enter Fullscreen'}
             >
-              {isFullscreen ? <Minimize2 size={16} /> : <Maximize2 size={16} />}
+              {isFullscreen ? <Minimize2 size={14} /> : <Maximize2 size={14} />}
             </button>
           </div>
-          {/* The sandbox itself */}
-          <div style={{ height: 'calc(100% - 40px)', width: '100%', position: 'relative' }}>
-             <Editor isSandbox={true} />
+          <div className="demo-frame__body">
+            <Editor isSandbox />
           </div>
         </div>
 
-        <div style={{ textAlign: 'center', marginTop: '32px', fontSize: '18px', fontWeight: 600, color: 'var(--text-secondary)' }}>
-          <span style={{ color: 'var(--brand)', marginRight: '8px' }}>→</span> 15 tables generated instantly. Fully linked. Ready to export.
-        </div>
+        <p className="demo-caption">
+          <span className="demo-caption__arrow">→</span>
+          15 tables generated instantly. Fully linked. Ready to export.
+        </p>
       </section>
 
-      {/* 3. "Why this exists" Section */}
-      <section style={{ maxWidth: '800px', margin: '0 auto 100px', padding: '0 20px', textAlign: 'center' }}>
-        <h2 style={{ fontSize: '36px', fontWeight: 800, letterSpacing: '-0.02em', margin: '0 0 24px' }}>Stop wasting time designing schemas</h2>
-        <div style={{ fontSize: '18px', lineHeight: 1.6, color: 'var(--text-secondary)' }}>
-          <p style={{ marginBottom: '16px' }}>Designing a database today means jumping between SQL, ORM docs, and clunky diagram tools.</p>
-          <p style={{ marginBottom: '16px' }}>You lose time. You lose clarity. And your schema still ends up messy.</p>
-          <p style={{ fontWeight: 600, color: 'var(--text-primary)', fontSize: '20px', marginTop: '24px' }}>Stop wasting time switching between tools.</p>
-        </div>
-      </section>
+      {/* ── 3. PROBLEM / SOLUTION (git diff) ────────────────── */}
+      <section className="diff-section">
+        <div className="diff-inner">
+          <div className="section-label">// The Problem</div>
 
-      {/* 4. "Why this is different" Section (NEW) */}
-      <section style={{ background: 'var(--surface-base)', borderTop: '1px solid var(--border-subtle)', borderBottom: '1px solid var(--border-subtle)' }}>
-        <div style={{ maxWidth: '1200px', margin: '0 auto', padding: '100px 20px' }}>
-          <div style={{ textAlign: 'center', marginBottom: '64px' }}>
-            <h2 style={{ fontSize: '40px', fontWeight: 800, letterSpacing: '-0.02em', margin: 0 }}>Built for modern stacks — not outdated workflows</h2>
-            <p style={{ color: 'var(--text-secondary)', fontSize: '18px', marginTop: '16px' }}>Why struggle with legacy visual tools when you can just build?</p>
-          </div>
-          
-          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: '48px' }}>
-            <div>
-              <div style={{ color: 'var(--brand)', marginBottom: '16px' }}><Zap size={32} /></div>
-              <h3 style={{ fontSize: '22px', fontWeight: 700, marginBottom: '12px' }}>Prisma & Drizzle First</h3>
-              <p style={{ color: 'var(--text-secondary)', lineHeight: 1.6, fontSize: '16px' }}>Stop handwriting ORM schemas. We treat modern TypeScript ORMs as first-class citizens, not afterthoughts.</p>
+          <div className="diff-window">
+            <div className="diff-window__tabs">
+              <span className="diff-tab diff-tab--inactive">before.dbml</span>
+              <span className="diff-tab diff-tab--active">after.dbml</span>
             </div>
-            
-            <div>
-              <div style={{ color: 'var(--brand)', marginBottom: '16px' }}><Bot size={32} /></div>
-              <h3 style={{ fontSize: '22px', fontWeight: 700, marginBottom: '12px' }}>AI Deeply Integrated</h3>
-              <p style={{ color: 'var(--text-secondary)', lineHeight: 1.6, fontSize: '16px' }}>AI isn't a bolt-on gimmick. It's built into the core to analyze relationships, suggest indexes, and write boilerplate for you.</p>
-            </div>
-
-            <div>
-              <div style={{ color: 'var(--brand)', marginBottom: '16px' }}><Layers size={32} /></div>
-              <h3 style={{ fontSize: '22px', fontWeight: 700, marginBottom: '12px' }}>No Manual Diagram Mess</h3>
-              <p style={{ color: 'var(--text-secondary)', lineHeight: 1.6, fontSize: '16px' }}>Never waste 20 minutes untangling lines again. Our auto-layout engine perfectly organizes complex relation trees instantly.</p>
-            </div>
-          </div>
-        </div>
-      </section>
-
-      {/* 5. Core Differentiation */}
-      <section style={{ maxWidth: '1200px', margin: '0 auto', padding: '120px 20px' }}>
-        <div style={{ textAlign: 'center', marginBottom: '64px' }}>
-          <h2 style={{ fontSize: '40px', fontWeight: 800, letterSpacing: '-0.02em', margin: 0 }}>One tool. Three ways to build.</h2>
-          <p style={{ color: 'var(--brand)', fontWeight: 600, fontSize: '18px', marginTop: '16px' }}>The only tool where AI, code, and visual design are fully synchronized.</p>
-        </div>
-
-        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: '24px' }}>
-          <div style={{ padding: '32px', border: '1px solid var(--border-subtle)', borderRadius: '16px', background: 'var(--surface-base)' }}>
-            <div style={{ background: 'rgba(var(--brand-rgb), 0.1)', color: 'var(--brand)', width: '40px', height: '40px', borderRadius: '10px', display: 'flex', alignItems: 'center', justifyContent: 'center', marginBottom: '24px' }}><Eye /></div>
-            <h3 style={{ fontSize: '20px', fontWeight: 700, marginBottom: '12px' }}>Visual</h3>
-            <p style={{ color: 'var(--text-secondary)', lineHeight: 1.6, fontSize: '15px' }}>Design with a clean, auto-layout canvas.</p>
-          </div>
-          <div style={{ padding: '32px', border: '1px solid var(--border-subtle)', borderRadius: '16px', background: 'var(--surface-base)' }}>
-            <div style={{ background: 'rgba(var(--brand-rgb), 0.1)', color: 'var(--brand)', width: '40px', height: '40px', borderRadius: '10px', display: 'flex', alignItems: 'center', justifyContent: 'center', marginBottom: '24px' }}><Code2 /></div>
-            <h3 style={{ fontSize: '20px', fontWeight: 700, marginBottom: '12px' }}>Code</h3>
-            <p style={{ color: 'var(--text-secondary)', lineHeight: 1.6, fontSize: '15px' }}>Write DBML or SQL with instant preview.</p>
-          </div>
-          <div style={{ padding: '32px', border: '1px solid var(--border-subtle)', borderRadius: '16px', background: 'var(--surface-base)' }}>
-            <div style={{ background: 'rgba(var(--brand-rgb), 0.1)', color: 'var(--brand)', width: '40px', height: '40px', borderRadius: '10px', display: 'flex', alignItems: 'center', justifyContent: 'center', marginBottom: '24px' }}><Bot /></div>
-            <h3 style={{ fontSize: '20px', fontWeight: 700, marginBottom: '12px' }}>AI</h3>
-            <p style={{ color: 'var(--text-secondary)', lineHeight: 1.6, fontSize: '15px' }}>Describe your system — get a full schema instantly.</p>
-          </div>
-        </div>
-      </section>
-
-      {/* 6. Feature -> Outcome */}
-      <section style={{ maxWidth: '1200px', margin: '0 auto 120px', padding: '0 20px' }}>
-        <div style={{ textAlign: 'center', marginBottom: '64px' }}>
-          <h2 style={{ fontSize: '40px', fontWeight: 800, letterSpacing: '-0.02em', margin: 0 }}>Built for how developers actually work</h2>
-        </div>
-        
-        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: '24px' }}>
-          <div style={{ background: 'var(--surface-base)', padding: '32px', borderRadius: '16px', border: '1px solid var(--border-subtle)' }}>
-            <div style={{ width: '48px', height: '48px', background: 'rgba(var(--brand-rgb), 0.1)', borderRadius: '12px', display: 'flex', alignItems: 'center', justifyContent: 'center', color: 'var(--brand)', marginBottom: '24px' }}><Bot size={24} /></div>
-            <h3 style={{ fontSize: '18px', fontWeight: 600, marginBottom: '4px' }}>AI Schema Generation</h3>
-            <p style={{ color: 'var(--text-secondary)', lineHeight: 1.6, fontSize: '15px' }}>Generate complete schemas — not just tables, but relationships, indexes, and structure mapped perfectly.</p>
-          </div>
-
-          <div style={{ background: 'var(--surface-base)', padding: '32px', borderRadius: '16px', border: '1px solid var(--border-subtle)' }}>
-            <div style={{ width: '48px', height: '48px', background: 'rgba(var(--brand-rgb), 0.1)', borderRadius: '12px', display: 'flex', alignItems: 'center', justifyContent: 'center', color: 'var(--brand)', marginBottom: '24px' }}><RefreshCw size={24} /></div>
-            <h3 style={{ fontSize: '18px', fontWeight: 600, marginBottom: '4px' }}>Real-Time Sync</h3>
-            <p style={{ color: 'var(--text-secondary)', lineHeight: 1.6, fontSize: '15px' }}>Code, canvas, and AI — perfectly in sync. No switching tools. No mental overhead.</p>
-          </div>
-
-          <div style={{ background: 'var(--surface-base)', padding: '32px', borderRadius: '16px', border: '1px solid var(--border-subtle)' }}>
-            <div style={{ width: '48px', height: '48px', background: 'rgba(var(--brand-rgb), 0.1)', borderRadius: '12px', display: 'flex', alignItems: 'center', justifyContent: 'center', color: 'var(--brand)', marginBottom: '24px' }}><ExternalLink size={24} /></div>
-            <h3 style={{ fontSize: '18px', fontWeight: 600, marginBottom: '4px' }}>Modern Exports</h3>
-            <p style={{ color: 'var(--text-secondary)', lineHeight: 1.6, fontSize: '15px' }}>Export production-ready Prisma or Drizzle code in one click.</p>
-          </div>
-          
-          <div style={{ background: 'var(--surface-base)', padding: '32px', borderRadius: '16px', border: '1px solid var(--border-subtle)' }}>
-            <div style={{ width: '48px', height: '48px', background: 'rgba(var(--brand-rgb), 0.1)', borderRadius: '12px', display: 'flex', alignItems: 'center', justifyContent: 'center', color: 'var(--brand)', marginBottom: '24px' }}><Layers size={24} /></div>
-            <h3 style={{ fontSize: '18px', fontWeight: 600, marginBottom: '4px' }}>Auto Layout</h3>
-            <p style={{ color: 'var(--text-secondary)', lineHeight: 1.6, fontSize: '15px' }}>Never manually untangle diagrams again. Clean, readable schemas — automatically.</p>
-          </div>
-
-          <div style={{ background: 'var(--surface-base)', padding: '32px', borderRadius: '16px', border: '1px solid var(--border-subtle)' }}>
-            <div style={{ width: '48px', height: '48px', background: 'rgba(var(--brand-rgb), 0.1)', borderRadius: '12px', display: 'flex', alignItems: 'center', justifyContent: 'center', color: 'var(--brand)', marginBottom: '24px' }}><Share2 size={24} /></div>
-            <h3 style={{ fontSize: '18px', fontWeight: 600, marginBottom: '4px' }}>Collaboration</h3>
-            <p style={{ color: 'var(--text-secondary)', lineHeight: 1.6, fontSize: '15px' }}>Share and explain your system easily with real-time cursors and read-only links.</p>
-          </div>
-
-          <div style={{ background: 'var(--surface-base)', padding: '32px', borderRadius: '16px', border: '1px solid var(--border-subtle)' }}>
-            <div style={{ width: '48px', height: '48px', background: 'rgba(var(--brand-rgb), 0.1)', borderRadius: '12px', display: 'flex', alignItems: 'center', justifyContent: 'center', color: 'var(--brand)', marginBottom: '24px' }}><HistoryIcon size={24} /></div>
-            <h3 style={{ fontSize: '18px', fontWeight: 600, marginBottom: '4px' }}>Version History</h3>
-            <p style={{ color: 'var(--text-secondary)', lineHeight: 1.6, fontSize: '15px' }}>Experiment without fear. Snapshots and diffs let you roll back anytime instantly.</p>
-          </div>
-        </div>
-      </section>
-
-      {/* 7. Use Cases */}
-      <section style={{ background: 'var(--surface-base)', borderTop: '1px solid var(--border-subtle)', borderBottom: '1px solid var(--border-subtle)' }}>
-        <div style={{ maxWidth: '1200px', margin: '0 auto', padding: '120px 20px' }}>
-          <div style={{ textAlign: 'center', marginBottom: '64px' }}>
-            <h2 style={{ fontSize: '40px', fontWeight: 800, letterSpacing: '-0.02em', margin: 0 }}>Built for real workflows</h2>
-          </div>
-          
-          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: '48px' }}>
-            <div>
-              <div style={{ color: 'var(--brand)', marginBottom: '16px' }}><Box size={32} /></div>
-              <div style={{ fontSize: '14px', fontWeight: 700, color: 'var(--text-secondary)', textTransform: 'uppercase', marginBottom: '8px', letterSpacing: '0.05em' }}>For Indie Hackers</div>
-              <h3 style={{ fontSize: '24px', fontWeight: 700, marginBottom: '16px' }}>Launch your SaaS without overthinking your database</h3>
-              <p style={{ color: 'var(--text-secondary)', lineHeight: 1.6, fontSize: '16px' }}>Generate auth, users, billing schemas instantly.</p>
-            </div>
-            
-            <div>
-              <div style={{ color: 'var(--brand)', marginBottom: '16px' }}><Code2 size={32} /></div>
-              <div style={{ fontSize: '14px', fontWeight: 700, color: 'var(--text-secondary)', textTransform: 'uppercase', marginBottom: '8px', letterSpacing: '0.05em' }}>For Developers</div>
-              <h3 style={{ fontSize: '24px', fontWeight: 700, marginBottom: '16px' }}>Avoid painful schema refactors later</h3>
-              <p style={{ color: 'var(--text-secondary)', lineHeight: 1.6, fontSize: '16px' }}>Design clearly before you write a single line of backend code.</p>
-            </div>
-
-            <div>
-              <div style={{ color: 'var(--brand)', marginBottom: '16px' }}><Users size={32} /></div>
-              <div style={{ fontSize: '14px', fontWeight: 700, color: 'var(--text-secondary)', textTransform: 'uppercase', marginBottom: '8px', letterSpacing: '0.05em' }}>For Client Work</div>
-              <h3 style={{ fontSize: '24px', fontWeight: 700, marginBottom: '16px' }}>Communicate clearly</h3>
-              <p style={{ color: 'var(--text-secondary)', lineHeight: 1.6, fontSize: '16px' }}>Share beautiful diagrams with stakeholders easily.</p>
+            <div className="diff-window__body">
+              <div className="diff-line diff-line--removed">
+                <span className="diff-sign">−</span>
+                Jump between SQL editor, ORM docs, and diagram tools
+              </div>
+              <div className="diff-line diff-line--removed">
+                <span className="diff-sign">−</span>
+                Manually draw every relation line
+              </div>
+              <div className="diff-line diff-line--removed">
+                <span className="diff-sign">−</span>
+                Export SQL then manually translate to Prisma
+              </div>
+              <div className="diff-line diff-line--removed" style={{ marginBottom: '20px' }}>
+                <span className="diff-sign">−</span>
+                Repeat for every single project
+              </div>
+              <div className="diff-line diff-line--added">
+                <span className="diff-sign">+</span>
+                Describe your app in plain English
+              </div>
+              <div className="diff-line diff-line--added">
+                <span className="diff-sign">+</span>
+                Full schema with indexes and relations — instant
+              </div>
+              <div className="diff-line diff-line--added">
+                <span className="diff-sign">+</span>
+                One-click Prisma or Drizzle export
+              </div>
+              <div className="diff-line diff-line--added">
+                <span className="diff-sign">+</span>
+                Version controlled from the start
+              </div>
             </div>
           </div>
         </div>
       </section>
 
-      {/* 8. Pricing Copy */}
-      <section style={{ maxWidth: '1000px', margin: '0 auto 120px', padding: '120px 20px 0', textAlign: 'center' }}>
-        <div style={{ color: 'var(--brand)', fontWeight: 700, fontSize: '14px', textTransform: 'uppercase', letterSpacing: '0.1em', marginBottom: '16px' }}>
-          Used by developers to save hours of schema design every week
-        </div>
-        <h2 style={{ fontSize: '40px', fontWeight: 800, letterSpacing: '-0.02em', margin: '0 0 16px 0' }}>Simple, honest pricing</h2>
-        <p style={{ color: 'var(--text-primary)', fontSize: '20px', marginBottom: '48px', fontWeight: 700 }}>If this saves you even 2 hours, it pays for itself.</p>
+      {/* ── 4. FEATURE CARDS (code snippets) ────────────────── */}
+      <section className="features-section">
+        <div className="features-inner">
+          <div className="section-label">// What you get</div>
+          <h2 className="section-h2">Built for how developers actually work</h2>
 
-        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(2, 1fr)', gap: '24px', textAlign: 'left' }}>
-          <div style={{ background: 'var(--surface-base)', border: '1px solid var(--border-subtle)', borderRadius: '16px', padding: '40px', display: 'flex', flexDirection: 'column' }}>
-            <div style={{ fontSize: '24px', fontWeight: 800, marginBottom: '8px' }}>Free</div>
-            <div style={{ fontSize: '16px', color: 'var(--text-secondary)', marginBottom: '32px' }}>Start building instantly.</div>
-            
-            <div style={{ display: 'flex', flexDirection: 'column', gap: '16px', fontSize: '16px', flexGrow: 1, marginBottom: '40px' }}>
-              <div style={{ display: 'flex', gap: '12px', alignItems: 'center' }}><span style={{ color: 'var(--brand)' }}>✓</span> Unlimited editing</div>
-              <div style={{ display: 'flex', gap: '12px', alignItems: 'center' }}><span style={{ color: 'var(--brand)' }}>✓</span> 3 saved schemas</div>
-              <div style={{ display: 'flex', gap: '12px', alignItems: 'center' }}><span style={{ color: 'var(--brand)' }}>✓</span> SQL / DBML export</div>
-              <div style={{ display: 'flex', gap: '12px', alignItems: 'center' }}><span style={{ color: 'var(--brand)' }}>✓</span> Limited AI usage</div>
-            </div>
-            
-            <button onClick={() => navigate('/login')} style={{ width: '100%', padding: '14px', background: 'transparent', border: '1px solid var(--border-hi)', color: 'var(--text-primary)', borderRadius: '8px', cursor: 'pointer', fontWeight: 600, fontSize: '16px' }}>Start free</button>
-          </div>
-          
-          <div style={{ background: 'var(--surface-base)', border: '2px solid var(--brand)', borderRadius: '16px', padding: '40px', position: 'relative', display: 'flex', flexDirection: 'column' }}>
-            <div style={{ position: 'absolute', top: '-14px', right: '32px', background: 'var(--brand)', color: '#fff', fontSize: '11px', fontWeight: 700, padding: '4px 12px', borderRadius: '12px', letterSpacing: '0.05em' }}>MOST POPULAR</div>
-            <div style={{ display: 'flex', alignItems: 'baseline', gap: '8px', marginBottom: '8px' }}>
-              <div style={{ fontSize: '24px', fontWeight: 800 }}>Pro</div>
-              <div style={{ fontSize: '18px', fontWeight: 600, color: 'var(--text-secondary)' }}>$15<span style={{ fontSize: '14px', fontWeight: 400 }}>/mo</span></div>
-            </div>
-            
-            <div style={{ fontSize: '16px', color: 'var(--brand)', fontWeight: 600, marginBottom: '32px' }}>Everything you need to ship faster.</div>
-            
-            <div style={{ display: 'flex', flexDirection: 'column', gap: '16px', fontSize: '16px', flexGrow: 1, marginBottom: '40px' }}>
-              <div style={{ display: 'flex', gap: '12px', alignItems: 'center' }}><span style={{ color: 'var(--brand)' }}>✓</span> Unlimited schemas</div>
-              <div style={{ display: 'flex', gap: '12px', alignItems: 'center' }}><span style={{ color: 'var(--brand)' }}>✓</span> Prisma & Drizzle export</div>
-              <div style={{ display: 'flex', gap: '12px', alignItems: 'center' }}><span style={{ color: 'var(--brand)' }}>✓</span> Full AI capabilities</div>
-              <div style={{ display: 'flex', gap: '12px', alignItems: 'center' }}><span style={{ color: 'var(--brand)' }}>✓</span> Version history</div>
-              <div style={{ display: 'flex', gap: '12px', alignItems: 'center' }}><span style={{ color: 'var(--brand)' }}>✓</span> Collaboration</div>
-            </div>
-            
-            <button onClick={() => navigate('/pricing')} style={{ width: '100%', padding: '14px', background: 'var(--brand)', border: 'none', color: '#fff', borderRadius: '8px', cursor: 'pointer', fontWeight: 600, fontSize: '16px' }}>Upgrade to Pro</button>
+          <div className="features-grid">
+            {FEATURES.map((f, i) => (
+              <div key={i} className="feature-card">
+                <div className="feature-card__header">
+                  <span className="feature-card__icon">{f.icon}</span>
+                  <span className="feature-card__comment">{f.comment}</span>
+                </div>
+                <pre className="feature-card__code">{f.code}</pre>
+                <span className="feature-card__badge">{f.badge}</span>
+              </div>
+            ))}
           </div>
         </div>
       </section>
 
-      {/* Bottom CTA */}
-      <section style={{ textAlign: 'center', padding: '100px 20px', background: 'var(--surface-base)', borderTop: '1px solid var(--border-subtle)' }}>
-        <h2 style={{ fontSize: '48px', fontWeight: 800, letterSpacing: '-0.03em', margin: '0 0 16px 0' }}>Design your database in <br /><span style={{ color: 'var(--brand)' }}>minutes — not hours.</span></h2>
-        <p style={{ color: 'var(--text-secondary)', fontSize: '18px', marginBottom: '40px' }}>Free forever. No credit card required to start.</p>
-        <button onClick={() => navigate('/login')} style={{ background: 'var(--text-primary)', color: 'var(--canvas-bg)', padding: '16px 32px', borderRadius: '12px', fontSize: '1.2rem', fontWeight: 600, border: 'none', cursor: 'pointer' }}>Start building free →</button>
+      {/* ── 5. THREE MODES ──────────────────────────────────── */}
+      <section className="modes-section">
+        <div className="modes-inner">
+          <div className="section-label">// One tool. Three ways to build.</div>
+          <h2 className="section-h2">
+            The only tool where AI, code, and visual design are fully synchronized.
+          </h2>
+
+          <div className="modes-grid">
+            {[
+              { icon: <Eye size={24} />, title: 'Visual', desc: 'Design with a clean, auto-layout canvas. Drag, connect, and organize without touching code.' },
+              { icon: <Code2 size={24} />, title: 'Code', desc: 'Write DBML or SQL with instant visual preview. Your canvas updates as you type.' },
+              { icon: <Bot size={24} />, title: 'AI', desc: 'Describe your system in plain English — get a full schema with relations and indexes instantly.' },
+            ].map((m, i) => (
+              <div key={i} className="mode-card">
+                <div className="mode-card__icon">{m.icon}</div>
+                <h3 className="mode-card__title">{m.title}</h3>
+                <p className="mode-card__desc">{m.desc}</p>
+              </div>
+            ))}
+          </div>
+        </div>
+      </section>
+
+      {/* ── 6. PERSONA SELECTOR ─────────────────────────────── */}
+      <section className="persona-section">
+        <div className="persona-inner">
+          <div className="section-label">// Built for real workflows</div>
+
+          <div className="persona-tabs">
+            {(Object.keys(PERSONAS) as PersonaKey[]).map(key => (
+              <button
+                key={key}
+                className={`persona-tab${activePersona === key ? ' persona-tab--active' : ''}`}
+                style={activePersona === key ? { borderColor: PERSONAS[key].color, color: PERSONAS[key].color } : {}}
+                onClick={() => setActivePersona(key)}
+              >
+                {PERSONAS[key].label}
+              </button>
+            ))}
+          </div>
+
+          <div className="persona-content">
+            <h3 className="persona-title">{persona.title}</h3>
+            <div
+              className="persona-schema"
+              style={{ borderLeftColor: persona.color }}
+            >
+              <div className="persona-schema__header">
+                <span className="tok-keyword">model</span>
+                <span className="tok-name"> {persona.tables[0]} </span>
+                <span className="tok-brace">{'{'}</span>
+              </div>
+              {persona.tables.map((t, i) => (
+                <div key={t} className="persona-schema__row">
+                  {i === 0
+                    ? <><span className="tok-field">id</span><span className="tok-type">     String @id</span></>
+                    : <><span className="tok-field">{t.toLowerCase()}</span><span className="tok-type">  {t}[]</span></>
+                  }
+                </div>
+              ))}
+              <div className="persona-schema__header">
+                <span className="tok-brace">{'}'}</span>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      {/* ── 7. PRICING ──────────────────────────────────────── */}
+      <section className="pricing-section">
+        <div className="pricing-inner">
+          <div className="section-label">// Simple, honest pricing</div>
+          <h2 className="section-h2">If this saves you even 2 hours, it pays for itself.</h2>
+
+          <div className="pricing-grid">
+            {/* Free */}
+            <div className="pricing-card">
+              <div className="pricing-card__tier">Free</div>
+              <div className="pricing-card__price">$0<span>/mo</span></div>
+              <div className="pricing-card__tagline">Start building instantly.</div>
+              <ul className="pricing-card__features">
+                <li><span className="check">✓</span> Unlimited editing</li>
+                <li><span className="check">✓</span> 3 saved schemas</li>
+                <li><span className="check">✓</span> SQL / DBML export</li>
+                <li><span className="check">✓</span> Limited AI usage</li>
+              </ul>
+              <button className="btn-outline" onClick={() => navigate('/login')}>
+                Start free
+              </button>
+            </div>
+
+            {/* Pro */}
+            <div className="pricing-card pricing-card--pro">
+              <div className="pricing-card__badge">MOST POPULAR</div>
+              <div className="pricing-card__tier">Pro</div>
+              <div className="pricing-card__price">$15<span>/mo</span></div>
+              <div className="pricing-card__tagline" style={{ color: '#ae7aff' }}>
+                Everything you need to ship faster.
+              </div>
+              <ul className="pricing-card__features">
+                <li><span className="check">✓</span> Unlimited schemas</li>
+                <li><span className="check">✓</span> Prisma &amp; Drizzle export</li>
+                <li><span className="check">✓</span> Full AI capabilities</li>
+                <li><span className="check">✓</span> Version history</li>
+                <li><span className="check">✓</span> Real-time collaboration</li>
+              </ul>
+              <button className="btn-primary" onClick={() => navigate('/pricing')}>
+                Upgrade to Pro
+              </button>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      {/* ── 8. FINAL CTA ────────────────────────────────────── */}
+      <section className="cta-section">
+        <div className="cta-glow cta-glow--left" aria-hidden />
+        <div className="cta-glow cta-glow--right" aria-hidden />
+        <div className="cta-inner">
+          <h2 className="cta-h2">
+            Design your database<br />in minutes.
+          </h2>
+          <button className="btn-cta" onClick={() => navigate('/login')}>
+            Start building free →
+          </button>
+          <p className="cta-footnote">No credit card · Cancel anytime · Free forever</p>
+        </div>
       </section>
 
       <Footer />

@@ -2,6 +2,8 @@ import express from 'express';
 import { OpenAI } from 'openai';
 import { zodResponseFormat } from 'openai/helpers/zod';
 import { z } from 'zod';
+import { requireAuth } from '../middleware/auth.js';
+import { supabaseService } from '../lib/supabase.js';
 
 const router = express.Router();
 
@@ -40,27 +42,73 @@ const AIResponseSchema = z.object({
   operations: z.array(OperationSchema).describe("The strictly ordered sequence of operations to apply to the schema canvas to fulfill the user's request.")
 });
 
-router.post('/modify', async (req, res) => {
+/**
+ * AI Quota Gating Helper
+ * Enforces daily limits based on user tier.
+ */
+async function checkAndIncrementQuota(userId) {
+  const { data: user, error } = await supabaseService
+    .from('users')
+    .select('tier, ai_requests_today, last_ai_request_at')
+    .eq('id', userId)
+    .single();
+
+  if (error || !user) throw new Error('User profile not found');
+
+  const now = new Date();
+  const lastRequest = user.last_ai_request_at ? new Date(user.last_ai_request_at) : null;
+  
+  let currentCount = user.ai_requests_today || 0;
+  
+  // Reset count if it's a new day (UTC)
+  if (!lastRequest || lastRequest.getUTCDate() !== now.getUTCDate() || lastRequest.getUTCMonth() !== now.getUTCMonth() || lastRequest.getUTCFullYear() !== now.getUTCFullYear()) {
+    currentCount = 0;
+  }
+
+  const limits = {
+    free: 5,
+    pro: 100
+  };
+
+  const limit = limits[user.tier] || limits.free;
+
+  if (currentCount >= limit) {
+    const err = new Error(`Daily AI quota reached (${limit}/${limit}). Upgrade to Pro for more.`);
+    err.status = 429;
+    throw err;
+  }
+
+  // Increment and save
+  await supabaseService
+    .from('users')
+    .update({ 
+      ai_requests_today: currentCount + 1, 
+      last_ai_request_at: now.toISOString() 
+    })
+    .eq('id', userId);
+
+  return { tier: user.tier, remaining: limit - (currentCount + 1) };
+}
+
+router.post('/modify', requireAuth, async (req, res) => {
   const apiKey = process.env.OPENAI_API_KEY;
-  if (!apiKey) {
-    return res.status(500).json({ error: 'OpenAI API key missing on server' });
-  }
-
-  const { prompt, currentSchema } = req.body;
-
-  if (!prompt || !currentSchema) {
-    return res.status(400).json({ error: 'Missing prompt or currentSchema context' });
-  }
-
-  const openai = new OpenAI({ apiKey });
+  if (!apiKey) return res.status(500).json({ error: 'OpenAI API key missing on server' });
 
   try {
+    const { remaining } = await checkAndIncrementQuota(req.user.id);
+    
+    const { prompt, currentSchema } = req.body;
+    if (!prompt || !currentSchema) {
+      return res.status(400).json({ error: 'Missing prompt or currentSchema context' });
+    }
+
+    const openai = new OpenAI({ apiKey });
     const completion = await openai.chat.completions.parse({
       model: 'gpt-4o-mini',
       messages: [
         {
           role: 'system',
-          content: 'You are Modellr AI, an expert Database Architect acting directly on a visual schema canvas. Given the current JSON context of the user\'s schema and their prompt, output the exact sequence of structural Operations needed to modify their schema to fulfill their request. Ensure all field types conform to standard PostgreSQL formatting.'
+          content: 'You are Modellr AI, an expert Database Architect acting directly on a visual schema canvas. Given the current JSON context of the user\'s schema and their prompt, output the exact sequence of structural Operations needed to modify their schema to fulfill their request.'
         },
         {
           role: 'user',
@@ -72,28 +120,26 @@ router.post('/modify', async (req, res) => {
     });
 
     const parsedResult = completion.choices[0].message.parsed;
+    if (!parsedResult) return res.status(500).json({ error: 'Failed to parse AI structured output' });
 
-    if (!parsedResult) {
-      return res.status(500).json({ error: 'Failed to parse AI structured output' });
-    }
-
-    res.json({ success: true, response: parsedResult });
+    res.json({ success: true, response: parsedResult, remaining });
 
   } catch (error) {
     console.error('[OpenAI Error]', error);
-    res.status(500).json({ error: error.message || 'Unknown OpenAI proxy error' });
+    res.status(error.status || 500).json({ error: error.message || 'Unknown OpenAI proxy error' });
   }
 });
 
 // ── Streaming chat proxy (for AI Suggest / field description) ──────────────
-router.post('/stream', async (req, res) => {
+router.post('/stream', requireAuth, async (req, res) => {
   const apiKey = process.env.OPENAI_API_KEY;
   if (!apiKey) return res.status(500).json({ error: 'OpenAI API key missing on server' });
 
-  const { messages, max_tokens = 800, temperature = 0.4 } = req.body;
-  if (!messages) return res.status(400).json({ error: 'Missing messages' });
-
   try {
+    await checkAndIncrementQuota(req.user.id);
+    
+    const { messages, max_tokens = 800, temperature = 0.4 } = req.body;
+    if (!messages) return res.status(400).json({ error: 'Missing messages' });
     const upstream = await fetch('https://api.openai.com/v1/chat/completions', {
       method: 'POST',
       headers: {
@@ -120,19 +166,20 @@ router.post('/stream', async (req, res) => {
     upstream.body.pipe(res);
   } catch (error) {
     console.error('[OpenAI Stream Error]', error);
-    res.status(500).json({ error: error.message || 'Proxy stream error' });
+    res.status(error.status || 500).json({ error: error.message || 'Proxy stream error' });
   }
 });
 
 // ── JSON schema generation proxy ───────────────────────────────────────────
-router.post('/generate', async (req, res) => {
+router.post('/generate', requireAuth, async (req, res) => {
   const apiKey = process.env.OPENAI_API_KEY;
   if (!apiKey) return res.status(500).json({ error: 'OpenAI API key missing on server' });
 
-  const { prompt } = req.body;
-  if (!prompt) return res.status(400).json({ error: 'Missing prompt' });
-
   try {
+    const { remaining } = await checkAndIncrementQuota(req.user.id);
+    
+    const { prompt } = req.body;
+    if (!prompt) return res.status(400).json({ error: 'Missing prompt' });
     const upstream = await fetch('https://api.openai.com/v1/chat/completions', {
       method: 'POST',
       headers: {
@@ -184,10 +231,10 @@ Output format:
     }
 
     const data = await upstream.json();
-    res.json(data);
+    res.json({ ...data, remaining });
   } catch (error) {
     console.error('[OpenAI Generate Error]', error);
-    res.status(500).json({ error: error.message || 'Proxy generate error' });
+    res.status(error.status || 500).json({ error: error.message || 'Proxy generate error' });
   }
 });
 

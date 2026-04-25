@@ -169,14 +169,7 @@ const fetchApiKeys = async () => {
     if (!res.ok) throw new Error(data.error);
     setApiKeys(data);
   } catch (err: any) {
-    console.error(err);     // Silent failure — no toast shown
-  } finally {
-    setLoadingKeys(false);
-  }
-};
-```
-
-**Silent error** — fetch failures are logged to console but **no toast or UI error** is shown. The user sees `"No API keys generated yet."` even if the fetch failed.
+**Error handling** — Fetch failures log to the console and display an error toast using `useUIStore.showToast()`.
 
 ### `handleGenerateKey()`
 
@@ -325,7 +318,7 @@ Sidebar items use `<div onClick>` — no `role="tab"` or `aria-selected` for ARI
               ├── {activeTab === 'api' && (
               │     ├── <h1>Developer API & MCP Access</h1>
               │     ├── MCP Config card (purple border)
-              │     │     ├── Header: "MCP Server Configuration" [Phase 5 badge]
+              │     │     ├── Header: "MCP Server Configuration"
               │     │     ├── [Key label input] [+ Generate New Key]
               │     │     ├── Description paragraph
               │     │     ├── {newlyGeneratedKey → green reveal banner + copy}
@@ -351,16 +344,12 @@ Sidebar items use `<div onClick>` — no `role="tab"` or `aria-selected` for ARI
 | | Detail |
 |---|---|
 | **MCP config has hardcoded local path** | `"C:/Web Development/Modellr/mcp-server/index.js"` is a dev machine path — unusable for real users |
-| **`fetchApiKeys` silently fails** | Network/server errors log to console only — no UI error shown; API tab renders as if empty on failure |
 | **"Delete account" is locked** | Shows `'info'` toast: `"Account deletion is locked during Beta."` — no Supabase user deletion implemented |
 | **"Billing" and "Notifications" are placeholder tabs** | No tab content, no navigation, just disabled labels with "(Coming Soon)" — no popover or tooltip |
-| **`newlyGeneratedKey` not cleared on tab switch** | Switching to Profile and back restores the reveal banner — but `fetchApiKeys` re-runs, which re-fetches the list (the raw key is not re-fetched, just still in state) |
-| **No `<form>` for profile save** | Same as `Login.tsx` — bare inputs with no `<form>` wrapper, so `Enter` doesn't trigger save |
 | **Email field uses `defaultValue`** | Uncontrolled — email cannot be changed. If session email changes externally, the field won't update without unmounting. Harmless for a read-only field |
 | **All API calls include raw JWT** | `session?.access_token` sent as Bearer token — standard pattern. Token expiry not handled (if token expires mid-session, API calls return 401 silently) |
 | **`navItemStyle()` is a function, not `useMemo`** | Called on every render for each tab item — creates new objects each time. Negligible perf cost for 4 items |
 | **`rgb(162,107,252)` used for generate button + MCP card border** | Same hardcoded brand purple as everywhere else |
-| **"Phase 5" badge on MCP section** | Stale roadmap label — MCP gateway is implemented in `server/routes/mcpGateway.js` |
 
 ---
 

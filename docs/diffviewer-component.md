@@ -177,13 +177,11 @@ Reads from stores directly — no data props beyond `onClose`.
 **Default snapshot selection:**
 ```ts
 const [snapshotId, setSnapshotId] = useState<string>(
-  snapshots.length > 0 ? snapshots[snapshots.length - 1].id : ''
+  snapshots.length > 0 ? snapshots[0].id : ''
 );
 ```
 
-Defaults to the **last** snapshot in the array. Since `useHistoryStore.createSnapshot` **prepends** new snapshots, `snapshots[snapshots.length - 1]` is the **oldest** snapshot, not the most recent.
-
-> ⚠️ **Bug:** The initial selection defaults to the oldest snapshot. The most recently created snapshot is at `snapshots[0]`, not `snapshots[snapshots.length - 1]`. Users may expect to compare against their most recent save.
+Defaults to the **most recent** snapshot (`snapshots[0]`).
 
 ---
 
@@ -372,10 +370,9 @@ For changed fields, only `type` is shown before/after — other changed attribut
   ↩ Restore this snapshot
 </button>
 ```
-- Calls `useHistoryStore.restoreSnapshot(snapshotId)` → which calls `useSchemaStore.loadSnapshot(snapshot)` → replaces entire canvas state.
+- Calls `useHistoryStore.restoreSnapshot(snapshotId)` after launching a confirmation dialog.
+- Replaces entire canvas state, including tables, relationships, notes, and groups.
 - Then closes the dialog.
-- **No confirmation dialog** — restore happens immediately on click.
-- If the snapshot does not contain `notes` or `groups` (which `createSnapshot` does not save), restoring silently clears them from the canvas.
 
 ### Close
 ```tsx
@@ -389,14 +386,7 @@ Also triggered by clicking the backdrop overlay (`onClick={(e) => e.target === e
 
 | | Detail |
 |---|---|
-| **Default snapshot is oldest, not newest** | `snapshots[snapshots.length - 1]` selects the oldest snapshot. `createSnapshot` prepends to the array, so `snapshots[0]` is the most recent |
-| **Name-based identity** | Tables and fields are matched by `name` — renaming a table or field appears as a remove + add pair, not a modify |
-| **`isFK` and `default` not diffed** | FK and default changes are not detected at the field level |
-| **Changed field details not all shown** | Only `type` is shown before/after in `~changed` field rows; `nullable`, `unique`, `isPK` changes are detected but silently included without displaying the old/new values |
-| **No copy button for SQL** | CodeMirror is `editable={false}` — users must manually select and copy generated SQL |
-| **`vscodeDark` hardcoded** | SQL panel always dark regardless of the app theme (light mode shows a dark island) |
-| **Restore has no confirmation** | `restoreSnapshot` runs immediately without a confirmation dialog — current canvas is overwritten without warning |
-| **Restore drops notes and groups** | `createSnapshot` (in `history.ts`) only saves `tables` and `relationships` — restoring a snapshot loses all notes and groups from the canvas |
+
 | **`generateMigrationsSQL` not memoized** | Called every render when SQL panel is open — pure function so no side effects, but a `useMemo` over `[diffs, dialect]` would be cleaner |
 | **`diffs` array index used as React key** | `diffs.map((d, i) => <div key={i}>)` — index-as-key is fine here since the list is not reordered by user interaction |
 | **Accessibility** | `role="dialog"` + `aria-modal="true"` + `aria-label="Schema diff"` on the overlay — good baseline accessibility |

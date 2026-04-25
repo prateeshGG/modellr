@@ -1,172 +1,215 @@
+/* ============================================================
+   Docs.css — Dark "Terminal Luxury" documentation
+   ============================================================ */
+
 .docs-container {
   display: flex;
-  background: var(--canvas-bg);
+  background: #050507;
   min-height: 100vh;
-  color: var(--text-primary);
-  font-family: var(--font-sans);
+  color: #e8e8f0;
+  font-family: 'Instrument Sans', 'Geist', sans-serif;
 }
 
-/* Sidebar */
+/* ── Sidebar ─────────────────────────────────────────────────── */
 .docs-sidebar {
-  width: 280px;
-  border-right: 1px solid var(--border-subtle);
-  background: var(--surface-low);
-  padding: 40px 24px;
+  width: 260px;
+  border-right: 1px solid #1e1e2e;
+  background: #0c0c10;
+  padding: 36px 16px;
   position: sticky;
   top: 0;
   height: 100vh;
   display: flex;
   flex-direction: column;
+  flex-shrink: 0;
+  overflow-y: auto;
 }
 
 .docs-logo {
+  font-family: 'Syne', 'Geist', sans-serif;
   font-weight: 800;
-  font-size: 1.2rem;
-  letter-spacing: -0.03em;
-  margin-bottom: 48px;
+  font-size: 17px;
+  letter-spacing: -0.02em;
+  margin-bottom: 6px;
   cursor: pointer;
   display: flex;
   align-items: center;
-  gap: 10px;
+  gap: 9px;
+  color: #e8e8f0;
 }
 
 .docs-logo-icon {
-  width: 24px; height: 24px;
-  background: var(--brand);
-  border-radius: 6px;
+  width: 22px; height: 22px;
+  background: #ae7aff;
+  border-radius: 4px;
   color: #fff;
   display: flex; align-items: center; justify-content: center;
-  font-size: 11px;
+  font-size: 10px;
+  font-weight: 700;
+  flex-shrink: 0;
 }
 
 .docs-nav-section {
-  font-size: 11px;
+  font-family: 'Geist Mono', monospace;
+  font-size: 10px;
   font-weight: 700;
   text-transform: uppercase;
   letter-spacing: 0.1em;
-  color: var(--text-muted);
-  margin-bottom: 12px;
-  padding-left: 12px;
+  color: #6b6b80;
+  margin-bottom: 8px;
+  padding-left: 10px;
 }
 
 .docs-nav-item {
-  padding: 10px 12px;
-  border-radius: 8px;
-  color: var(--text-secondary);
-  font-size: 14px;
+  padding: 9px 10px;
+  border-radius: 5px;
+  color: #6b6b80;
+  font-size: 13px;
   font-weight: 500;
   cursor: pointer;
-  transition: all 0.2s;
+  transition: background 0.15s, color 0.15s;
   margin-bottom: 2px;
+  border: 1px solid transparent;
 }
 
 .docs-nav-item:hover {
-  background: var(--surface-base);
-  color: var(--text-primary);
+  background: #13131a;
+  color: #e8e8f0;
 }
 
 .docs-nav-item--active {
-  background: var(--surface-base);
-  color: var(--text-primary);
-  border: 1px solid var(--border-subtle);
+  background: #13131a;
+  color: #e8e8f0;
+  border-color: #1e1e2e;
 }
 
-/* Main Content Area */
-.docs-content {
+/* ── Article wrapper ─────────────────────────────────────────── */
+.docs-article-wrapper {
   flex: 1;
-  padding: 80px 60px;
-  max-width: 900px;
+  overflow-y: auto;
+}
+
+/* ── Content ─────────────────────────────────────────────────── */
+.docs-content {
+  padding: 64px 60px;
+  max-width: 820px;
   margin: 0 auto;
 }
 
 .docs-article {
-  animation: fadeIn 0.3s ease-out;
+  animation: docsIn 0.25s ease-out;
 }
 
-@keyframes fadeIn {
-  from { opacity: 0; transform: translateY(10px); }
-  to { opacity: 1; transform: translateY(0); }
+@keyframes docsIn {
+  from { opacity: 0; transform: translateY(8px); }
+  to   { opacity: 1; transform: translateY(0); }
 }
 
 .docs-article h1 {
-  font-size: 40px;
+  font-family: 'Syne', 'Geist', sans-serif;
+  font-size: 36px;
   font-weight: 800;
   letter-spacing: -0.04em;
-  margin: 0 0 16px 0;
+  margin: 0 0 12px 0;
+  color: #e8e8f0;
 }
 
 .docs-article h2 {
-  font-size: 24px;
+  font-family: 'Syne', 'Geist', sans-serif;
+  font-size: 20px;
   font-weight: 700;
   letter-spacing: -0.02em;
-  margin: 48px 0 16px 0;
-  border-bottom: 1px solid var(--border-subtle);
+  margin: 44px 0 14px 0;
+  color: #e8e8f0;
+  border-bottom: 1px solid #1e1e2e;
   padding-bottom: 8px;
 }
 
 .docs-article p {
-  font-size: 16px;
-  line-height: 1.7;
-  color: var(--text-secondary);
-  margin-bottom: 24px;
+  font-size: 15px;
+  line-height: 1.75;
+  color: #6b6b80;
+  margin-bottom: 20px;
 }
 
-/* Code Blocks */
+.docs-article strong { color: #e8e8f0; }
+
+.docs-article code {
+  font-family: 'Geist Mono', monospace;
+  font-size: 12px;
+  background: #13131a;
+  border: 1px solid #1e1e2e;
+  border-radius: 3px;
+  padding: 1px 5px;
+  color: #ae7aff;
+}
+
+/* ── Code blocks ─────────────────────────────────────────────── */
 .docs-code-block {
-  background: var(--surface-base);
-  border: 1px solid var(--border-subtle);
-  border-radius: 12px;
-  padding: 24px;
-  margin: 32px 0;
+  background: #0a0a0f;
+  border: 1px solid #1e1e2e;
+  border-left: 3px solid #ae7aff;
+  border-radius: 4px;
+  padding: 20px 24px;
+  margin: 24px 0;
   position: relative;
-  font-family: var(--font-mono);
-  font-size: 14px;
-  color: var(--text-primary);
-  line-height: 1.5;
+  font-family: 'Geist Mono', monospace;
+  font-size: 13px;
+  color: #e8e8f0;
+  line-height: 1.65;
   overflow-x: auto;
 }
 
 .docs-code-label {
   position: absolute;
-  top: 0; right: 24px;
+  top: 0; right: 20px;
   transform: translateY(-50%);
-  background: var(--surface-low);
-  padding: 4px 12px;
-  border: 1px solid var(--border-subtle);
-  border-radius: 20px;
-  font-size: 11px;
-  color: var(--text-muted);
+  background: #0c0c10;
+  padding: 3px 10px;
+  border: 1px solid #1e1e2e;
+  border-radius: 10px;
+  font-size: 10px;
+  color: #6b6b80;
   font-weight: 600;
+  font-family: 'Geist Mono', monospace;
+  letter-spacing: 0.06em;
 }
 
+/* ── Lists ───────────────────────────────────────────────────── */
 .docs-list {
-  margin: 0 0 32px 0;
-  padding-left: 24px;
-  color: var(--text-secondary);
+  margin: 0 0 24px 0;
+  padding-left: 20px;
+  color: #6b6b80;
 }
 
 .docs-list li {
-  margin-bottom: 12px;
-  line-height: 1.6;
+  margin-bottom: 10px;
+  line-height: 1.65;
+  font-size: 15px;
 }
 
+/* ── Alert ───────────────────────────────────────────────────── */
 .docs-alert {
-  padding: 20px 24px;
-  border-radius: 12px;
-  background: rgba(162, 107, 152, 0.05);
-  border-left: 4px solid var(--brand);
-  margin: 32px 0;
+  padding: 16px 20px;
+  border-radius: 4px;
+  background: rgba(174, 122, 255, 0.06);
+  border-left: 3px solid #ae7aff;
+  margin: 24px 0;
 }
 
 .docs-alert-title {
+  font-family: 'Geist Mono', monospace;
   font-weight: 700;
-  color: var(--brand);
+  color: #ae7aff;
   margin-bottom: 4px;
-  font-size: 14px;
+  font-size: 12px;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
 }
 
 .docs-alert-text {
   font-size: 14px;
-  color: var(--text-secondary);
+  color: #6b6b80;
   margin: 0;
+  line-height: 1.6;
 }

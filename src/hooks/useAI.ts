@@ -1,17 +1,9 @@
-/**
- * useAI — streaming AI calls for schema intelligence.
- * All requests are proxied through the EC2 backend (/api/openai/*).
- * The OpenAI API key lives exclusively on the server — never in the browser bundle.
- */
 import { useState, useCallback, useRef } from 'react';
 import type { Table, Relationship } from '../types/schema';
+import { getAuthHeader } from '../lib/auth-utils';
+import { getBackendBase } from '../lib/api-utils';
 
 // Always route AI calls through our EC2 backend — the API key lives there securely.
-// VITE_API_URL is set in Vercel env vars → https://13-61-7-14.sslip.io
-// Falls back to empty string (relative path) in local dev where Vite proxies it.
-function getBackendBase(): string {
-  return (import.meta as any).env?.VITE_API_URL ?? '';
-}
 
 export type AIStatus = 'idle' | 'loading' | 'streaming' | 'done' | 'error';
 
@@ -37,7 +29,10 @@ async function streamCompletion(
   const res = await fetch(`${getBackendBase()}/api/openai/stream`, {
     method: 'POST',
     signal,
-    headers: { 'Content-Type': 'application/json' },
+    headers: { 
+      'Content-Type': 'application/json',
+      ...getAuthHeader()
+    },
     body: JSON.stringify({ messages, max_tokens: 800, temperature: 0.4 }),
   });
 
@@ -154,7 +149,10 @@ export function useDescribeField(
       try {
         const res = await fetch(`${getBackendBase()}/api/openai/stream`, {
           method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
+          headers: { 
+            'Content-Type': 'application/json',
+            ...getAuthHeader()
+          },
           body: JSON.stringify({
             max_tokens: 60,
             temperature: 0.3,
@@ -204,7 +202,10 @@ export async function generateSchemaFromPrompt(
   const res = await fetch(`${getBackendBase()}/api/openai/generate`, {
     method: 'POST',
     signal,
-    headers: { 'Content-Type': 'application/json' },
+    headers: { 
+      'Content-Type': 'application/json',
+      ...getAuthHeader()
+    },
     body: JSON.stringify({ prompt }),
   });
 

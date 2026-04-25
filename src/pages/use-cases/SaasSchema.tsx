@@ -3,152 +3,145 @@ import { useNavigate } from 'react-router-dom';
 import { PublicNav } from '../../components/layout/PublicNav';
 import { Footer } from '../../components/layout/Footer';
 import { Database, Users, CreditCard, Box, Zap, ArrowRight, LayoutTemplate } from 'lucide-react';
+import '../../styles/public-dark.css';
 
 export function SaasSchema() {
   const navigate = useNavigate();
 
   useEffect(() => {
-    document.title = "SaaS Database Schema Example (Free Template)";
-    let metaKeywords = document.querySelector('meta[name="keywords"]');
-    if (!metaKeywords) {
-      metaKeywords = document.createElement('meta');
-      metaKeywords.setAttribute('name', 'keywords');
-      document.head.appendChild(metaKeywords);
-    }
-    metaKeywords.setAttribute('content', 'saas database schema');
+    document.title = 'SaaS Database Schema Example (Free Template)';
+    let meta = document.querySelector('meta[name="keywords"]');
+    if (!meta) { meta = document.createElement('meta'); meta.setAttribute('name', 'keywords'); document.head.appendChild(meta); }
+    meta.setAttribute('content', 'saas database schema');
   }, []);
 
   return (
-    <div style={{ background: 'var(--canvas-bg)', color: 'var(--text-primary)', minHeight: '100vh', display: 'flex', flexDirection: 'column', fontFamily: 'var(--sans)' }}>
-      <PublicNav />
-      
-      {/* 1. Hero */}
-      <section style={{ textAlign: 'center', padding: '100px 20px 64px' }}>
-        <div style={{ display: 'inline-flex', alignItems: 'center', gap: '8px', padding: '6px 16px', background: 'var(--surface-base)', border: '1px solid var(--border-subtle)', borderRadius: '24px', color: 'var(--brand)', fontSize: '13px', fontWeight: 600, marginBottom: '24px' }}>
-          <LayoutTemplate size={14} /> Official Schema Template
+    <div className="pd-root">
+      <PublicNav dark />
+
+      {/* ── Hero ── */}
+      <div className="pd-hero" style={{ paddingTop: '140px' }}>
+        <div className="pd-hero-dot-grid" aria-hidden />
+        <div className="pd-hero-glow" aria-hidden />
+        <div style={{ position: 'relative', zIndex: 1 }}>
+          <div className="pd-hero-badge"><LayoutTemplate size={13} /> Official Schema Template</div>
+          <h1 className="pd-h1">SaaS Database Schema</h1>
+          <p className="pd-lead">A production-ready SaaS schema with users, billing, subscriptions, and analytics — ready to use or customize.</p>
+          <div className="pd-hero-actions">
+            <button className="pd-btn-primary" onClick={() => navigate('/login')}>Use this schema →</button>
+          </div>
         </div>
-        <h1 style={{ fontSize: 'min(3.5rem, 8vw)', fontWeight: 900, letterSpacing: '-0.03em', margin: '0 0 24px 0' }}>SaaS Database Schema <br/><span style={{ color: 'var(--brand)', fontSize: 'min(2.5rem, 6vw)' }}>(Complete Guide + Template)</span></h1>
-        <p style={{ fontSize: '1.2rem', color: 'var(--text-secondary)', margin: '0 auto 40px auto', maxWidth: '700px', lineHeight: 1.6 }}>
-          A production-ready SaaS schema with users, billing, subscriptions, and analytics — ready to use or customize.
-        </p>
-        <button onClick={() => navigate('/login')} style={{ background: 'var(--brand)', color: '#fff', padding: '16px 32px', borderRadius: '12px', fontSize: '1.1rem', fontWeight: 700, border: 'none', cursor: 'pointer', boxShadow: '0 4px 14px 0 rgba(var(--brand-rgb), 0.4)' }}>
-          Use this schema
-        </button>
+      </div>
+
+      {/* ── Problem ── */}
+      <section className="pd-section--alt">
+        <div className="pd-inner--narrow">
+          <div className="pd-label">// The challenge</div>
+          <h2 className="pd-h2">Designing a SaaS database is harder than it looks</h2>
+          <p className="pd-body-text" style={{ marginBottom: '24px' }}>Most SaaS applications need the same core systems:</p>
+          <div className="pd-grid-2">
+            {['User authentication', 'Subscriptions and billing', 'Teams or organizations', 'Usage tracking'].map(item => (
+              <div key={item} style={{ display: 'flex', alignItems: 'center', gap: '10px', fontSize: '14px', color: 'var(--pd-text)' }}>
+                <ArrowRight size={14} style={{ color: 'var(--pd-brand)', flexShrink: 0 }} /> {item}
+              </div>
+            ))}
+          </div>
+          <p style={{ fontFamily: 'var(--pd-mono)', color: 'var(--pd-accent)', fontWeight: 600, marginTop: '24px', fontSize: '13px' }}>
+            Small mistakes here lead to painful refactors later.
+          </p>
+        </div>
       </section>
 
-      {/* 2. Problem Section */}
-      <section style={{ maxWidth: '800px', margin: '0 auto 80px', padding: '40px 20px' }}>
-        <h2 style={{ fontSize: '32px', fontWeight: 800, letterSpacing: '-0.02em', marginBottom: '32px' }}>Designing a SaaS database is harder than it looks</h2>
-        <div style={{ fontSize: '18px', color: 'var(--text-secondary)', lineHeight: 1.7 }}>
-          <p style={{ marginBottom: '24px' }}>Most SaaS applications need the same core systems:</p>
-          <ul style={{ listStyle: 'none', padding: 0, margin: '0 0 32px 0', display: 'grid', gridTemplateColumns: 'repeat(2, 1fr)', gap: '16px' }}>
-            <li style={{ display: 'flex', alignItems: 'center', gap: '12px' }}><div style={{ color: 'var(--brand)' }}><ArrowRight size={20} /></div> User authentication</li>
-            <li style={{ display: 'flex', alignItems: 'center', gap: '12px' }}><div style={{ color: 'var(--brand)' }}><ArrowRight size={20} /></div> Subscriptions and billing</li>
-            <li style={{ display: 'flex', alignItems: 'center', gap: '12px' }}><div style={{ color: 'var(--brand)' }}><ArrowRight size={20} /></div> Teams or organizations</li>
-            <li style={{ display: 'flex', alignItems: 'center', gap: '12px' }}><div style={{ color: 'var(--brand)' }}><ArrowRight size={20} /></div> Usage tracking</li>
-          </ul>
-          <p style={{ fontWeight: 600, color: 'var(--text-primary)' }}>But designing these relationships correctly takes time — and small mistakes can lead to painful refactors later.</p>
+      {/* ── Visual schema ── */}
+      <section className="pd-section">
+        <div className="pd-inner">
+          <div className="pd-label">// Schema preview</div>
+          <h2 className="pd-h2">How this schema is structured</h2>
+          <div style={{ display: 'flex', gap: '16px', alignItems: 'center', flexWrap: 'wrap', justifyContent: 'center', marginBottom: '40px' }}>
+            {[
+              { icon: <Users size={14} />, name: 'Users', fields: ['id (PK)', 'email', 'org_id (FK)'] },
+              null,
+              { icon: <Box size={14} />, name: 'Organizations', fields: ['id (PK)', 'name', 'stripe_customer_id'] },
+              null,
+              { icon: <CreditCard size={14} />, name: 'Subscriptions', fields: ['id (PK)', 'org_id (FK)', 'status'] },
+            ].map((item, i) =>
+              item === null
+                ? <div key={i} className="pd-connector" />
+                : (
+                  <div key={item.name} className="pd-schema-table">
+                    <div className="pd-schema-table__header">
+                      <span style={{ color: 'var(--pd-brand)' }}>{item.icon}</span> {item.name}
+                    </div>
+                    {item.fields.map(f => <div key={f} className="pd-schema-table__row">{f}</div>)}
+                  </div>
+                )
+            )}
+          </div>
+          <p style={{ textAlign: 'center', fontFamily: 'var(--pd-mono)', fontSize: '12px', color: 'var(--pd-muted)' }}>
+            Users → Organizations → Subscriptions — the SaaS core.
+          </p>
         </div>
       </section>
 
-      {/* 3. Visual Example */}
-      <section style={{ maxWidth: '1000px', margin: '0 auto 100px', padding: '0 20px' }}>
-        <div style={{ background: 'var(--surface-base)', border: '1px solid var(--border-subtle)', borderRadius: '16px', padding: '64px', display: 'flex', justifyContent: 'center', alignItems: 'center', position: 'relative', overflow: 'hidden' }}>
-          {/* Abstract Database Graphic */}
-          <div style={{ display: 'flex', gap: '48px', alignItems: 'center', position: 'relative', zIndex: 1 }}>
-            <div style={{ background: 'var(--surface-raised)', border: '1px solid var(--border-hi)', padding: '24px', borderRadius: '12px', width: '200px', boxShadow: '0 8px 24px rgba(0,0,0,0.1)' }}>
-              <div style={{ display: 'flex', alignItems: 'center', gap: '8px', borderBottom: '1px solid var(--border-subtle)', paddingBottom: '12px', marginBottom: '12px', fontWeight: 700 }}>
-                <Users size={16} color="var(--brand)" /> Users
-              </div>
-              <div style={{ fontSize: '13px', color: 'var(--text-secondary)', display: 'flex', flexDirection: 'column', gap: '8px' }}>
-                <div>id (PK)</div>
-                <div>email</div>
-                <div>org_id (FK)</div>
-              </div>
-            </div>
-            <div style={{ width: '40px', height: '2px', background: 'var(--brand)' }} />
-            <div style={{ background: 'var(--surface-raised)', border: '1px solid var(--border-hi)', padding: '24px', borderRadius: '12px', width: '200px', boxShadow: '0 8px 24px rgba(0,0,0,0.1)' }}>
-              <div style={{ display: 'flex', alignItems: 'center', gap: '8px', borderBottom: '1px solid var(--border-subtle)', paddingBottom: '12px', marginBottom: '12px', fontWeight: 700 }}>
-                <Box size={16} color="var(--brand)" /> Organizations
-              </div>
-              <div style={{ fontSize: '13px', color: 'var(--text-secondary)', display: 'flex', flexDirection: 'column', gap: '8px' }}>
-                <div>id (PK)</div>
-                <div>name</div>
-                <div>stripe_customer_id</div>
+      {/* ── Explanation ── */}
+      <section className="pd-section--alt">
+        <div className="pd-inner">
+          <div className="pd-grid-2">
+            <div>
+              <div className="pd-label">// Core tables</div>
+              <div style={{ display: 'flex', flexDirection: 'column', gap: '20px' }}>
+                {[
+                  { icon: <Users size={18} />, name: 'Users', desc: 'Stores authentication and profile data. Linked to organizations or workspaces.' },
+                  { icon: <Box size={18} />, name: 'Organizations / Teams', desc: 'Enables multi-tenant architecture. Users can belong to multiple teams.' },
+                  { icon: <CreditCard size={18} />, name: 'Subscriptions', desc: 'Tracks billing plans and status. Linked to Stripe or payment provider.' },
+                  { icon: <Database size={18} />, name: 'Products / Plans', desc: 'Defines pricing tiers.' },
+                  { icon: <Zap size={18} />, name: 'Usage / Events', desc: 'Tracks feature usage for metering.' },
+                ].map(t => (
+                  <div key={t.name} style={{ display: 'flex', gap: '12px', alignItems: 'flex-start' }}>
+                    <span style={{ color: 'var(--pd-brand)', flexShrink: 0, marginTop: '2px' }}>{t.icon}</span>
+                    <div>
+                      <div style={{ fontFamily: 'var(--pd-display)', fontWeight: 700, color: 'var(--pd-text)', marginBottom: '4px' }}>{t.name}</div>
+                      <div className="pd-body-text" style={{ fontSize: '13px' }}>{t.desc}</div>
+                    </div>
+                  </div>
+                ))}
               </div>
             </div>
-            <div style={{ width: '40px', height: '2px', background: 'var(--brand)' }} />
-            <div style={{ background: 'var(--surface-raised)', border: '1px solid var(--border-hi)', padding: '24px', borderRadius: '12px', width: '200px', boxShadow: '0 8px 24px rgba(0,0,0,0.1)' }}>
-              <div style={{ display: 'flex', alignItems: 'center', gap: '8px', borderBottom: '1px solid var(--border-subtle)', paddingBottom: '12px', marginBottom: '12px', fontWeight: 700 }}>
-                <CreditCard size={16} color="var(--brand)" /> Subscriptions
+            <div>
+              <div className="pd-label">// Relationships</div>
+              <div className="pd-card">
+                <ul style={{ listStyle: 'none', padding: 0, margin: 0, display: 'flex', flexDirection: 'column', gap: '14px' }}>
+                  {[
+                    'A user can belong to multiple organizations',
+                    'An organization has one active subscription',
+                    'Subscriptions map to plans',
+                    'Usage is tracked per organization or user',
+                  ].map(r => (
+                    <li key={r} style={{ display: 'flex', gap: '10px', fontSize: '14px', color: 'var(--pd-muted)' }}>
+                      <span style={{ color: 'var(--pd-brand)' }}>✓</span> {r}
+                    </li>
+                  ))}
+                </ul>
               </div>
-              <div style={{ fontSize: '13px', color: 'var(--text-secondary)', display: 'flex', flexDirection: 'column', gap: '8px' }}>
-                <div>id (PK)</div>
-                <div>org_id (FK)</div>
-                <div>status</div>
+              <div style={{ marginTop: '24px' }}>
+                <h3 className="pd-h3">Avoid costly mistakes early</h3>
+                <p className="pd-body-text">A poorly designed SaaS schema leads to billing inconsistencies, broken permissions, and hard-to-scale systems. Starting with a solid structure saves hours of rework later.</p>
               </div>
             </div>
           </div>
         </div>
-        <div style={{ textAlign: 'center', marginTop: '16px', fontSize: '14px', color: 'var(--text-muted)' }}>
-          A typical SaaS schema with users, organizations, subscriptions, and usage tracking.
-        </div>
       </section>
 
-      {/* 4. Explanation Section */}
-      <section style={{ maxWidth: '1200px', margin: '0 auto 100px', padding: '0 20px', display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '64px' }}>
-        <div>
-          <h2 style={{ fontSize: '32px', fontWeight: 800, letterSpacing: '-0.02em', marginBottom: '40px' }}>How this schema is structured</h2>
-          
-          <h3 style={{ fontSize: '14px', textTransform: 'uppercase', letterSpacing: '0.05em', color: 'var(--text-muted)', marginBottom: '24px', fontWeight: 700 }}>Core Tables</h3>
-          
-          <div style={{ display: 'flex', flexDirection: 'column', gap: '32px' }}>
-            <div>
-              <div style={{ fontSize: '20px', fontWeight: 700, marginBottom: '8px', display: 'flex', alignItems: 'center', gap: '12px' }}><Users size={20} color="var(--brand)"/> Users</div>
-              <div style={{ color: 'var(--text-secondary)' }}>Stores authentication and profile data. Linked to organizations or workspaces.</div>
-            </div>
-            <div>
-              <div style={{ fontSize: '20px', fontWeight: 700, marginBottom: '8px', display: 'flex', alignItems: 'center', gap: '12px' }}><Box size={20} color="var(--brand)"/> Organizations / Teams</div>
-              <div style={{ color: 'var(--text-secondary)' }}>Enables multi-tenant architecture. Users can belong to multiple teams.</div>
-            </div>
-            <div>
-              <div style={{ fontSize: '20px', fontWeight: 700, marginBottom: '8px', display: 'flex', alignItems: 'center', gap: '12px' }}><CreditCard size={20} color="var(--brand)"/> Subscriptions</div>
-              <div style={{ color: 'var(--text-secondary)' }}>Tracks billing plans and status. Linked to Stripe or payment provider.</div>
-            </div>
-            <div>
-              <div style={{ fontSize: '20px', fontWeight: 700, marginBottom: '8px', display: 'flex', alignItems: 'center', gap: '12px' }}><Database size={20} color="var(--brand)"/> Products / Plans</div>
-              <div style={{ color: 'var(--text-secondary)' }}>Defines pricing tiers.</div>
-            </div>
-            <div>
-              <div style={{ fontSize: '20px', fontWeight: 700, marginBottom: '8px', display: 'flex', alignItems: 'center', gap: '12px' }}><Zap size={20} color="var(--brand)"/> Usage / Events</div>
-              <div style={{ color: 'var(--text-secondary)' }}>Tracks feature usage for metering.</div>
-            </div>
-          </div>
+      {/* ── CTA ── */}
+      <div className="pd-cta pd-section">
+        <div className="pd-cta-glow-l" aria-hidden />
+        <div className="pd-cta-glow-r" aria-hidden />
+        <div className="pd-cta-inner">
+          <h2 className="pd-cta-h2">Start with this schema — customize it in seconds.</h2>
+          <p className="pd-cta-sub">Generate, modify, and export to Prisma or Drizzle instantly.</p>
+          <button className="pd-btn-primary" onClick={() => navigate('/login')}>Open in editor →</button>
         </div>
-        
-        <div>
-          <div style={{ background: 'var(--surface-base)', borderRadius: '16px', padding: '40px', border: '1px solid var(--border-subtle)' }}>
-            <h3 style={{ fontSize: '14px', textTransform: 'uppercase', letterSpacing: '0.05em', color: 'var(--text-muted)', marginBottom: '24px', fontWeight: 700 }}>Relationships</h3>
-            <ul style={{ listStyle: 'none', padding: 0, margin: 0, display: 'flex', flexDirection: 'column', gap: '20px', fontSize: '16px', color: 'var(--text-secondary)' }}>
-              <li style={{ display: 'flex', gap: '12px' }}><span style={{ color: 'var(--brand)' }}>✓</span> A user can belong to multiple organizations</li>
-              <li style={{ display: 'flex', gap: '12px' }}><span style={{ color: 'var(--brand)' }}>✓</span> An organization has one active subscription</li>
-              <li style={{ display: 'flex', gap: '12px' }}><span style={{ color: 'var(--brand)' }}>✓</span> Subscriptions map to plans</li>
-              <li style={{ display: 'flex', gap: '12px' }}><span style={{ color: 'var(--brand)' }}>✓</span> Usage is tracked per organization or user</li>
-            </ul>
-          </div>
-          
-          <h2 style={{ fontSize: '32px', fontWeight: 800, letterSpacing: '-0.02em', margin: '48px 0 24px' }}>Avoid costly mistakes early</h2>
-          <p style={{ color: 'var(--text-secondary)', marginBottom: '16px', fontSize: '16px' }}>A poorly designed SaaS schema leads to billing inconsistencies, broken permissions, and hard-to-scale systems.</p>
-          <p style={{ color: 'var(--text-primary)', fontWeight: 600, fontSize: '16px' }}>Starting with a solid structure saves hours of rework later.</p>
-        </div>
-      </section>
-
-      {/* 5. Bottom CTA */}
-      <section style={{ textAlign: 'center', padding: '100px 20px', background: 'var(--surface-base)', borderTop: '1px solid var(--border-subtle)', marginTop: 'auto' }}>
-        <h2 style={{ fontSize: '40px', fontWeight: 800, letterSpacing: '-0.03em', margin: '0 0 16px 0' }}>Start with this schema — <span style={{ color: 'var(--brand)' }}>customize it in seconds.</span></h2>
-        <p style={{ color: 'var(--text-secondary)', fontSize: '18px', marginBottom: '40px' }}>Generate, modify, and export to Prisma or Drizzle instantly.</p>
-        <button onClick={() => navigate('/login')} style={{ background: 'var(--text-primary)', color: 'var(--canvas-bg)', padding: '16px 32px', borderRadius: '12px', fontSize: '1.2rem', fontWeight: 600, border: 'none', cursor: 'pointer' }}>Open in editor</button>
-      </section>
+      </div>
 
       <Footer />
     </div>

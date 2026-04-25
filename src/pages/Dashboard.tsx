@@ -20,16 +20,28 @@ export function Dashboard() {
   
   const [schemas, setSchemas] = useState<any[]>([]);
   const [searchQuery, setSearchQuery] = useState('');
-  const [isLoadingSchemas, setIsLoadingSchemas] = useState(true);  // Fix #59
+  const [isLoadingSchemas, setIsLoadingSchemas] = useState(true);
+  const [userProfile, setUserProfile] = useState<any>(null);
   
   const [showClaimModal, setShowClaimModal] = useState(false);
   const [sandboxData, setSandboxData] = useState<any>(null);
 
-  // 1. Load Schemas
+  // 1. Load User Data & Schemas
   useEffect(() => {
-    async function loadSchemas() {
+    async function loadData() {
       if (!session?.user?.id) { setIsLoadingSchemas(false); return; }
       setIsLoadingSchemas(true);
+
+      // Fetch Profile (Tier)
+      const { data: profile } = await supabase
+        .from('users')
+        .select('*')
+        .eq('id', session.user.id)
+        .single();
+      
+      if (profile) setUserProfile(profile);
+
+      // Fetch Schemas
       const { data } = await supabase
         .from('schemas')
         .select('*')
@@ -38,7 +50,7 @@ export function Dashboard() {
       if (data) setSchemas(data);
       setIsLoadingSchemas(false);
     }
-    loadSchemas();
+    loadData();
   }, [session]);
 
   // 2. Check for Sandbox
@@ -161,16 +173,20 @@ export function Dashboard() {
           limitReached={limitReached}
         />
 
-        <DashboardStats schemas={schemas} limit={FREE_TIER_LIMIT} />
+        <DashboardStats 
+          schemas={schemas} 
+          limit={userProfile?.tier === 'pro' ? 999 : FREE_TIER_LIMIT} 
+          userTier={userProfile?.tier || 'free'}
+        />
 
         {/* Pro Up-sell banner */}
         {limitReached && (
-          <div className="pro-banner" style={{ background: 'var(--surface-base)', padding: '24px', borderRadius: '16px', border: '1px solid var(--brand)', display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '40px' }}>
+          <div className="pro-banner" style={{ padding: '20px 24px', borderRadius: '6px', display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '32px', flexWrap: 'wrap', gap: '12px' }}>
             <div>
-              <h3 style={{ margin: 0, fontSize: '16px', fontWeight: 600 }}>Unlock unlimited projects</h3>
-              <p style={{ margin: '4px 0 0 0', fontSize: '14px', color: 'var(--text-secondary)' }}>You've reached the free tier limit of 3 schemas. Upgrade to Pro for unlimited canvases.</p>
+              <h3 style={{ margin: 0, fontSize: '15px', fontWeight: 700, color: '#e8e8f0', fontFamily: "'Syne','Geist',sans-serif" }}>Unlock unlimited projects</h3>
+              <p style={{ margin: '4px 0 0 0', fontSize: '13px', color: '#6b6b80', fontFamily: "'Instrument Sans','Geist',sans-serif" }}>You've reached the free tier limit of 3 schemas. Upgrade to Pro for unlimited canvases.</p>
             </div>
-            <button onClick={() => navigate('/pricing')} className="btn-primary">Upgrade — $12/mo</button>
+            <button onClick={() => navigate('/pricing')} className="btn-primary">Upgrade — $15/mo</button>
           </div>
         )}
 
@@ -182,7 +198,7 @@ export function Dashboard() {
 
           {/* Fix #59: show loading indicator instead of flashing empty state */}
           {isLoadingSchemas ? (
-            <div style={{ padding: '48px', textAlign: 'center', color: 'var(--text-muted)', fontSize: '14px' }}>
+            <div style={{ padding: '48px', textAlign: 'center', color: '#6b6b80', fontSize: '13px', fontFamily: "'Geist Mono',monospace" }}>
               Loading your schemas…
             </div>
           ) : (
@@ -199,27 +215,29 @@ export function Dashboard() {
 
               <div className="create-card" onClick={() => handleCreateNew()}>
                 <div className="create-icon">+</div>
-                <div style={{ fontWeight: 600, color: 'var(--text-primary)', marginBottom: '4px' }}>New Design</div>
-                <div style={{ fontSize: '13px', color: 'var(--text-muted)' }}>Start from scratch</div>
+                <div style={{ fontWeight: 700, color: '#e8e8f0', marginBottom: '4px', fontFamily: "'Syne','Geist',sans-serif", fontSize: '14px' }}>New Design</div>
+                <div style={{ fontSize: '12px', color: '#6b6b80', fontFamily: "'Geist Mono',monospace" }}>Start from scratch</div>
               </div>
             </div>
           )}
         </div>
 
-        {/* Template Gallery Quick-picks */}
-        <div id="templates" style={{ marginTop: '64px' }}>
+        <div id="templates" style={{ marginTop: '56px' }}>
           <div className="projects-section-header">
             <h2>Suggested Starters</h2>
           </div>
-          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: '16px' }}>
+          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: '12px' }}>
             {[
               { id: 'ecommerce', name: 'E-commerce' },
               { id: 'saas', name: 'Multi-tenant SaaS' },
               { id: 'blog', name: 'Blog + CMS' },
               { id: 'auth', name: 'Social App' }
             ].map(tpl => (
-              <div key={tpl.id} className="sidebar-link" onClick={() => handleCreateNew(tpl.id)} style={{ background: 'var(--surface-base)', border: '1px solid var(--border-subtle)', padding: '16px', justifyContent: 'center' }}>
-                <span style={{ fontWeight: 600 }}>{tpl.name}</span>
+              <div key={tpl.id} className="sidebar-link" onClick={() => handleCreateNew(tpl.id)} style={{ background: '#0c0c10', border: '1px solid #1e1e2e', padding: '14px 16px', justifyContent: 'center', borderRadius: '5px', cursor: 'pointer', transition: 'border-color 0.15s' }}
+                onMouseEnter={e => (e.currentTarget.style.borderColor = '#ae7aff')}
+                onMouseLeave={e => (e.currentTarget.style.borderColor = '#1e1e2e')}
+              >
+                <span style={{ fontWeight: 600, fontSize: '13px', color: '#e8e8f0', fontFamily: "'Instrument Sans','Geist',sans-serif" }}>{tpl.name}</span>
               </div>
             ))}
           </div>
@@ -227,19 +245,22 @@ export function Dashboard() {
       </main>
 
       {showClaimModal && (
-        <div style={{ position: 'fixed', top: 0, left: 0, right: 0, bottom: 0, zIndex: 9999, background: 'rgba(0,0,0,0.8)', display: 'flex', alignItems: 'center', justifyContent: 'center', backdropFilter: 'blur(8px)' }}>
-          <div style={{ background: 'var(--surface-base)', padding: '32px', borderRadius: '24px', maxWidth: '400px', border: '1px solid var(--border-subtle)', textAlign: 'center' }}>
-            <h2 style={{ marginTop: 0 }}>Save Sandbox Work?</h2>
-            <p style={{ color: 'var(--text-muted)', lineHeight: 1.5 }}>Would you like to move the progress you made in the sandbox to your new cloud dashboard?</p>
-            <div style={{ display: 'flex', gap: '12px', marginTop: '32px' }}>
-              <button onClick={handleClaimSandbox} className="btn-primary" style={{ flex: 1 }}>Save to Cloud</button>
-              <button 
-                onClick={() => { 
-                  localStorage.removeItem('sandbox_schema'); 
+        <div style={{ position: 'fixed', top: 0, left: 0, right: 0, bottom: 0, zIndex: 9999, background: 'rgba(0,0,0,0.85)', display: 'flex', alignItems: 'center', justifyContent: 'center', backdropFilter: 'blur(12px)' }}>
+          <div style={{ background: '#0c0c10', padding: '32px', borderRadius: '8px', maxWidth: '380px', width: '90%', border: '1px solid #2e2e4e', textAlign: 'center', boxShadow: '0 24px 80px rgba(0,0,0,0.7)' }}>
+            <div style={{ fontFamily: "'Geist Mono',monospace", fontSize: '11px', color: '#00e5a0', letterSpacing: '0.08em', marginBottom: '10px' }}>// Sandbox work detected</div>
+            <h2 style={{ fontFamily: "'Syne','Geist',sans-serif", fontSize: '20px', fontWeight: 800, color: '#e8e8f0', marginTop: 0, marginBottom: '10px' }}>Save Sandbox Work?</h2>
+            <p style={{ color: '#6b6b80', lineHeight: 1.6, fontSize: '14px', marginBottom: '28px' }}>Would you like to move the progress you made in the sandbox to your new cloud dashboard?</p>
+            <div style={{ display: 'flex', gap: '10px' }}>
+              <button onClick={handleClaimSandbox} style={{ flex: 1, background: '#ae7aff', color: '#fff', border: 'none', padding: '11px', borderRadius: '4px', fontWeight: 700, cursor: 'pointer', fontFamily: "'Geist Mono',monospace", fontSize: '13px', boxShadow: '0 0 16px rgba(174,122,255,0.2)' }}>Save to Cloud</button>
+              <button
+                onClick={() => {
+                  localStorage.removeItem('sandbox_schema');
                   sessionStorage.setItem('dismissed_sandbox_claim', 'true');
-                  setShowClaimModal(false); 
-                }} 
-                style={{ flex: 1, background: 'transparent', border: '1px solid var(--border-subtle)', color: 'var(--text-muted)', borderRadius: '10px', cursor: 'pointer' }}
+                  setShowClaimModal(false);
+                }}
+                style={{ flex: 1, background: 'transparent', border: '1px solid #1e1e2e', color: '#6b6b80', borderRadius: '4px', cursor: 'pointer', fontFamily: "'Geist Mono',monospace", fontSize: '13px', transition: 'border-color 0.15s' }}
+                onMouseEnter={e => (e.currentTarget.style.borderColor = '#2e2e4e')}
+                onMouseLeave={e => (e.currentTarget.style.borderColor = '#1e1e2e')}
               >Discard</button>
             </div>
           </div>

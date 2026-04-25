@@ -2,81 +2,100 @@ import { useNavigate } from 'react-router-dom';
 import { PublicNav } from '../components/layout/PublicNav';
 import { Footer } from '../components/layout/Footer';
 import { Bot, Users, ExternalLink, Database, Shield, History } from 'lucide-react';
+import '../styles/public-dark.css';
+
+const FEATURES = [
+  {
+    icon: <Bot size={24} />,
+    title: 'AI Schema Generation',
+    comment: '// describe → generate',
+    body: 'Describe your application in plain natural language. Our specialized LLM pipeline instantly spins up the corresponding relational tables, assigns primary and foreign keys, and maps out one-to-many relationships logically and accurately.',
+  },
+  {
+    icon: <Users size={24} />,
+    title: 'Real-time Collaboration',
+    comment: '// multiplayer editing',
+    body: 'Powered by Yjs CRDTs, Modellr enables true multiplayer editing. Invite your backend team and watch their live cursors fly around the canvas. All edits synchronize natively in milliseconds with zero merge conflicts.',
+  },
+  {
+    icon: <ExternalLink size={24} />,
+    title: 'Intelligent Exporting',
+    comment: '// export --format=prisma',
+    body: 'Your visual design isn\'t locked in. Export as generic SQL DDL, schema.prisma files, Drizzle ORM mappings, or DBML. Generate ALTER TABLE diff migrations instantly.',
+  },
+  {
+    icon: <Database size={24} />,
+    title: 'Live DB Introspection',
+    comment: '// import --from=postgres',
+    body: 'Already have a deployed Postgres database? Paste a secure read-only connection string into our Live Import tool, and watch Modellr automatically reverse-engineer your information_schema into a beautiful, fully laid-out visual canvas.',
+  },
+  {
+    icon: <Shield size={24} />,
+    title: 'Zero-Trust Auth & RBAC',
+    comment: '// share --role=viewer',
+    body: 'Share schemas securely. Invite clients or stakeholders as Viewers using simple magic links. Our robust zero-trust layer ensures that read-only guests can navigate the canvas but cannot mutate your production structures.',
+  },
+  {
+    icon: <History size={24} />,
+    title: 'Unlimited Snapshots',
+    comment: '// git diff schema@v3 schema@v4',
+    body: 'Experiment fearlessly. Every major architectural shift you make is securely tracked. Point-in-time time travel lets you instantly restore or abandon massive sweeping layout changes with one click.',
+  },
+];
 
 export function Features() {
   const navigate = useNavigate();
 
   return (
-    <div style={{ background: 'var(--canvas-bg)', minHeight: '100vh', color: 'var(--text-primary)', display: 'flex', flexDirection: 'column' }}>
+    <div className="pd-root">
+      <PublicNav dark />
 
-      <PublicNav />
-
-      <div style={{ maxWidth: '1000px', margin: '0 auto', padding: '64px 20px', flex: 1 }}>
-        <div style={{ textAlign: 'center', marginBottom: '64px' }}>
-          <h1 style={{ fontSize: '48px', fontWeight: 900, letterSpacing: '-0.03em', marginBottom: '16px' }}>Database Design, <span style={{ color: 'var(--brand)' }}>Redefined.</span></h1>
-          <p style={{ fontSize: '20px', color: 'var(--text-secondary)', maxWidth: '600px', margin: '0 auto' }}>
+      {/* ── Hero ── */}
+      <div className="pd-hero" style={{ paddingTop: '140px' }}>
+        <div className="pd-hero-dot-grid" aria-hidden />
+        <div className="pd-hero-glow" aria-hidden />
+        <div style={{ position: 'relative', zIndex: 1 }}>
+          <div className="pd-label">// Features</div>
+          <h1 className="pd-h1">Database Design,{' '}
+            <span style={{ WebkitTextStroke: '1.5px var(--pd-text)', WebkitTextFillColor: 'transparent', fontStyle: 'italic' }}>
+              Redefined.
+            </span>
+          </h1>
+          <p className="pd-lead">
             Everything you need to architect, collaborate, and deploy robust database structures instantly.
           </p>
         </div>
-
-        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(400px, 1fr))', gap: '32px' }}>
-
-          <div style={{ background: 'var(--surface-base)', padding: '40px', borderRadius: '24px', border: '1px solid var(--border-subtle)' }}>
-            <div style={{ marginBottom: '24px', color: 'var(--brand)' }}><Bot size={32} /></div>
-            <h3 style={{ fontSize: '24px', fontWeight: 700, marginBottom: '16px' }}>AI Schema Generation</h3>
-            <p style={{ color: 'var(--text-secondary)', lineHeight: 1.7, fontSize: '16px' }}>
-              Describe your application in plain natural language. Our specialized LLM pipeline instantly spins up the corresponding relational tables, assigns primary and foreign keys, and maps out one-to-many relationships logically and accurately. No more tedious manual scaffolding.
-            </p>
-          </div>
-
-          <div style={{ background: 'var(--surface-base)', padding: '40px', borderRadius: '24px', border: '1px solid var(--border-subtle)' }}>
-            <div style={{ marginBottom: '24px', color: 'var(--brand)' }}><Users size={32} /></div>
-            <h3 style={{ fontSize: '24px', fontWeight: 700, marginBottom: '16px' }}>Real-time Collaboration</h3>
-            <p style={{ color: 'var(--text-secondary)', lineHeight: 1.7, fontSize: '16px' }}>
-              Powered by Yjs CRDTs, Modellr enables true multiplayer editing. Invite your backend team and watch their live cursors fly around the canvas. All edits, table creations, and line drawings synchronize natively in milliseconds with zero merge conflicts.
-            </p>
-          </div>
-
-          <div style={{ background: 'var(--surface-base)', padding: '40px', borderRadius: '24px', border: '1px solid var(--border-subtle)' }}>
-            <div style={{ marginBottom: '24px', color: 'var(--brand)' }}><ExternalLink size={32} /></div>
-            <h3 style={{ fontSize: '24px', fontWeight: 700, marginBottom: '16px' }}>Intelligent Exporting</h3>
-            <p style={{ color: 'var(--text-secondary)', lineHeight: 1.7, fontSize: '16px' }}>
-              Your visual design isn't locked in. Export as generic SQL DDL, <code>schema.prisma</code> files, Drizzle ORM mappings, or DBML. Generate <code>ALTER TABLE</code> diff migrations instantly.
-            </p>
-          </div>
-
-          <div style={{ background: 'var(--surface-base)', padding: '40px', borderRadius: '24px', border: '1px solid var(--border-subtle)' }}>
-            <div style={{ marginBottom: '24px', color: 'var(--brand)' }}><Database size={32} /></div>
-            <h3 style={{ fontSize: '24px', fontWeight: 700, marginBottom: '16px' }}>Live DB Introspection</h3>
-            <p style={{ color: 'var(--text-secondary)', lineHeight: 1.7, fontSize: '16px' }}>
-              Already have a deployed Postgres database? Paste a secure read-only connection string into our Live Import tool, and watch Modellr automatically reverse-engineer your `information_schema` into a beautiful, fully laid-out visual canvas.
-            </p>
-          </div>
-
-          <div style={{ background: 'var(--surface-base)', padding: '40px', borderRadius: '24px', border: '1px solid var(--border-subtle)' }}>
-            <div style={{ marginBottom: '24px', color: 'var(--brand)' }}><Shield size={32} /></div>
-            <h3 style={{ fontSize: '24px', fontWeight: 700, marginBottom: '16px' }}>Zero-Trust Auth & RBAC</h3>
-            <p style={{ color: 'var(--text-secondary)', lineHeight: 1.7, fontSize: '16px' }}>
-              Share schemas securely. Invite clients or stakeholders as 'Viewers' using simple magic links. Our robust zero-trust layer ensures that read-only guests can navigate the canvas but absolutely cannot mutate your critical production structures.
-            </p>
-          </div>
-
-          <div style={{ background: 'var(--surface-base)', padding: '40px', borderRadius: '24px', border: '1px solid var(--border-subtle)' }}>
-            <div style={{ marginBottom: '24px', color: 'var(--brand)' }}><History size={32} /></div>
-            <h3 style={{ fontSize: '24px', fontWeight: 700, marginBottom: '16px' }}>Unlimited Snapshots</h3>
-            <p style={{ color: 'var(--text-secondary)', lineHeight: 1.7, fontSize: '16px' }}>
-              Experiment fearlessly. Our deep integration with Zundo ensures that every major architectural shift you make is securely tracked. Point-in-time time travel lets you instantly restore or abandon massive sweeping layout changes with one click.
-            </p>
-          </div>
-
-        </div>
-
-        <div style={{ textAlign: 'center', marginTop: '80px', padding: '64px', background: 'var(--surface-raised)', borderRadius: '24px' }}>
-          <h2 style={{ fontSize: '32px', fontWeight: 800, marginBottom: '24px' }}>Ready to optimize your workflow?</h2>
-          <button onClick={() => navigate('/login')} style={{ background: 'var(--brand)', color: '#fff', padding: '16px 32px', borderRadius: '12px', fontSize: '1.2rem', fontWeight: 600, border: 'none', cursor: 'pointer' }}>Start building free</button>
-        </div>
-
       </div>
+
+      {/* ── Feature cards ── */}
+      <section className="pd-section">
+        <div className="pd-inner--wide">
+          <div className="pd-grid-3">
+            {FEATURES.map((f, i) => (
+              <div key={i} className="pd-card" style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
+                <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
+                  <span className="pd-card__icon" style={{ marginBottom: 0 }}>{f.icon}</span>
+                  <span style={{ fontFamily: 'var(--pd-mono)', fontSize: '11px', color: 'var(--pd-muted)' }}>{f.comment}</span>
+                </div>
+                <h3 className="pd-h3" style={{ fontSize: '18px' }}>{f.title}</h3>
+                <p className="pd-body-text" style={{ fontSize: '14px' }}>{f.body}</p>
+              </div>
+            ))}
+          </div>
+        </div>
+      </section>
+
+      {/* ── CTA ── */}
+      <div className="pd-cta pd-section--alt">
+        <div className="pd-cta-glow-l" aria-hidden />
+        <div className="pd-cta-glow-r" aria-hidden />
+        <div className="pd-cta-inner">
+          <h2 className="pd-cta-h2">Ready to optimize your workflow?</h2>
+          <p className="pd-cta-sub">Free forever. No credit card required to start.</p>
+          <button className="pd-btn-primary" onClick={() => navigate('/login')}>Start building free →</button>
+        </div>
+      </div>
+
       <Footer />
     </div>
   );

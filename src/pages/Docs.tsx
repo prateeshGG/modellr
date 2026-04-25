@@ -40,18 +40,18 @@ export function Docs() {
   };
 
   return (
-    <div style={{ background: 'var(--canvas-bg)', minHeight: '100vh', color: 'var(--text-primary)', display: 'flex', flexDirection: 'column' }}>
-      <PublicNav />
+    <div style={{ background: '#050507', minHeight: '100vh', color: '#e8e8f0', display: 'flex', flexDirection: 'column' }}>
+      <PublicNav dark />
 
       <div style={{ flex: 1, paddingBottom: '64px' }}>
         <DocsLayout currentArticle={activeArticle} onSelect={setActiveArticle}>
           {renderArticle()}
           
-          <div style={{ marginTop: '80px', paddingTop: '40px', borderTop: '1px solid var(--border-subtle)', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-            <h3 style={{ fontSize: '20px', fontWeight: 700, margin: 0 }}>Start building</h3>
+          <div style={{ marginTop: '80px', paddingTop: '40px', borderTop: '1px solid #1e1e2e', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+            <h3 style={{ fontFamily: "'Syne','Geist',sans-serif", fontSize: '20px', fontWeight: 700, margin: 0, color: '#e8e8f0' }}>Start building</h3>
             <button 
               onClick={() => navigate('/login')}
-              style={{ padding: '10px 24px', background: 'var(--text-primary)', color: 'var(--canvas-bg)', border: 'none', borderRadius: '8px', fontWeight: 600, cursor: 'pointer' }}
+              style={{ padding: '10px 24px', background: '#ae7aff', color: '#fff', border: 'none', borderRadius: '4px', fontWeight: 600, cursor: 'pointer', fontFamily: "'Geist Mono',monospace", fontSize: '13px', boxShadow: '0 0 16px rgba(174,122,255,0.2)' }}
             >
               Open editor
             </button>

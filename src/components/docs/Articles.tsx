@@ -35,6 +35,14 @@ export const GettingStartedArticle = () => (
     </ul>
     <p>Paste into editor → schema is parsed and visualized.</p>
 
+    <h3>Option 4 — Live Introspection</h3>
+    <ol className="docs-list">
+      <li>Click "Import" in the top bar</li>
+      <li>Select "Connect Live DB"</li>
+      <li>Enter your connection string (PostgreSQL or MySQL)</li>
+      <li>Modellr will safely introspect your structure and generate the diagram</li>
+    </ol>
+
     <h2>Editing schema</h2>
     <p>You can modify the schema in three ways:</p>
     <ul className="docs-list">
@@ -225,8 +233,8 @@ export const NotesArticle = () => (
 
     <h2>Limitations</h2>
     <ul className="docs-list">
-      <li>No direct database connection</li>
-      <li>No live migrations automatically ran against a DB</li>
+      <li>Introspection requires a reachable database (SSL recommended)</li>
+      <li>No live migrations are automatically executed against your DB; we provide the SQL for manual review</li>
     </ul>
 
     <h2>Performance</h2>

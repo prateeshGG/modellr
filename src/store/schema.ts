@@ -308,62 +308,77 @@ export const createSchemaLogic = (set: any, _get: any): SchemaStore => ({
   applyAIOperations: (ops: any[]) => {
     if (useUIStore.getState().readOnly) return;
     set((s: SchemaStore) => {
-      let currentTables = [...s.tables];
-      let currentRelationships = [...s.relationships];
+      // Use a Map for O(1) lookup by name during operation processing
+      const tableMap = new Map(s.tables.map(t => [t.name, { ...t, fields: [...t.fields] }]));
+      const relationships = [...s.relationships];
       
       let spawnX = 100;
+      let hasChanges = false;
 
       for (const op of ops) {
         if (op.action === 'add_table') {
-          if (currentTables.find(t => t.name === op.tableName)) continue;
+          if (tableMap.has(op.tableName)) continue;
           const id = nanoid();
-          currentTables.push({
+          const newTable: Table = {
             id,
             name: op.tableName,
             fields: (op.newFields || []).map((f: any) => ({ ...f, id: nanoid() })),
             position: { x: spawnX, y: 100 },
-            accentColor: nextAccentColor(currentTables)
-          });
+            accentColor: nextAccentColor(Array.from(tableMap.values()))
+          };
+          tableMap.set(op.tableName, newTable);
           spawnX += 300;
+          hasChanges = true;
         } 
         else if (op.action === 'remove_table') {
-          currentTables = currentTables.filter(t => t.name !== op.tableName);
-          const tId = s.tables.find(t => t.name === op.tableName)?.id;
-          if (tId) {
-            currentRelationships = currentRelationships.filter(r => r.sourceTableId !== tId && r.targetTableId !== tId);
+          const table = tableMap.get(op.tableName);
+          if (table) {
+            const tId = table.id;
+            tableMap.delete(op.tableName);
+            // Relationship removal is still a filter, but only once per table removal
+            const filteredRels = relationships.filter(r => r.sourceTableId !== tId && r.targetTableId !== tId);
+            if (filteredRels.length !== relationships.length) {
+              relationships.splice(0, relationships.length, ...filteredRels);
+            }
+            hasChanges = true;
           }
         }
         else if (op.action === 'add_field') {
-          currentTables = currentTables.map(t => {
-            if (t.name !== op.tableName) return t;
+          const table = tableMap.get(op.tableName);
+          if (table) {
             const newF = op.newFields?.[0];
-            if (!newF || t.fields.find(f => f.name === newF.name)) return t;
-            return { ...t, fields: [...t.fields, { ...newF, id: nanoid() }] };
-          });
+            if (newF && !table.fields.find(f => f.name === newF.name)) {
+              table.fields.push({ ...newF, id: nanoid() });
+              hasChanges = true;
+            }
+          }
         }
         else if (op.action === 'remove_field') {
-          currentTables = currentTables.map(t => {
-            if (t.name !== op.tableName) return t;
-            return { ...t, fields: t.fields.filter(f => f.name !== op.fieldName) };
-          });
+          const table = tableMap.get(op.tableName);
+          if (table) {
+            const initialCount = table.fields.length;
+            table.fields = table.fields.filter(f => f.name !== op.fieldName);
+            if (table.fields.length !== initialCount) hasChanges = true;
+          }
         }
         else if (op.action === 'modify_field') {
-          currentTables = currentTables.map(t => {
-            if (t.name !== op.tableName) return t;
-            return { 
-              ...t, 
-              fields: t.fields.map(f => f.name === op.fieldName ? { ...f, ...op.fieldUpdates } : f) 
-            };
-          });
+          const table = tableMap.get(op.tableName);
+          if (table) {
+            const field = table.fields.find(f => f.name === op.fieldName);
+            if (field) {
+              Object.assign(field, op.fieldUpdates);
+              hasChanges = true;
+            }
+          }
         }
         else if (op.action === 'add_relationship') {
-          const sTable = currentTables.find(t => t.name === op.tableName);
-          const tTable = currentTables.find(t => t.name === op.relationTargetTable);
+          const sTable = tableMap.get(op.tableName);
+          const tTable = tableMap.get(op.relationTargetTable);
           if (sTable && tTable) {
             const sField = sTable.fields.find(f => f.name === op.fieldName);
             const tField = tTable.fields.find(f => f.name === op.relationTargetField);
             if (sField && tField) {
-              currentRelationships.push({
+              relationships.push({
                 id: nanoid(),
                 sourceTableId: sTable.id,
                 sourceFieldId: sField.id,
@@ -371,11 +386,17 @@ export const createSchemaLogic = (set: any, _get: any): SchemaStore => ({
                 targetFieldId: tField.id,
                 cardinality: op.relationCardinality || 'one-to-many'
               });
+              hasChanges = true;
             }
           }
         }
       }
-      return { tables: currentTables, relationships: currentRelationships };
+
+      if (!hasChanges) return s;
+      return { 
+        tables: Array.from(tableMap.values()), 
+        relationships 
+      };
     });
   }
 });

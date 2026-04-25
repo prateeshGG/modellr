@@ -122,10 +122,7 @@ Same as `⌘B` shortcut. Calls `useUIStore.toggleSidebar()`.
 ```tsx
 <button onClick={() => window.location.href = '/app'} title="Back to Dashboard">
   <Home size={18} />
-</button>
-```
-
-Navigates to `/app` via `window.location.href` (a **full page navigation**, not `useNavigate()`). This exits the current editor session — the Yjs WebSocket disconnects and any unsaved in-flight state is abandoned. Consider whether a React Router `navigate('/app')` soft navigation would be more appropriate.
+Navigates to `/app` using React Router `navigate('/app')` for a soft SPA navigation.
 
 ### Undo / Redo
 
@@ -298,10 +295,7 @@ Shows `Sun` icon when dark mode (switch to light), `Moon` when light mode (switc
 ```tsx
 <button onClick={() => window.location.href = '/app/settings'} title="Settings">
   <Settings size={18} />
-</button>
-```
-
-Like the Home button, uses `window.location.href` — a full page reload to `/app/settings` rather than React Router navigation.
+Navigates to `/app/settings` using React Router `navigate('/app/settings')`.
 
 ---
 
@@ -353,8 +347,6 @@ Called via `getState()` rather than via the hook — safe in an event handler / 
 **Clipboard failure:**
 All `clipboard.writeText` calls fail on non-HTTPS or permission denied — caught by the outer `try/catch`. The generic `'Export failed'` toast is shown for any error (clipboard permission, export function crash, etc.) — no per-format detail.
 
-**`png` and `svg` unreachable from UI:**
-These branches exist in `handleExport` but the export menu items array has no `png` or `svg` entry. They can only be triggered programmatically (e.g. via `CommandPalette` if a command for them existed — which it doesn't currently).
 
 ---
 
@@ -420,7 +412,7 @@ const commitName = () => {
   │
   ├── topbar__left
   │     ├── [☰] toggleSidebar
-  │     ├── [🏠] window.location.href = '/app'
+  │     ├── [🏠] navigate('/app')
   │     ├── [↩] undo (disabled if !canUndo)
   │     ├── [↪] redo (disabled if !canRedo)
   │     ├── ─── divider (hide-mobile)
@@ -460,7 +452,7 @@ const commitName = () => {
         │
         └── topbar__controls
               ├── [☀/🌙] toggleTheme
-              └── [⚙]   window.location.href = '/app/settings'
+              └── [⚙]   navigate('/app/settings')
 
 {shareModalOpen && <ShareModal onClose={...} />}
 ```
@@ -471,15 +463,12 @@ const commitName = () => {
 
 | | Detail |
 |---|---|
-| **PNG/SVG export unreachable from UI** | `handleExport('png')` and `handleExport('svg')` branches exist but no menu items trigger them — image export is dead code from the toolbar perspective |
-| **`window.location.href` for navigation** | Home and Settings buttons use full page reloads instead of React Router `useNavigate()` — disconnects Yjs WebSocket and loses SPA state |
 | **Export dropdown has no click-outside close** | No `useEffect` document listener — only closes when the Export button is clicked again or a format is selected |
 | **`useUIStore.getState()` redundant in `handleExport`** | `showToast` is already in scope from the hook; `getState()` provides the same reference — unnecessary |
 | **`localName` not reactive to external `projectName` changes** | If Yjs syncs a name change from a collaborator, `localName` stays stale until the user next clicks to edit |
 | **AI button not gated by `readOnly`** | Guests in read-only mode can open the AI assistant. Whether generated output is blocked depends on downstream handling in `AIBottomDrawer` |
-| **Lucide only in TopBar** | All other components use Unicode glyphs — `TopBar` is the sole consumer of `lucide-react`. Inconsistent icon strategy across the codebase |
-| **`⌘⇧E` shortcut mentioned in tooltip** | `title="Export (⌘⇧E)"` on the Export button — but this shortcut is not registered in `useKeyboardShortcuts.ts`. It's documented in the UI but doesn't work |
-| **`shareModalOpen` in local state** | `ShareModal` visibility is local component state — unlike `paletteOpen` which is in the UI store. Inconsistent pattern; `sf:open-share` event could be used instead |
+| | Detail |
+|---|---|
 | **`onImportClick` / `onDiffClick` are optional** | If not provided (undefined), the Import/Diff buttons click without effect (no error, just no-op) |
 
 ---

@@ -1,10 +1,13 @@
 import express from 'express';
 import pg from 'pg';
+import { requireAuth } from '../middleware/auth.js';
+import { validateConnectionString } from '../utils/security.js';
+import { supabaseService } from '../lib/supabase.js';
+
 const { Client } = pg;
 const router = express.Router();
 
 function getDialectType(pgType) {
-  // Mapping pg info_schema types to our generic types
   if (pgType.includes('int8') || pgType === 'bigint') return 'bigint';
   if (pgType.includes('int') || pgType === 'integer') return 'integer';
   if (pgType.includes('char') || pgType === 'text') return 'text';
@@ -13,16 +16,33 @@ function getDialectType(pgType) {
   return pgType;
 }
 
-router.post('/', async (req, res) => {
+// Fix #P0: Applied requireAuth and SSRF validation
+router.post('/', requireAuth, async (req, res) => {
   const { connectionString } = req.body;
-  if (!connectionString) {
-    return res.status(400).json({ error: 'connectionString is required' });
+  
+  try {
+    // Check Tier
+    const { data: user } = await supabaseService.from('users').select('tier').eq('id', req.user.id).single();
+    if (!user || user.tier !== 'pro') {
+      return res.status(403).json({ error: 'Live Introspection is a Pro feature. Please upgrade your plan.' });
+    }
+
+    await validateConnectionString(connectionString, 'postgresql');
+  } catch (err) {
+    return res.status(400).json({ error: err.message });
   }
 
   const client = new Client({ connectionString });
 
   try {
+    // Set a short timeout for introspection
+    const connectTimeout = setTimeout(() => {
+      client.end();
+      return res.status(504).json({ error: 'Connection timeout' });
+    }, 10000);
+
     await client.connect();
+    clearTimeout(connectTimeout);
 
     // 1. Fetch tables
     const tableRes = await client.query(`

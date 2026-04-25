@@ -1,22 +1,14 @@
 import express from 'express';
 import bcrypt from 'bcryptjs';
-import { createClient } from '@supabase/supabase-js';
+import { supabaseService, ScopedDatabase } from '../lib/supabase.js';
 import { generatePostgresSQL } from '../utils/sqlExporter.js';
 import { diffSchemas } from '../utils/schemaDiff.js';
 import { generateMigration } from '../utils/migrationGenerator.js';
 
 const router = express.Router();
 
-// The Gateway uses the Service Role key to bypass RLS, then validates internally
-const supabaseUrl = process.env.VITE_SUPABASE_URL || process.env.SUPABASE_URL;
-const serviceKey = process.env.SUPABASE_SERVICE_ROLE_KEY;
-
-console.log('[mcpGateway] SUPABASE_URL:', supabaseUrl);
-console.log('[mcpGateway] SERVICE_KEY:', serviceKey ? `${serviceKey.substring(0, 20)}...` : 'MISSING');
-console.log('[mcpGateway] All env keys:', Object.keys(process.env).filter(k => k.includes('SUPABASE')));
-
-// Only initialize if we have the service key (useful to not crash local dev if omitted initially)
-const supabase = serviceKey ? createClient(supabaseUrl, serviceKey, { auth: { autoRefreshToken: false, persistSession: false } }) : null;
+// The Gateway uses the Service Role client to bypass RLS, then validates internally
+const supabase = supabaseService;
 
 // Middleware to authenticate sfk_live_ keys
 router.use(async (req, res, next) => {
@@ -43,7 +35,6 @@ router.use(async (req, res, next) => {
   }
 
   // Verify bcrypt hash
-  // Since multiple keys could theoretically share the same prefix, we check them all
   let matchedUserId = null;
   let matchedKeyId = null;
 
@@ -63,23 +54,25 @@ router.use(async (req, res, next) => {
   // Update last_used_at in background
   supabase.from('api_keys').update({ last_used_at: new Date().toISOString() }).eq('id', matchedKeyId).then();
 
-  // Bind the user_id context to the request for the handlers
-  req.ctx = { userId: matchedUserId };
+  // Bind the user context and a scoped DB helper to the request
+  req.ctx = { 
+    userId: matchedUserId,
+    db: new ScopedDatabase(matchedUserId)
+  };
   next();
 });
 
 // Tool router
 router.post('/call', async (req, res) => {
   const { tool, arguments: args } = req.body;
-  const userId = req.ctx.userId;
+  const { userId, db } = req.ctx;
 
   try {
     switch (tool) {
       case 'Modellr_list_schemas': {
-        const { data, error } = await supabase
+        const { data, error } = await db
           .from('schemas')
           .select('id, name, updated_at')
-          .eq('owner_id', userId)
           .order('updated_at', { ascending: false });
 
         if (error) throw error;
@@ -90,11 +83,10 @@ router.post('/call', async (req, res) => {
         const { id } = args;
         if (!id) throw new Error("Missing 'id' argument");
 
-        const { data, error } = await supabase
+        const { data, error } = await db
           .from('schemas')
           .select('name, canvas_state, updated_at')
           .eq('id', id)
-          .eq('owner_id', userId)
           .single();
 
         if (error || !data) throw new Error("Schema not found or access denied");
@@ -105,21 +97,12 @@ router.post('/call', async (req, res) => {
         const { id, tables, relationships } = args;
         if (!id || !tables) throw new Error("Missing 'id' or 'tables' arguments");
 
-        // First verify ownership
-        const { count, error: countErr } = await supabase
-          .from('schemas')
-          .select('*', { count: 'exact', head: true })
-          .eq('id', id)
-          .eq('owner_id', userId);
-
-        if (countErr || count === 0) throw new Error("Schema not found or access denied");
-
         const payload = {
           tables,
           relationships: relationships || []
         };
 
-        const { error } = await supabase
+        const { error } = await db
           .from('schemas')
           .update({ canvas_state: payload, updated_at: new Date().toISOString() })
           .eq('id', id);
@@ -132,11 +115,10 @@ router.post('/call', async (req, res) => {
         const { id, table } = args;
         if (!id || !table) throw new Error("Missing 'id' or 'table' arguments");
 
-        const { data, error: fetchErr } = await supabase
+        const { data, error: fetchErr } = await db
           .from('schemas')
           .select('canvas_state')
           .eq('id', id)
-          .eq('owner_id', userId)
           .single();
 
         if (fetchErr || !data) throw new Error("Schema not found or access denied");
@@ -144,7 +126,7 @@ router.post('/call', async (req, res) => {
         const currentState = data.canvas_state || { tables: [], relationships: [] };
         currentState.tables = [...(currentState.tables || []), table];
 
-        const { error: updateErr } = await supabase
+        const { error: updateErr } = await db
           .from('schemas')
           .update({ canvas_state: currentState, updated_at: new Date().toISOString() })
           .eq('id', id);
@@ -157,11 +139,10 @@ router.post('/call', async (req, res) => {
         const { id, tableName, updates } = args;
         if (!id || !tableName || !updates) throw new Error("Missing 'id', 'tableName', or 'updates' arguments");
 
-        const { data, error: fetchErr } = await supabase
+        const { data, error: fetchErr } = await db
           .from('schemas')
           .select('canvas_state')
           .eq('id', id)
-          .eq('owner_id', userId)
           .single();
 
         if (fetchErr || !data) throw new Error("Schema not found or access denied");
@@ -172,7 +153,7 @@ router.post('/call', async (req, res) => {
 
         currentState.tables[tableIdx] = { ...currentState.tables[tableIdx], ...updates };
 
-        const { error: updateErr } = await supabase
+        const { error: updateErr } = await db
           .from('schemas')
           .update({ canvas_state: currentState, updated_at: new Date().toISOString() })
           .eq('id', id);
@@ -185,11 +166,10 @@ router.post('/call', async (req, res) => {
         const { id } = args;
         if (!id) throw new Error("Missing 'id' argument");
 
-        const { data, error: fetchErr } = await supabase
+        const { data, error: fetchErr } = await db
           .from('schemas')
           .select('canvas_state')
           .eq('id', id)
-          .eq('owner_id', userId)
           .single();
 
         if (fetchErr || !data) throw new Error("Schema not found or access denied");
@@ -203,11 +183,10 @@ router.post('/call', async (req, res) => {
         const { oldId, newId } = args;
         if (!oldId || !newId) throw new Error("Missing 'oldId' or 'newId' arguments");
 
-        const { data: schemas, error } = await supabase
+        const { data: schemas, error } = await db
           .from('schemas')
           .select('id, canvas_state')
-          .in('id', [oldId, newId])
-          .eq('owner_id', userId);
+          .in('id', [oldId, newId]);
 
         if (error || !schemas || schemas.length < 2) throw new Error("One or both schemas not found or access denied");
 
@@ -222,11 +201,10 @@ router.post('/call', async (req, res) => {
         const { oldId, newId } = args;
         if (!oldId || !newId) throw new Error("Missing 'oldId' or 'newId' arguments");
 
-        const { data: schemas, error } = await supabase
+        const { data: schemas, error } = await db
           .from('schemas')
           .select('id, canvas_state')
-          .in('id', [oldId, newId])
-          .eq('owner_id', userId);
+          .in('id', [oldId, newId]);
 
         if (error || !schemas || schemas.length < 2) throw new Error("One or both schemas not found or access denied");
 

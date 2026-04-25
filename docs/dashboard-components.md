@@ -498,19 +498,6 @@ const edges = useMemo(() =>
     };
   }), [template]);
 ```
-
-**Critical issue:** The `sourceHandle` and `targetHandle` IDs are **JSON-serialized objects**, e.g.:
-```json
-{"t":"abc","f":"def","type":"source","pos":"right"}
-```
-
-But `FieldRow.tsx` generates handles with IDs in the format:
-```
-"tableId__fieldId__right"
-```
-
-These two formats are **incompatible**. The `sourceHandle`/`targetHandle` values in the preview edges will not match any actual `Handle` component id rendered by `TableNode`/`FieldRow`. As a result, **relationship edges will not connect to field handles** in the preview — they may fall back to table-level connections or render disconnected.
-
 > `isSourceLeftOfTarget = true` is hardcoded — no position-based direction logic like in `SchemaCanvas`. Template tables may be arranged differently, but edge routing always assumes source is to the left.
 
 ## React Flow Configuration (Read-Only)
@@ -536,17 +523,7 @@ These two formats are **incompatible**. The `sourceHandle`/`targetHandle` values
 | `elementsSelectable` | `false` | Nothing is selectable (no click highlighting) |
 | `fitView` | `true` | Auto-fits all template nodes on mount |
 
-## `!template` Guard Placement
 
-```ts
-// Line 24: template looked up BEFORE null check
-const template = TEMPLATES[templateId];
-
-// Line 49: null check AFTER hooks (useMemo calls above)
-if (!template) return null;
-```
-
-The null guard on line 49 is after `useMemo` calls on lines 26 and 34 — this violates the **Rules of Hooks** (hooks must not be called conditionally). If `templateId` is invalid, the component still calls `useMemo` with `undefined` as `template`, then returns null. React does not throw here because hooks are always called, but `template.tables` in `useMemo` will throw when `template` is `undefined`.
 
 ## Modal Layout
 
@@ -576,9 +553,7 @@ The null guard on line 49 is after `useMemo` calls on lines 26 and 34 — this v
 
 | | Detail |
 |---|---|
-| **Handle ID format mismatch** | Preview edges use JSON-serialized handle IDs; `FieldRow` generates `"tableId__fieldId__side"` format — edges likely don't connect to field anchors correctly |
 | **`isSourceLeftOfTarget = true` hardcoded** | All edges assumed to go left-to-right; templates with right-to-left relationships will have reversed crow's-foot markers |
-| **`if (!template) return null` after hooks** | Conditional early return after `useMemo` calls — if `template` is `undefined`, `useMemo` will throw accessing `template.tables` before the guard can execute |
 | **Reuses production `TableNode`** | The preview `TableNode` is fully interactive (has rename, color picker, etc.) but `elementsSelectable={false}` and `nodesDraggable={false}` disable most interaction. Double-clicking a table header could still trigger a rename attempt |
 | **`SchemaCanvas.css` imported directly** | Shares canvas stylesheet — ensures consistent appearance between editor and preview |
 | **No loading state for template** | Template data is synchronous (from `TEMPLATES` constant), so no loading state is needed |

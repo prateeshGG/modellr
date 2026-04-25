@@ -1,6 +1,7 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { useSchemaStore } from '../../store/schema';
 import { useUIStore } from '../../store/ui';
+import { authFetch } from '../../lib/api-utils';
 import './LiveImportDialog.css';
 
 interface LiveImportDialogProps {
@@ -43,10 +44,8 @@ export const LiveImportDialog: React.FC<LiveImportDialogProps> = ({ onClose }) =
     abortRef.current = controller;
 
     try {
-      const baseUrl = import.meta.env.VITE_API_URL || '';
-      const res = await fetch(`${baseUrl}/api/introspect/${dialect}`, {
+      const res = await authFetch(`/api/introspect/${dialect}`, {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ connectionString: url.trim() }),
         signal: controller.signal,
       });

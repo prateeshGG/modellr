@@ -113,8 +113,6 @@ CSS class behavior:
 
 The `--saved` modifier class is removed while saving — the base class likely applies a neutral/muted style, while `--saved` applies a green or checkmark style.
 
-> The "Saved" label persists indefinitely after the last save — it doesn't revert to empty or show a relative time ("Saved 5 min ago"). Once `lastSaved` is set, "Saved" is always shown. This is intentional but means there's no expiry — even if the schema hasn't been saved in an hour, the UI still shows "Saved".
-
 > Cross-reference: `useCloudPersistence` sets `isSaving` to `true` during the debounced save, and `lastSaved` to the timestamp on completion. The `StatusBar` reflects `isSaving` while the save is in-flight (typically for the 2-second debounce window + network round-trip).
 
 ---
@@ -136,20 +134,17 @@ The `--saved` modifier class is removed while saving — the base class likely a
 </div>
 ```
 
-Two-button toggle group controlling `density` in `useUIStore`:
+Three-button toggle group controlling `density` in `useUIStore`:
 
 | Button | Icon | Value | Effect |
 |---|---|---|---|
 | Comfortable | `≡` | `'comfortable'` | Wider row padding in `TableNode` |
 | Compact | `≣` | `'compact'` | Tighter row padding — more fields visible per table |
+| Spacious | `[ ]` | `'spacious'` | Extra-wide padding for visually relaxed templates or large text |
 
-`setDensity` writes to the UI store. `TableNode` reads `density` via `useUIStore` and applies `density-comfortable` / `density-compact` class to rows.
+`setDensity` writes to the UI store. `TableNode` reads `density` via `useUIStore` and applies density CSS classes to rows.
 
-**`role="group"`** — correct ARIA grouping for a set of related toggle buttons.
-
-> **Missing `'spacious'` density option:** `constants.ts` exports `DENSITY_OPTIONS` which includes `'comfortable'`, `'compact'`, and `'spacious'`. `StatusBar` only renders two of the three — `'spacious'` has no toggle button. If `density` is somehow set to `'spacious'` (e.g. from a stale store value), neither button shows as active.
-
-> `aria-pressed` attribute is missing from each `density-btn` — buttons toggle between active/inactive states but don't expose this semantically. Adding `aria-pressed={density === 'comfortable'}` etc. would improve screen-reader experience.
+**`role="group"`** — correct ARIA grouping for a set of related toggle buttons. Each button uses `aria-pressed` to indicate its active state.
 
 ---
 
@@ -168,9 +163,6 @@ Two-button toggle group controlling `density` in `useUIStore`:
 
 | | Detail |
 |---|---|
-| **"Saved" never expires** | `savedLabel` shows `'Saved'` indefinitely once `lastSaved` is set — no relative timestamp, no expiry |
-| **Missing `'spacious'` density button** | `constants.ts` has 3 density options; `StatusBar` only renders 2. `'spacious'` is orphaned |
-| **`aria-pressed` missing on density buttons** | Toggle buttons should expose `aria-pressed` semantically |
 | **No zoom display** | Comment in JSX says `{/* Right: density + zoom */}` but there is no zoom indicator — only density toggle |
 | **`totalFields` computed inline** | Same calculation exists in `ProjectStats` and `DashboardStats` — no shared utility |
 | **`role="status"` on `<footer>`** | Unusual combination — `<footer>` implies `role="contentinfo"` natively; overriding with `role="status"` adds live-region behavior |

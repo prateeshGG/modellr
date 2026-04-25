@@ -1,108 +1,120 @@
+/* ============================================================
+   TemplateGallery.css — Dark "Terminal Luxury" template gallery
+   ============================================================ */
+
 .templates-container {
-  background: var(--canvas-bg);
+  background: #050507;
   min-height: 100vh;
   display: flex;
 }
 
+/* ── Sidebar ─────────────────────────────────────────────────── */
 .templates-sidebar {
-  width: 240px;
-  border-right: 1px solid var(--border-subtle);
-  background: var(--surface-low);
-  padding: 32px 16px;
+  width: 220px;
+  border-right: 1px solid #1e1e2e;
+  background: #0c0c10;
+  padding: 28px 12px;
   position: sticky;
   top: 0;
   height: 100vh;
+  flex-shrink: 0;
 }
 
 .category-title {
-  font-size: 11px;
+  font-family: 'Geist Mono', monospace;
+  font-size: 10px;
   font-weight: 700;
   text-transform: uppercase;
-  color: var(--text-muted);
+  color: #6b6b80;
   letter-spacing: 0.1em;
-  margin-bottom: 16px;
-  padding-left: 12px;
+  margin-bottom: 14px;
+  padding-left: 10px;
 }
 
 .category-item {
-  padding: 10px 12px;
-  border-radius: 8px;
-  color: var(--text-secondary);
-  font-size: 14px;
+  padding: 9px 10px;
+  border-radius: 5px;
+  color: #6b6b80;
+  font-size: 13px;
   font-weight: 500;
   cursor: pointer;
-  transition: all 0.2s;
-  margin-bottom: 4px;
+  transition: background 0.15s, color 0.15s;
+  margin-bottom: 2px;
+  font-family: 'Instrument Sans', 'Geist', sans-serif;
+  border: 1px solid transparent;
 }
 
 .category-item:hover {
-  background: var(--surface-base);
-  color: var(--text-primary);
+  background: #13131a;
+  color: #e8e8f0;
 }
 
 .category-item--active {
-  background: var(--surface-base);
-  color: var(--text-primary);
-  border: 1px solid var(--border-subtle);
+  background: #13131a;
+  color: #e8e8f0;
+  border-color: #1e1e2e;
 }
 
+/* ── Main ────────────────────────────────────────────────────── */
 .templates-main {
   flex: 1;
-  padding: 48px 40px;
+  padding: 40px 36px;
   max-width: 1200px;
   margin: 0 auto;
+  box-sizing: border-box;
 }
 
+/* ── Gallery grid ────────────────────────────────────────────── */
 .gallery-grid {
   display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
-  gap: 24px;
+  grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+  gap: 16px;
 }
 
-/* Template Card */
+/* ── Template card ───────────────────────────────────────────── */
 .template-card {
-  background: var(--surface-base);
-  border: 1px solid var(--border-subtle);
-  border-radius: 20px;
+  background: #0c0c10;
+  border: 1px solid #1e1e2e;
+  border-radius: 6px;
   overflow: hidden;
   cursor: pointer;
-  transition: all 0.3s;
+  transition: border-color 0.2s, transform 0.2s, box-shadow 0.2s;
 }
 
 .template-card:hover {
-  transform: translateY(-4px);
-  box-shadow: 0 12px 32px rgba(0,0,0,0.2);
-  border-color: var(--brand);
+  transform: translateY(-2px);
+  box-shadow: 0 8px 32px rgba(174, 122, 255, 0.1);
+  border-color: #ae7aff;
 }
 
 .template-thumb {
-  height: 140px;
-  background: var(--canvas-bg);
-  border-bottom: 1px solid var(--border-subtle);
+  height: 120px;
+  background: #050507;
+  border-bottom: 1px solid #1e1e2e;
   position: relative;
-  background-image: 
-    radial-gradient(var(--border-default) 1px, transparent 1px);
+  background-image: radial-gradient(#1e1e2e 1px, transparent 1px);
   background-size: 16px 16px;
   display: flex;
   align-items: center;
   justify-content: center;
 }
 
-.template-content {
-  padding: 20px;
-}
+.template-content { padding: 18px; }
 
 .template-name {
-  font-size: 16px;
-  font-weight: 600;
+  font-family: 'Syne', 'Geist', sans-serif;
+  font-size: 15px;
+  font-weight: 700;
   margin: 0 0 4px 0;
+  color: #e8e8f0;
 }
 
 .template-desc {
-  font-size: 13px;
-  color: var(--text-secondary);
-  line-height: 1.5;
-  margin-bottom: 16px;
+  font-size: 12px;
+  color: #6b6b80;
+  line-height: 1.55;
+  margin-bottom: 14px;
+  font-family: 'Instrument Sans', 'Geist', sans-serif;
 }
 
 .template-footer {
@@ -112,20 +124,22 @@
 }
 
 .template-badge {
+  font-family: 'Geist Mono', monospace;
   font-size: 10px;
   font-weight: 700;
-  padding: 2px 8px;
-  background: var(--surface-raised);
-  border-radius: 12px;
-  color: var(--text-muted);
+  padding: 3px 8px;
+  background: rgba(174, 122, 255, 0.1);
+  border-radius: 3px;
+  color: #ae7aff;
+  letter-spacing: 0.04em;
 }
 
-/* Preview Modal */
+/* ── Preview modal ───────────────────────────────────────────── */
 .preview-modal-overlay {
   position: fixed;
   top: 0; left: 0; right: 0; bottom: 0;
-  background: rgba(0,0,0,0.85);
-  backdrop-filter: blur(10px);
+  background: rgba(0, 0, 0, 0.88);
+  backdrop-filter: blur(12px);
   z-index: 10000;
   display: flex;
   align-items: center;
@@ -134,36 +148,38 @@
 }
 
 .preview-modal-content {
-  background: var(--surface-base);
+  background: #0c0c10;
   width: 100%;
   max-width: 1100px;
   height: 85vh;
-  border-radius: 24px;
-  border: 1px solid var(--border-subtle);
+  border-radius: 8px;
+  border: 1px solid #2e2e4e;
   display: flex;
   flex-direction: column;
   overflow: hidden;
-  box-shadow: 0 40px 80px rgba(0,0,0,0.5);
+  box-shadow: 0 40px 80px rgba(0, 0, 0, 0.7);
 }
 
 .preview-header {
-  padding: 16px 24px;
-  border-bottom: 1px solid var(--border-subtle);
+  padding: 14px 20px;
+  border-bottom: 1px solid #1e1e2e;
   display: flex;
   justify-content: space-between;
   align-items: center;
+  background: #13131a;
 }
 
 .preview-canvas-wrapper {
   flex: 1;
-  background: var(--canvas-bg);
+  background: #050507;
   position: relative;
 }
 
 .preview-footer {
-  padding: 20px 24px;
-  border-top: 1px solid var(--border-subtle);
+  padding: 16px 20px;
+  border-top: 1px solid #1e1e2e;
   display: flex;
   align-items: center;
-  gap: 16px;
+  gap: 14px;
+  background: #0c0c10;
 }

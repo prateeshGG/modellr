@@ -1,20 +1,25 @@
+/* ============================================================
+   AppLayout.css — Dark "Terminal Luxury" app shell
+   ============================================================ */
+
 .app-layout-container {
   display: flex;
-  background: var(--canvas-bg);
+  background: #050507;
   min-height: 100vh;
-  color: var(--text-primary);
-  font-family: var(--font-sans);
+  color: #e8e8f0;
+  font-family: 'Instrument Sans', 'Geist', sans-serif;
   width: 100vw;
   overflow: hidden;
 }
 
+/* ── Sidebar ─────────────────────────────────────────────────── */
 .app-sidebar {
-  width: 260px;
-  border-right: 1px solid var(--border-subtle);
+  width: 240px;
+  border-right: 1px solid #1e1e2e;
   display: flex;
   flex-direction: column;
-  padding: 24px 16px;
-  background: var(--surface-low);
+  padding: 20px 12px;
+  background: #0c0c10;
   height: 100vh;
   flex-shrink: 0;
 }
@@ -22,71 +27,77 @@
 .app-logo {
   display: flex;
   align-items: center;
-  gap: 10px;
+  gap: 9px;
+  font-family: 'Syne', 'Geist', sans-serif;
   font-weight: 800;
-  font-size: 1.1rem;
+  font-size: 17px;
   letter-spacing: -0.02em;
-  margin-bottom: 32px;
+  margin-bottom: 28px;
   padding: 0 8px;
   cursor: pointer;
+  color: #e8e8f0;
 }
 
 .app-logo-icon {
-  width: 28px;
-  height: 28px;
-  background: var(--brand);
-  border-radius: 8px;
+  width: 26px;
+  height: 26px;
+  background: #ae7aff;
+  border-radius: 5px;
   display: flex;
   align-items: center;
   justify-content: center;
   color: #fff;
-  font-size: 12px;
+  font-size: 11px;
+  font-weight: 700;
+  flex-shrink: 0;
 }
 
 .sidebar-nav {
   display: flex;
   flex-direction: column;
-  gap: 4px;
+  gap: 2px;
   flex: 1;
 }
 
 .sidebar-link {
   display: flex;
   align-items: center;
-  gap: 12px;
-  padding: 10px 12px;
-  border-radius: 8px;
-  color: var(--text-secondary);
-  font-size: 14px;
+  gap: 10px;
+  padding: 9px 12px;
+  border-radius: 5px;
+  color: #6b6b80;
+  font-size: 13px;
   font-weight: 500;
   cursor: pointer;
-  transition: all 0.2s;
+  transition: background 0.15s, color 0.15s;
   border: 1px solid transparent;
+  font-family: 'Instrument Sans', 'Geist', sans-serif;
 }
 
 .sidebar-link:hover {
-  background: var(--surface-base);
-  color: var(--text-primary);
+  background: #13131a;
+  color: #e8e8f0;
 }
 
 .sidebar-link--active {
-  background: var(--surface-base);
-  color: var(--text-primary);
-  border-color: var(--border-subtle);
-  box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+  background: #13131a;
+  color: #e8e8f0;
+  border-color: #1e1e2e;
 }
 
 .sidebar-footer {
-  padding-top: 16px;
-  border-top: 1px solid var(--border-subtle);
+  padding-top: 12px;
+  border-top: 1px solid #1e1e2e;
   display: flex;
   flex-direction: column;
-  gap: 4px;
+  gap: 2px;
 }
 
+/* ── Content area ────────────────────────────────────────────── */
 .app-layout-content {
   flex: 1;
   height: 100vh;
   overflow-y: auto;
   position: relative;
+  background: #050507;
 }

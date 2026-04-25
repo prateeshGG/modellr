@@ -1,5 +1,8 @@
 import express from 'express';
 import mysql from 'mysql2/promise';
+import { requireAuth } from '../middleware/auth.js';
+import { validateConnectionString } from '../utils/security.js';
+import { supabaseService } from '../lib/supabase.js';
 
 const router = express.Router();
 
@@ -13,15 +16,31 @@ function getDialectType(myType) {
   return myType;
 }
 
-router.post('/', async (req, res) => {
+// Fix #P0: Applied requireAuth and SSRF validation
+router.post('/', requireAuth, async (req, res) => {
   const { connectionString } = req.body;
-  if (!connectionString) {
-    return res.status(400).json({ error: 'connectionString is required' });
+  
+  try {
+    // Check Tier
+    const { data: user } = await supabaseService.from('users').select('tier').eq('id', req.user.id).single();
+    if (!user || user.tier !== 'pro') {
+      return res.status(403).json({ error: 'Live Introspection is a Pro feature. Please upgrade your plan.' });
+    }
+
+    await validateConnectionString(connectionString, 'mysql');
+  } catch (err) {
+    return res.status(400).json({ error: err.message });
   }
 
   let connection;
   try {
-    connection = await mysql.createConnection(connectionString);
+    // MySQL2 doesn't have a built-in connect timeout in the same way, but we can wrap it
+    const connectPromise = mysql.createConnection(connectionString);
+    const timeoutPromise = new Promise((_, reject) => 
+      setTimeout(() => reject(new Error('Connection timeout')), 10000)
+    );
+
+    connection = await Promise.race([connectPromise, timeoutPromise]);
 
     // Get current database name
     const [dbResult] = await connection.query('SELECT DATABASE() AS dbName');

@@ -20,7 +20,7 @@ export const AppSidebar = () => {
   return (
     <aside className="app-sidebar">
       <div className="app-logo" onClick={() => navigate('/')}>
-        <div className="app-logo-icon">SF</div>
+        <div className="app-logo-icon">M</div>
         Modellr
       </div>
 

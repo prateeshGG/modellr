@@ -1,7 +1,7 @@
 import express from 'express';
 import bcrypt from 'bcryptjs';
 import crypto from 'crypto';
-import { createClient } from '@supabase/supabase-js';
+import { supabase, createRequestClient } from '../lib/supabase.js';
 
 const router = express.Router();
 
@@ -9,18 +9,8 @@ const router = express.Router();
 function getSupabaseClient(req) {
   const authHeader = req.headers.authorization;
   if (!authHeader) throw new Error('Missing Authorization header');
-
-  return createClient(
-    process.env.VITE_SUPABASE_URL,
-    process.env.VITE_SUPABASE_ANON_KEY,
-    {
-      global: {
-        headers: {
-          Authorization: authHeader
-        }
-      }
-    }
-  );
+  const token = authHeader.split(' ')[1];
+  return createRequestClient(token);
 }
 
 router.get('/', async (req, res) => {

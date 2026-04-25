@@ -3,145 +3,136 @@ import { useNavigate } from 'react-router-dom';
 import { PublicNav } from '../../components/layout/PublicNav';
 import { Footer } from '../../components/layout/Footer';
 import { Users, Shield, Key, Lock, ArrowRight, LayoutTemplate } from 'lucide-react';
+import '../../styles/public-dark.css';
 
 export function AuthSchema() {
   const navigate = useNavigate();
 
   useEffect(() => {
-    document.title = "Authentication Database Schema Example (Free Template)";
-    let metaKeywords = document.querySelector('meta[name="keywords"]');
-    if (!metaKeywords) {
-      metaKeywords = document.createElement('meta');
-      metaKeywords.setAttribute('name', 'keywords');
-      document.head.appendChild(metaKeywords);
-    }
-    metaKeywords.setAttribute('content', 'auth database schema');
+    document.title = 'Authentication Database Schema Example (Free Template)';
+    let meta = document.querySelector('meta[name="keywords"]');
+    if (!meta) { meta = document.createElement('meta'); meta.setAttribute('name', 'keywords'); document.head.appendChild(meta); }
+    meta.setAttribute('content', 'auth database schema');
   }, []);
 
   return (
-    <div style={{ background: 'var(--canvas-bg)', color: 'var(--text-primary)', minHeight: '100vh', display: 'flex', flexDirection: 'column', fontFamily: 'var(--sans)' }}>
-      <PublicNav />
-      
-      {/* 1. Hero */}
-      <section style={{ textAlign: 'center', padding: '100px 20px 64px' }}>
-        <div style={{ display: 'inline-flex', alignItems: 'center', gap: '8px', padding: '6px 16px', background: 'var(--surface-base)', border: '1px solid var(--border-subtle)', borderRadius: '24px', color: 'var(--brand)', fontSize: '13px', fontWeight: 600, marginBottom: '24px' }}>
-          <LayoutTemplate size={14} /> Official Schema Template
+    <div className="pd-root">
+      <PublicNav dark />
+
+      {/* ── Hero ── */}
+      <div className="pd-hero" style={{ paddingTop: '140px' }}>
+        <div className="pd-hero-dot-grid" aria-hidden />
+        <div className="pd-hero-glow" aria-hidden />
+        <div style={{ position: 'relative', zIndex: 1 }}>
+          <div className="pd-hero-badge"><LayoutTemplate size={13} /> Official Schema Template</div>
+          <h1 className="pd-h1">Authentication Database Schema</h1>
+          <p className="pd-lead">A flexible auth schema supporting sessions, roles, and permissions.</p>
+          <div className="pd-hero-actions">
+            <button className="pd-btn-primary" onClick={() => navigate('/login')}>Use this schema →</button>
+          </div>
         </div>
-        <h1 style={{ fontSize: 'min(3.5rem, 8vw)', fontWeight: 900, letterSpacing: '-0.03em', margin: '0 0 24px 0' }}>Authentication Database Schema <br/><span style={{ color: 'var(--brand)', fontSize: 'min(2.5rem, 6vw)' }}>(Users, Sessions, Roles)</span></h1>
-        <p style={{ fontSize: '1.2rem', color: 'var(--text-secondary)', margin: '0 auto 40px auto', maxWidth: '750px', lineHeight: 1.6 }}>
-          A flexible auth schema supporting sessions, roles, and permissions.
-        </p>
-        <button onClick={() => navigate('/login')} style={{ background: 'var(--brand)', color: '#fff', padding: '16px 32px', borderRadius: '12px', fontSize: '1.1rem', fontWeight: 700, border: 'none', cursor: 'pointer', boxShadow: '0 4px 14px 0 rgba(var(--brand-rgb), 0.4)' }}>
-          Use this schema
-        </button>
+      </div>
+
+      {/* ── Problem ── */}
+      <section className="pd-section--alt">
+        <div className="pd-inner--narrow">
+          <div className="pd-label">// The challenge</div>
+          <h2 className="pd-h2">Auth is easy — until it isn't</h2>
+          <p className="pd-body-text" style={{ marginBottom: '24px' }}>Basic login is simple. But real-world systems need:</p>
+          <div className="pd-grid-2">
+            {['sessions', 'roles and permissions', 'OAuth support', 'secure token handling'].map(item => (
+              <div key={item} style={{ display: 'flex', alignItems: 'center', gap: '10px', fontSize: '14px', color: 'var(--pd-text)' }}>
+                <ArrowRight size={14} style={{ color: 'var(--pd-brand)', flexShrink: 0 }} /> {item}
+              </div>
+            ))}
+          </div>
+        </div>
       </section>
 
-      {/* 2. Problem Section */}
-      <section style={{ maxWidth: '800px', margin: '0 auto 80px', padding: '40px 20px' }}>
-        <h2 style={{ fontSize: '32px', fontWeight: 800, letterSpacing: '-0.02em', marginBottom: '32px' }}>Auth is easy — until it isn't</h2>
-        <div style={{ fontSize: '18px', color: 'var(--text-secondary)', lineHeight: 1.7 }}>
-          <p style={{ marginBottom: '24px' }}>Basic login is simple. But real-world systems need:</p>
-          <ul style={{ listStyle: 'none', padding: 0, margin: '0 0 32px 0', display: 'grid', gridTemplateColumns: 'repeat(2, 1fr)', gap: '16px' }}>
-            <li style={{ display: 'flex', alignItems: 'center', gap: '12px' }}><div style={{ color: 'var(--brand)' }}><ArrowRight size={20} /></div> sessions</li>
-            <li style={{ display: 'flex', alignItems: 'center', gap: '12px' }}><div style={{ color: 'var(--brand)' }}><ArrowRight size={20} /></div> roles and permissions</li>
-            <li style={{ display: 'flex', alignItems: 'center', gap: '12px' }}><div style={{ color: 'var(--brand)' }}><ArrowRight size={20} /></div> OAuth support</li>
-            <li style={{ display: 'flex', alignItems: 'center', gap: '12px' }}><div style={{ color: 'var(--brand)' }}><ArrowRight size={20} /></div> secure token handling</li>
-          </ul>
+      {/* ── Visual schema ── */}
+      <section className="pd-section">
+        <div className="pd-inner">
+          <div className="pd-label">// Schema preview</div>
+          <h2 className="pd-h2">How this schema is structured</h2>
+          <div style={{ display: 'flex', gap: '16px', alignItems: 'center', flexWrap: 'wrap', justifyContent: 'center', marginBottom: '40px' }}>
+            {[
+              { icon: <Users size={14} />, name: 'Users', fields: ['id (PK)', 'email', 'password_hash'] },
+              null,
+              { icon: <Shield size={14} />, name: 'Roles', fields: ['id (PK)', 'name', 'description'] },
+              null,
+              { icon: <Key size={14} />, name: 'Sessions', fields: ['id (PK)', 'user_id (FK)', 'expires_at'] },
+            ].map((item, i) =>
+              item === null
+                ? <div key={i} className="pd-connector" />
+                : (
+                  <div key={item.name} className="pd-schema-table">
+                    <div className="pd-schema-table__header">
+                      <span style={{ color: 'var(--pd-brand)' }}>{item.icon}</span> {item.name}
+                    </div>
+                    {item.fields.map(f => <div key={f} className="pd-schema-table__row">{f}</div>)}
+                  </div>
+                )
+            )}
+          </div>
+          <p style={{ textAlign: 'center', fontFamily: 'var(--pd-mono)', fontSize: '12px', color: 'var(--pd-muted)' }}>
+            Users → Roles → Sessions — the auth core.
+          </p>
         </div>
       </section>
 
-      {/* 3. Visual Example */}
-      <section style={{ maxWidth: '1000px', margin: '0 auto 100px', padding: '0 20px' }}>
-        <div style={{ background: 'var(--surface-base)', border: '1px solid var(--border-subtle)', borderRadius: '16px', padding: '64px', display: 'flex', justifyContent: 'center', alignItems: 'center', position: 'relative', overflow: 'hidden' }}>
-          {/* Abstract Database Graphic */}
-          <div style={{ display: 'flex', gap: '48px', alignItems: 'center', position: 'relative', zIndex: 1 }}>
-            <div style={{ background: 'var(--surface-raised)', border: '1px solid var(--border-hi)', padding: '24px', borderRadius: '12px', width: '200px', boxShadow: '0 8px 24px rgba(0,0,0,0.1)' }}>
-              <div style={{ display: 'flex', alignItems: 'center', gap: '8px', borderBottom: '1px solid var(--border-subtle)', paddingBottom: '12px', marginBottom: '12px', fontWeight: 700 }}>
-                <Users size={16} color="var(--brand)" /> Users
-              </div>
-              <div style={{ fontSize: '13px', color: 'var(--text-secondary)', display: 'flex', flexDirection: 'column', gap: '8px' }}>
-                <div>id (PK)</div>
-                <div>email</div>
-                <div>password_hash</div>
-              </div>
-            </div>
-            <div style={{ width: '40px', height: '2px', background: 'var(--brand)' }} />
-            <div style={{ background: 'var(--surface-raised)', border: '1px solid var(--border-hi)', padding: '24px', borderRadius: '12px', width: '200px', boxShadow: '0 8px 24px rgba(0,0,0,0.1)' }}>
-              <div style={{ display: 'flex', alignItems: 'center', gap: '8px', borderBottom: '1px solid var(--border-subtle)', paddingBottom: '12px', marginBottom: '12px', fontWeight: 700 }}>
-                <Shield size={16} color="var(--brand)" /> Roles
-              </div>
-              <div style={{ fontSize: '13px', color: 'var(--text-secondary)', display: 'flex', flexDirection: 'column', gap: '8px' }}>
-                <div>id (PK)</div>
-                <div>name</div>
-                <div>description</div>
+      {/* ── Explanation ── */}
+      <section className="pd-section--alt">
+        <div className="pd-inner">
+          <div className="pd-grid-2">
+            <div>
+              <div className="pd-label">// Core tables</div>
+              <div style={{ display: 'flex', flexDirection: 'column', gap: '20px' }}>
+                {[
+                  { icon: <Users size={18} />, name: 'Users', desc: 'Account details.' },
+                  { icon: <Key size={18} />, name: 'Sessions', desc: 'Active logins.' },
+                  { icon: <Shield size={18} />, name: 'Roles', desc: 'Access levels.' },
+                  { icon: <Lock size={18} />, name: 'Permissions', desc: 'Fine-grained control.' },
+                ].map(t => (
+                  <div key={t.name} style={{ display: 'flex', gap: '12px', alignItems: 'flex-start' }}>
+                    <span style={{ color: 'var(--pd-brand)', flexShrink: 0, marginTop: '2px' }}>{t.icon}</span>
+                    <div>
+                      <div style={{ fontFamily: 'var(--pd-display)', fontWeight: 700, color: 'var(--pd-text)', marginBottom: '4px' }}>{t.name}</div>
+                      <div className="pd-body-text" style={{ fontSize: '13px' }}>{t.desc}</div>
+                    </div>
+                  </div>
+                ))}
               </div>
             </div>
-            <div style={{ width: '40px', height: '2px', background: 'var(--brand)' }} />
-            <div style={{ background: 'var(--surface-raised)', border: '1px solid var(--border-hi)', padding: '24px', borderRadius: '12px', width: '200px', boxShadow: '0 8px 24px rgba(0,0,0,0.1)' }}>
-              <div style={{ display: 'flex', alignItems: 'center', gap: '8px', borderBottom: '1px solid var(--border-subtle)', paddingBottom: '12px', marginBottom: '12px', fontWeight: 700 }}>
-                <Key size={16} color="var(--brand)" /> Sessions
+            <div>
+              <div className="pd-label">// Relationships</div>
+              <div className="pd-card">
+                <ul style={{ listStyle: 'none', padding: 0, margin: 0, display: 'flex', flexDirection: 'column', gap: '14px' }}>
+                  {['Users can have multiple roles (via UserRoles binding)', 'Roles map to permissions', 'Sessions belong to users'].map(r => (
+                    <li key={r} style={{ display: 'flex', gap: '10px', fontSize: '14px', color: 'var(--pd-muted)' }}>
+                      <span style={{ color: 'var(--pd-brand)' }}>✓</span> {r}
+                    </li>
+                  ))}
+                </ul>
               </div>
-              <div style={{ fontSize: '13px', color: 'var(--text-secondary)', display: 'flex', flexDirection: 'column', gap: '8px' }}>
-                <div>id (PK)</div>
-                <div>user_id (FK)</div>
-                <div>expires_at</div>
+              <div style={{ marginTop: '24px' }}>
+                <h3 className="pd-h3">Build secure authentication from the start</h3>
+                <p className="pd-body-text">Weak auth design leads to security vulnerabilities, broken permissions, and scaling issues.</p>
               </div>
             </div>
           </div>
         </div>
-        <div style={{ textAlign: 'center', marginTop: '16px', fontSize: '14px', color: 'var(--text-muted)' }}>
-          Auth schema with users, sessions, and role-based access control.
-        </div>
       </section>
 
-      {/* 4. Explanation Section */}
-      <section style={{ maxWidth: '1200px', margin: '0 auto 100px', padding: '0 20px', display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '64px' }}>
-        <div>
-          <h2 style={{ fontSize: '32px', fontWeight: 800, letterSpacing: '-0.02em', marginBottom: '40px' }}>How this schema is structured</h2>
-          
-          <h3 style={{ fontSize: '14px', textTransform: 'uppercase', letterSpacing: '0.05em', color: 'var(--text-muted)', marginBottom: '24px', fontWeight: 700 }}>Core Tables</h3>
-          
-          <div style={{ display: 'flex', flexDirection: 'column', gap: '32px' }}>
-            <div>
-              <div style={{ fontSize: '20px', fontWeight: 700, marginBottom: '8px', display: 'flex', alignItems: 'center', gap: '12px' }}><Users size={20} color="var(--brand)"/> Users</div>
-              <div style={{ color: 'var(--text-secondary)' }}>Account details.</div>
-            </div>
-            <div>
-              <div style={{ fontSize: '20px', fontWeight: 700, marginBottom: '8px', display: 'flex', alignItems: 'center', gap: '12px' }}><Key size={20} color="var(--brand)"/> Sessions</div>
-              <div style={{ color: 'var(--text-secondary)' }}>Active logins.</div>
-            </div>
-            <div>
-              <div style={{ fontSize: '20px', fontWeight: 700, marginBottom: '8px', display: 'flex', alignItems: 'center', gap: '12px' }}><Shield size={20} color="var(--brand)"/> Roles</div>
-              <div style={{ color: 'var(--text-secondary)' }}>Access levels.</div>
-            </div>
-            <div>
-              <div style={{ fontSize: '20px', fontWeight: 700, marginBottom: '8px', display: 'flex', alignItems: 'center', gap: '12px' }}><Lock size={20} color="var(--brand)"/> Permissions</div>
-              <div style={{ color: 'var(--text-secondary)' }}>Fine-grained control.</div>
-            </div>
-          </div>
+      {/* ── CTA ── */}
+      <div className="pd-cta pd-section">
+        <div className="pd-cta-glow-l" aria-hidden />
+        <div className="pd-cta-glow-r" aria-hidden />
+        <div className="pd-cta-inner">
+          <h2 className="pd-cta-h2">Build secure authentication from the start.</h2>
+          <p className="pd-cta-sub">Generate, modify, and export to Prisma or Drizzle instantly.</p>
+          <button className="pd-btn-primary" onClick={() => navigate('/login')}>Open in editor →</button>
         </div>
-        
-        <div>
-          <div style={{ background: 'var(--surface-base)', borderRadius: '16px', padding: '40px', border: '1px solid var(--border-subtle)' }}>
-            <h3 style={{ fontSize: '14px', textTransform: 'uppercase', letterSpacing: '0.05em', color: 'var(--text-muted)', marginBottom: '24px', fontWeight: 700 }}>Relationships</h3>
-            <ul style={{ listStyle: 'none', padding: 0, margin: 0, display: 'flex', flexDirection: 'column', gap: '20px', fontSize: '16px', color: 'var(--text-secondary)' }}>
-              <li style={{ display: 'flex', gap: '12px' }}><span style={{ color: 'var(--brand)' }}>✓</span> Users can have multiple roles (via UserRoles binding)</li>
-              <li style={{ display: 'flex', gap: '12px' }}><span style={{ color: 'var(--brand)' }}>✓</span> Roles map to permissions</li>
-              <li style={{ display: 'flex', gap: '12px' }}><span style={{ color: 'var(--brand)' }}>✓</span> Sessions belong to users</li>
-            </ul>
-          </div>
-          
-          <h2 style={{ fontSize: '32px', fontWeight: 800, letterSpacing: '-0.02em', margin: '48px 0 24px' }}>Build secure authentication from the start</h2>
-          <p style={{ color: 'var(--text-secondary)', marginBottom: '16px', fontSize: '16px' }}>Weak auth design leads to security vulnerabilities, broken permissions, and scaling issues.</p>
-        </div>
-      </section>
-
-      {/* 5. Bottom CTA */}
-      <section style={{ textAlign: 'center', padding: '100px 20px', background: 'var(--surface-base)', borderTop: '1px solid var(--border-subtle)', marginTop: 'auto' }}>
-        <h2 style={{ fontSize: '40px', fontWeight: 800, letterSpacing: '-0.03em', margin: '0 0 16px 0' }}>Build secure authentication <span style={{ color: 'var(--brand)' }}>from the start.</span></h2>
-        <p style={{ color: 'var(--text-secondary)', fontSize: '18px', marginBottom: '40px' }}>Generate, modify, and export to Prisma or Drizzle instantly.</p>
-        <button onClick={() => navigate('/login')} style={{ background: 'var(--text-primary)', color: 'var(--canvas-bg)', padding: '16px 32px', borderRadius: '12px', fontSize: '1.2rem', fontWeight: 600, border: 'none', cursor: 'pointer' }}>Open in editor</button>
-      </section>
+      </div>
 
       <Footer />
     </div>

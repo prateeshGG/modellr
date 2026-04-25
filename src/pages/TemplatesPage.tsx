@@ -85,9 +85,9 @@ export const TemplatesPage: React.FC = () => {
       </div>
 
       <main className="templates-main">
-        <header style={{ marginBottom: '40px' }}>
-          <h1 style={{ fontSize: '32px', fontWeight: 800, margin: '0 0 8px 0', letterSpacing: '-0.03em' }}>Template Gallery</h1>
-          <p style={{ color: 'var(--text-secondary)', fontSize: '16px', margin: 0 }}>Start with a battle-tested database architecture.</p>
+        <header style={{ marginBottom: '36px' }}>
+          <h1 style={{ fontFamily: "'Syne','Geist',sans-serif", fontSize: '28px', fontWeight: 800, margin: '0 0 6px 0', letterSpacing: '-0.03em', color: '#e8e8f0' }}>Template Gallery</h1>
+          <p style={{ color: '#6b6b80', fontSize: '14px', margin: 0, fontFamily: "'Instrument Sans','Geist',sans-serif" }}>Start with a battle-tested database architecture.</p>
         </header>
 
         <div className="gallery-grid">

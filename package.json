@@ -30,6 +30,7 @@
     "elkjs": "^0.11.1",
     "express": "^5.2.1",
     "html-to-image": "^1.11.13",
+    "jsdom": "^29.0.2",
     "lucide-react": "^1.7.0",
     "lz-string": "^1.5.0",
     "mysql2": "^3.20.0",

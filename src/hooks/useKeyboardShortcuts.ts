@@ -99,7 +99,7 @@ export function useKeyboardShortcuts() {
             e.preventDefault();
             window.dispatchEvent(new CustomEvent('sf:auto-layout'));
             break;
-          case '0':
+          case 'f':
             e.preventDefault();
             window.dispatchEvent(new CustomEvent('sf:fit-view'));
             break;

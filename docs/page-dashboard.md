@@ -104,7 +104,7 @@ useEffect(() => {
 
 **Query:** `SELECT * FROM schemas ORDER BY updated_at DESC` — fetches the user's own schemas. Supabase RLS (`owner_id = auth.uid()`) filters to the current user's rows automatically — no `WHERE owner_id = ...` clause needed.
 
-**No loading state** — there is no `isLoading` flag. The schema list starts as `[]` and silently populates when the query returns. The UI shows "0 projects found" briefly on first load before schemas appear.
+**Loading state:** `isLoading` starts as true and sets to false once the query returns. The UI displays skeleton loading states before the data appears.
 
 **Error handling:** The destructured `error` from the Supabase response is ignored — `if (data) setSchemas(data)`. Network failures or RLS-denied queries silently no-op.
 
@@ -252,7 +252,6 @@ const handleDelete = (e: React.MouseEvent, id: string) => {
 
 **Optimistic local update on confirm:** Schema removed from local `schemas` state immediately after the await — no error handling if the Supabase delete fails.
 
-> **Stale closure risk:** `onConfirm` closes over `schemas` at the time `handleDelete` was called. If the user opens the dialog and then another schema is loaded/added before confirming, the `schemas.filter` may operate on stale state. Use `setSchemas(prev => prev.filter(s => s.id !== id))` (functional update) to avoid this.
 
 ---
 
@@ -371,10 +370,7 @@ Both recomputed on every render — no `useMemo`. Fast for up to 3 schemas (free
 
 | | Detail |
 |---|---|
-| **No loading state** | `schemas` starts as `[]` — "0 projects found" briefly shown on every load; no spinner or skeleton |
 | **Free tier check is client-only** | `schemas.length >= FREE_TIER_LIMIT` enforced in JS — a direct Supabase API call bypasses it |
-| **`handleClaimSandbox` bypasses free tier** | Sandbox claim does not check the limit — users at capacity can claim sandbox, creating a 4th schema |
-| **Stale closure in `handleDelete.onConfirm`** | `schemas.filter` captures the value of `schemas` at the time of the click, not at confirm time. Use functional update: `setSchemas(prev => prev.filter(...))` |
 | **`URL.revokeObjectURL` race** | Called immediately after `link.click()` — technically a race on older browsers |
 | **No error handling on Supabase calls** | All handlers destructure only `data` — `error` is ignored throughout. Failed inserts/deletes silently no-op |
 | **Template quick-pick hardcoded to 4 IDs** | `['ecommerce', 'saas', 'blog', 'auth']` — must match keys in `TEMPLATES` registry exactly |

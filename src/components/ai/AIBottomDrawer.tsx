@@ -1,6 +1,9 @@
-import React, { useState, useRef, useEffect } from 'react';
+import { useState, useRef, useEffect } from 'react';
 import { useSchemaStore } from '../../store/schema';
+import { useAuthStore } from '../../store/authStore';
 import { Bot, ChevronDown, Send, CheckCircle2, XCircle } from 'lucide-react';
+import { getBackendBase } from '../../lib/api-utils';
+import { getAuthHeader } from '../../lib/auth-utils';
 import './AIBottomDrawer.css';
 
 interface Message {
@@ -13,11 +16,13 @@ interface Message {
 
 export const AIBottomDrawer: React.FC<{ isOpen: boolean; onClose: () => void }> = ({ isOpen, onClose }) => {
   const { tables, relationships, applyAIOperations } = useSchemaStore();
+  const profile = useAuthStore((s) => s.profile);
   const [messages, setMessages] = useState<Message[]>([
     { id: 'initial', role: 'assistant', content: 'What would you like to build today? You can ask me to "Add an auth system" or "Normalize my users table".' }
   ]);
   const [input, setInput] = useState('');
   const [loading, setLoading] = useState(false);
+  const [quota, setQuota] = useState<number | null>(null);
   const messagesEndRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
@@ -46,15 +51,15 @@ export const AIBottomDrawer: React.FC<{ isOpen: boolean; onClose: () => void }> 
     setMessages(prev => [...prev, userMsg]);
     setLoading(true);
 
-    // In production, VITE_API_URL points to the EC2 backend.
-    // In dev, fall back to the Vite proxy path.
-    const apiBase = (import.meta as any).env?.VITE_API_URL ?? '';
-    const endpoint = `${apiBase}/api/openai/modify`;
+    const endpoint = `${getBackendBase()}/api/openai/modify`;
 
     try {
       const resp = await fetch(endpoint, {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
+        headers: { 
+          'Content-Type': 'application/json',
+          ...getAuthHeader()
+        },
         body: JSON.stringify({
           prompt: userPrompt,
           currentSchema: { tables, relationships }
@@ -73,6 +78,7 @@ export const AIBottomDrawer: React.FC<{ isOpen: boolean; onClose: () => void }> 
         applied: false
       };
 
+      if (data.remaining !== undefined) setQuota(data.remaining);
       setMessages(prev => [...prev, assistantMsg]);
     } catch (err: any) {
       setMessages(prev => [...prev, { id: Date.now().toString(), role: 'assistant', content: `Error: ${err.message}` }]);
@@ -93,6 +99,16 @@ export const AIBottomDrawer: React.FC<{ isOpen: boolean; onClose: () => void }> 
       <div className="ai-drawer__header">
         <div style={{ display: 'flex', alignItems: 'center', gap: '8px', fontWeight: 600 }}>
           <Bot size={18} color="#A09AEB" /> Modellr AI
+          {quota !== null && (
+            <span className="ai-quota-badge">
+              {quota} requests left today
+            </span>
+          )}
+          {profile?.tier === 'free' && quota === 0 && (
+            <span className="ai-quota-badge ai-quota-badge--limit">
+              Daily Limit Reached
+            </span>
+          )}
         </div>
         <button className="ai-drawer__close" onClick={onClose}>
           <ChevronDown size={20} />
