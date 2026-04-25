@@ -11,6 +11,7 @@ import { exportPrisma } from '../../utils/exporters/prisma';
 import { exportDrizzle } from '../../utils/exporters/drizzle';
 import { useAuthStore } from '../../store/authStore';
 import { FeatureGate } from '../shared/FeatureGate';
+import { ShareModal } from '../share/ShareModal';
 import {
   Search,
   Sparkles,
