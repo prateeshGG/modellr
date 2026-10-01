@@ -2,6 +2,8 @@ import { useRef, useState } from 'react';
 import { useUIStore } from '../store/ui';
 import { openAISettings, useAIConfigured, clearAIConfig } from '../lib/aiConfig';
 import { exportAllProjectsJson, importProjectsJson, listProjects, deleteProject, storageMode } from '../lib/projectStore';
+import { DONATE_URL, REPO_URL } from '../config';
+import { SupportLink } from '../components/shared/SupportLink';
 import './Dashboard.css';
 
 const section: React.CSSProperties = {
@@ -108,8 +110,15 @@ export function Settings() {
         <h2 style={{ marginTop: 0 }}>About</h2>
         <p style={{ color: 'var(--text-muted)', fontSize: 14, lineHeight: 1.6, margin: 0 }}>
           Modellr is free, open-source software (MIT license). Source code, issues and contributions:{' '}
-          <a href="https://github.com/prateesh7777/schemaforge" target="_blank" rel="noopener noreferrer">github.com/prateesh7777/schemaforge</a>.
+          <a href={REPO_URL} target="_blank" rel="noopener noreferrer">{REPO_URL.replace('https://', '')}</a>.
         </p>
+        {DONATE_URL && (
+          <p style={{ color: 'var(--text-muted)', fontSize: 14, lineHeight: 1.6, marginBottom: 0 }}>
+            Modellr is free and has no ads or paid plan. If it saved you time, you can{' '}
+            <SupportLink style={{ color: 'var(--brand)' }}>buy the author a coffee</SupportLink>. Entirely optional;
+            it does not unlock anything.
+          </p>
+        )}
       </section>
     </main>
   );

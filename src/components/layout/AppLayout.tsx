@@ -1,4 +1,5 @@
 import { Outlet, useLocation, useNavigate } from 'react-router-dom';
+import { SupportLink } from '../shared/SupportLink';
 import './AppLayout.css';
 
 export const AppSidebar = () => {
@@ -47,6 +48,7 @@ export const AppSidebar = () => {
         >
           Settings
         </div>
+        <SupportLink className="sidebar-link" />
       </div>
     </aside>
   );

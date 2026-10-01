@@ -1,5 +1,6 @@
 import { PublicNav } from '../components/layout/PublicNav';
 import { Footer } from '../components/layout/Footer';
+import { DONATE_URL } from '../config';
 import '../styles/public-dark.css';
 
 export function Terms() {
@@ -35,8 +36,15 @@ export function Terms() {
           <p>The optional AI assistant uses a provider and key that you supply. Its output can be wrong or incomplete, and your use of that provider is subject to that provider's terms.</p>
         </section>
 
+        {DONATE_URL && (
+          <section>
+            <h2>6. Voluntary donations</h2>
+            <p>If you donate through the support link, the donation is voluntary and processed by a third party. It does not buy features, support, or any commitment to maintain or fix the software.</p>
+          </section>
+        )}
+
         <section>
-          <h2>6. Changes</h2>
+          <h2>{DONATE_URL ? 7 : 6}. Changes</h2>
           <p>These terms may be updated as the project evolves. This page is a plain-language summary and is not legal advice.</p>
         </section>
       </div>

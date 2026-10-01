@@ -1,5 +1,6 @@
 import { PublicNav } from '../components/layout/PublicNav';
 import { Footer } from '../components/layout/Footer';
+import { DONATE_URL } from '../config';
 import '../styles/public-dark.css';
 
 export function Privacy() {
@@ -36,8 +37,15 @@ export function Privacy() {
           <p>The site is delivered by a static web host, which may keep ordinary server or access logs (such as IP address and requested URL) as part of operating the service. The pages also load fonts from Google Fonts, so your browser contacts Google when a page loads. If you self-host Modellr, that is under your control.</p>
         </section>
 
+        {DONATE_URL && (
+          <section>
+            <h2>6. Optional support link</h2>
+            <p>The site links to a Buy Me a Coffee page where you can choose to make a voluntary donation. That link opens in a new tab on a third-party site. If you use it, your payment and personal details are handled by Buy Me a Coffee under its own terms and privacy policy; this app never sees them. Nothing in Modellr requires or depends on a donation.</p>
+          </section>
+        )}
+
         <section>
-          <h2>6. Contact</h2>
+          <h2>{DONATE_URL ? 7 : 6}. Contact</h2>
           <p>Questions about this policy can be raised as an issue at <a href="https://github.com/prateesh7777/schemaforge/issues" target="_blank" rel="noopener noreferrer" style={{ color: 'var(--pd-brand)' }}>github.com/prateesh7777/schemaforge/issues</a>.</p>
         </section>
       </div>

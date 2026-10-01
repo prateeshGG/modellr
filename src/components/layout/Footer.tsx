@@ -1,5 +1,6 @@
 import React from 'react';
 import { useNavigate } from 'react-router-dom';
+import { SupportLink } from '../shared/SupportLink';
 
 export const Footer: React.FC = () => {
   const navigate = useNavigate();
@@ -131,6 +132,7 @@ export const Footer: React.FC = () => {
       }}>
         <span>Modellr is free and open-source software, released under the MIT license.</span>
         <span style={{ color: '#2e2e4e' }}>Your schemas stay in your browser.</span>
+        <SupportLink style={{ color: '#ae7aff' }} />
       </div>
     </footer>
   );
