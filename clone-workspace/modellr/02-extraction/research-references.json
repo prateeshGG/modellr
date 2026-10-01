@@ -1,0 +1,9 @@
+{
+  "live_inspected": [
+    { "name": "drawDB", "repo": "https://github.com/drawdb-io/drawdb", "method": "run locally on :5201, Playwright getComputedStyle", "fragments": ["drawdb-landing-desktop", "drawdb-landing-mobile", "drawdb-editor-desktop"] },
+    { "name": "ChartDB", "repo": "https://github.com/chartdb/chartdb", "method": "run locally on :5202, Playwright getComputedStyle", "fragments": ["chartdb-app-desktop", "chartdb-app-mobile"] }
+  ],
+  "secondary_design_md": { "source": "https://github.com/VoltAgent/awesome-design-md", "products": ["linear.app", "vercel", "stripe", "supabase", "raycast", "cal", "notion", "mintlify"], "note": "third-party extractions; patterns only, not precise values" },
+  "blocked_by_egress_policy": ["linear.app", "vercel.com", "stripe.com", "supabase.com", "raycast.com", "dbdiagram.io", "drawsql.app", "cal.com", "figma.com", "resend.com", "posthog.com", "excalidraw.com", "planetscale.com", "eraser.io", "atlasgo.io"],
+  "search_context": ["dbdiagram.io pricing/limits", "DrawSQL pricing", "ChartDB cloud pricing/AI agent", "drawDB MCP", "Supabase schema visualizer limits"]
+}

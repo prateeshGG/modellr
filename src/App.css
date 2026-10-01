@@ -1,4 +1,6 @@
 .app-shell {
+  container-type: inline-size;
+  container-name: editor;
   display: flex;
   flex-direction: column;
   height: 100%;

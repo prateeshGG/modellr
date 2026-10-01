@@ -55,6 +55,8 @@
 }
 
 .topbar__project-name {
+  min-width: 72px;
+  max-width: 220px;
   font-size: 13px;
   font-weight: 600;
   color: var(--text-primary);
@@ -133,6 +135,9 @@
   color: var(--text-secondary);
   flex: 1;
   text-align: left;
+  white-space: nowrap;      /* was wrapping onto two lines in narrow editors */
+  overflow: hidden;
+  text-overflow: ellipsis;
 }
 
 .topbar__search-kbd {
@@ -282,7 +287,7 @@
 /* Responsive Logic */
 
 /* 1. Hide labels at < 1300px */
-@media (max-width: 1300px) {
+@container editor (max-width: 1300px) {
   .topbar__btn-label {
     display: none;
   }
@@ -300,7 +305,7 @@
 }
 
 /* 2. Compact Search & Navbar < 1080px */
-@media (max-width: 1080px) {
+@container editor (max-width: 1080px) {
   .topbar__search-label,
   .topbar__search-kbd {
     display: none;
@@ -326,7 +331,7 @@
 }
 
 /* 3. Hide compact helpers < 900px */
-@media (max-width: 900px) {
+@container editor (max-width: 900px) {
   .topbar__hide-compact {
     display: none;
   }
@@ -340,7 +345,7 @@
 }
 
 /* 3. Mobile adjustments < 768px */
-@media (max-width: 768px) {
+@container editor (max-width: 768px) {
   .topbar {
     padding: 0 var(--space-2);
     gap: var(--space-1);
