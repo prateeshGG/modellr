@@ -1,6 +1,6 @@
 // Documentation Articles
 
-const REPO_URL = 'https://github.com/prateesh7777/schemaforge';
+const REPO_URL = 'https://github.com/prateesh7777/modellr';
 
 const extLink = (href: string, text: string) => (
   <a href={href} target="_blank" rel="noopener noreferrer">{text}</a>
@@ -268,7 +268,7 @@ export const SelfHostingArticle = () => (
     <div className="docs-code-block">
       <div className="docs-code-label">terminal</div>
       {`git clone ${REPO_URL}
-cd schemaforge
+cd modellr
 npm install
 npm run build
 # serve the dist/ folder with any static host`}
@@ -280,7 +280,7 @@ npm run build
     </ul>
 
     <h2>Source and license</h2>
-    <p>The code is MIT licensed: {extLink(REPO_URL, 'github.com/prateesh7777/schemaforge')}.</p>
+    <p>The code is MIT licensed: {extLink(REPO_URL, 'github.com/prateesh7777/modellr')}.</p>
   </article>
 );
 

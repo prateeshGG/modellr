@@ -4,7 +4,7 @@ import { Footer } from '../components/layout/Footer';
 import { HardDrive, Code2, Database, Bot } from 'lucide-react';
 import '../styles/public-dark.css';
 
-const REPO_URL = 'https://github.com/prateesh7777/schemaforge';
+const REPO_URL = 'https://github.com/prateesh7777/modellr';
 
 export function About() {
   const navigate = useNavigate();

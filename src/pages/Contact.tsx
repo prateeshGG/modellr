@@ -3,7 +3,7 @@ import { PublicNav } from '../components/layout/PublicNav';
 import { Footer } from '../components/layout/Footer';
 import '../styles/public-dark.css';
 
-const REPO_URL = 'https://github.com/prateesh7777/schemaforge';
+const REPO_URL = 'https://github.com/prateesh7777/modellr';
 
 export function Contact() {
   return (
@@ -47,7 +47,7 @@ export function Contact() {
                   <p className="pd-body-text" style={{ marginBottom: '20px', flex: 1 }}>
                     Read the code, fork it, or send a pull request. Modellr is MIT licensed.
                   </p>
-                  <span style={{ fontFamily: 'var(--pd-mono)', fontSize: '13px', color: 'var(--pd-brand)' }}>prateesh7777/schemaforge</span>
+                  <span style={{ fontFamily: 'var(--pd-mono)', fontSize: '13px', color: 'var(--pd-brand)' }}>prateesh7777/modellr</span>
                 </div>
               </a>
             </div>

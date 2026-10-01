@@ -1,181 +1,99 @@
-import React, { useState, useEffect } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useEffect, useState } from 'react';
+import { Link, NavLink, useLocation } from 'react-router-dom';
+import { Menu, Star, X } from 'lucide-react';
+import { REPO_URL } from '../../config';
+import { useGithubStars } from '../../hooks/useGithubStars';
+import { formatStars } from '../../lib/githubStars';
+import { GitHubMark } from './GitHubMark';
+import '../../styles/site.css';
+
+const LINKS = [
+  { label: 'Features', to: '/features' },
+  { label: 'Templates', to: '/templates' },
+  { label: 'Docs', to: '/docs' },
+  { label: 'Blog', to: '/blog' },
+];
 
 interface PublicNavProps {
-  /** When true, renders the frosted-glass dark variant used on the home page */
+  /** Kept for backwards compatibility with existing pages; the nav now has a single design. */
   dark?: boolean;
 }
 
-export const PublicNav: React.FC<PublicNavProps> = ({ dark = false }) => {
-  const navigate = useNavigate();
+export const PublicNav: React.FC<PublicNavProps> = () => {
+  const stars = useGithubStars();
+  const { pathname } = useLocation();
   const [scrolled, setScrolled] = useState(false);
+  const [open, setOpen] = useState(false);
 
   useEffect(() => {
-    if (!dark) return;
-    const onScroll = () => setScrolled(window.scrollY > 20);
+    const onScroll = () => setScrolled(window.scrollY > 8);
+    onScroll();
     window.addEventListener('scroll', onScroll, { passive: true });
     return () => window.removeEventListener('scroll', onScroll);
-  }, [dark]);
+  }, []);
 
-  /* ── Dark (home page) variant ─────────────────────────────── */
-  if (dark) {
-    return (
-      <nav
-        style={{
-          position: 'fixed',
-          top: '16px',
-          left: '50%',
-          transform: 'translateX(-50%)',
-          width: '92%',
-          maxWidth: '1200px',
-          background: scrolled
-            ? 'rgba(5, 5, 7, 0.85)'
-            : 'rgba(5, 5, 7, 0.6)',
-          backdropFilter: 'blur(20px)',
-          WebkitBackdropFilter: 'blur(20px)',
-          border: '1px solid #1e1e2e',
-          borderRadius: '8px',
-          padding: '10px 24px',
-          display: 'flex',
-          alignItems: 'center',
-          justifyContent: 'space-between',
-          zIndex: 100,
-          transition: 'background 0.3s',
-        }}
-      >
-        {/* Left: logo + links */}
-        <div style={{ display: 'flex', alignItems: 'center', gap: '40px' }}>
-          <div
-            onClick={() => navigate('/')}
-            style={{
-              fontFamily: "'Syne', 'Geist', sans-serif",
-              fontWeight: 800,
-              fontSize: '18px',
-              letterSpacing: '-0.02em',
-              color: '#e8e8f0',
-              cursor: 'pointer',
-              display: 'flex',
-              alignItems: 'center',
-              gap: '8px',
-            }}
+  // Close the mobile menu when navigating.
+  useEffect(() => setOpen(false), [pathname]);
+
+  const starLabel = stars !== null ? formatStars(stars) : '';
+
+  return (
+    <header className={`site-nav${scrolled ? ' site-nav--scrolled' : ''}${open ? ' site-nav--open' : ''}`}>
+      <nav className="site-nav__bar" aria-label="Main">
+        <Link to="/" className="site-logo" aria-label="Modellr home">
+          <span className="site-logo__mark" aria-hidden>M</span>
+          <span className="site-logo__word">Modellr</span>
+        </Link>
+
+        <ul className="site-nav__links">
+          {LINKS.map((l) => (
+            <li key={l.to}>
+              <NavLink to={l.to} className={({ isActive }) => `site-nav__link${isActive ? ' is-active' : ''}`}>
+                {l.label}
+              </NavLink>
+            </li>
+          ))}
+        </ul>
+
+        <div className="site-nav__actions">
+          <a
+            className="gh-pill"
+            href={REPO_URL}
+            target="_blank"
+            rel="noopener noreferrer"
+            aria-label={starLabel ? `Modellr on GitHub, ${starLabel} stars` : 'Modellr on GitHub'}
           >
-            <div
-              style={{
-                width: '22px', height: '22px',
-                background: 'rgb(174, 122, 255)',
-                borderRadius: '4px',
-                display: 'flex', alignItems: 'center', justifyContent: 'center',
-                color: '#fff', fontSize: '10px', fontWeight: 700,
-              }}
-            >
-              M
-            </div>
-            Modellr
-          </div>
-
-          <div style={{ display: 'flex', gap: '28px' }}>
-            {[
-              { label: 'Templates', path: '/templates' },
-              { label: 'Blog',      path: '/blog' },
-              { label: 'Docs',      path: '/docs' },
-            ].map(({ label, path }) => (
-              <span
-                key={label}
-                onClick={() => navigate(path)}
-                style={{
-                  color: '#6b6b80',
-                  fontSize: '14px',
-                  fontFamily: "'Instrument Sans', 'Geist', sans-serif",
-                  cursor: 'pointer',
-                  transition: 'color 0.15s',
-                }}
-                onMouseEnter={e => (e.currentTarget.style.color = '#e8e8f0')}
-                onMouseLeave={e => (e.currentTarget.style.color = '#6b6b80')}
-              >
-                {label}
+            <GitHubMark />
+            <span className="gh-pill__label">GitHub</span>
+            {starLabel && (
+              <span className="gh-pill__stars">
+                <Star size={13} fill="currentColor" strokeWidth={0} aria-hidden />
+                {starLabel}
               </span>
-            ))}
-          </div>
-        </div>
-
-        {/* Right: auth buttons */}
-        <div style={{ display: 'flex', gap: '12px', alignItems: 'center' }}>
+            )}
+          </a>
+          <Link to="/app" className="site-btn site-btn--accent site-nav__cta">Open editor</Link>
           <button
-            onClick={() => navigate('/app')}
-            style={{
-              background: '#00e5a0',
-              color: '#050507',
-              border: 'none',
-              padding: '8px 18px',
-              borderRadius: '4px',
-              fontFamily: "'Geist Mono', monospace",
-              fontSize: '13px',
-              fontWeight: 700,
-              cursor: 'pointer',
-            }}
+            className="site-nav__toggle"
+            aria-label={open ? 'Close menu' : 'Open menu'}
+            aria-expanded={open}
+            aria-controls="site-nav-panel"
+            onClick={() => setOpen((o) => !o)}
           >
-            Open editor
+            {open ? <X size={20} /> : <Menu size={20} />}
           </button>
         </div>
       </nav>
-    );
-  }
 
-  /* ── Default (light) variant ──────────────────────────────── */
-  return (
-    <nav
-      style={{
-        display: 'flex',
-        justifyContent: 'space-between',
-        padding: '1.5rem 2rem',
-        alignItems: 'center',
-        maxWidth: '1400px',
-        margin: '0 auto',
-        borderBottom: '1px solid var(--border-subtle)',
-        width: '100%',
-        background: 'var(--canvas-bg)',
-      }}
-    >
-      <div style={{ display: 'flex', gap: '32px', alignItems: 'center' }}>
-        <div
-          onClick={() => navigate('/')}
-          style={{
-            fontWeight: 800,
-            fontSize: '1.2rem',
-            letterSpacing: '-0.02em',
-            display: 'flex',
-            alignItems: 'center',
-            gap: '8px',
-            cursor: 'pointer',
-          }}
-        >
-          <div
-            style={{
-              width: '24px', height: '24px',
-              background: 'var(--brand)',
-              borderRadius: '6px',
-              display: 'flex', alignItems: 'center', justifyContent: 'center',
-              color: '#fff', fontSize: '12px',
-            }}
-          >
-            M
-          </div>
-          Modellr
-        </div>
-        <div style={{ display: 'flex', gap: '24px', color: 'var(--text-secondary)', fontSize: '14px', fontWeight: 500 }}>
-          <span onClick={() => navigate('/templates')} style={{ cursor: 'pointer' }}>Templates</span>
-          <span onClick={() => navigate('/blog')}      style={{ cursor: 'pointer' }}>Blog</span>
-          <span onClick={() => navigate('/docs')}      style={{ cursor: 'pointer' }}>Docs</span>
-        </div>
+      <div id="site-nav-panel" className="site-nav__panel" hidden={!open}>
+        {LINKS.map((l) => (
+          <Link key={l.to} to={l.to} className="site-nav__panel-link">{l.label}</Link>
+        ))}
+        <a className="site-nav__panel-link" href={REPO_URL} target="_blank" rel="noopener noreferrer">
+          GitHub{starLabel ? ` · ★ ${starLabel}` : ''}
+        </a>
+        <Link to="/app" className="site-btn site-btn--accent site-btn--block">Open editor</Link>
       </div>
-      <div style={{ display: 'flex', gap: '1rem' }}>
-        <button
-          onClick={() => navigate('/app')}
-          style={{ padding: '0.6rem 1.2rem', background: 'var(--brand)', color: '#fff', border: 'none', borderRadius: '8px', cursor: 'pointer', fontWeight: 600 }}
-        >
-          Open editor
-        </button>
-      </div>
-    </nav>
+    </header>
   );
 };

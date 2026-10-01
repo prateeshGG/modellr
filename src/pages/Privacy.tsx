@@ -46,7 +46,7 @@ export function Privacy() {
 
         <section>
           <h2>{DONATE_URL ? 7 : 6}. Contact</h2>
-          <p>Questions about this policy can be raised as an issue at <a href="https://github.com/prateesh7777/schemaforge/issues" target="_blank" rel="noopener noreferrer" style={{ color: 'var(--pd-brand)' }}>github.com/prateesh7777/schemaforge/issues</a>.</p>
+          <p>Questions about this policy can be raised as an issue at <a href="https://github.com/prateesh7777/modellr/issues" target="_blank" rel="noopener noreferrer" style={{ color: 'var(--pd-brand)' }}>github.com/prateesh7777/modellr/issues</a>.</p>
         </section>
       </div>
       <Footer />

@@ -13,7 +13,7 @@ export function Terms() {
 
         <section>
           <h2>1. License</h2>
-          <p>Modellr is free, open-source software released under the MIT license. The full license text is in the <a href="https://github.com/prateesh7777/schemaforge" target="_blank" rel="noopener noreferrer" style={{ color: 'var(--pd-brand)' }}>project repository</a>. You may use, copy, modify and distribute it under those terms.</p>
+          <p>Modellr is free, open-source software released under the MIT license. The full license text is in the <a href="https://github.com/prateesh7777/modellr" target="_blank" rel="noopener noreferrer" style={{ color: 'var(--pd-brand)' }}>project repository</a>. You may use, copy, modify and distribute it under those terms.</p>
         </section>
 
         <section>

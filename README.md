@@ -75,7 +75,7 @@ Importers and exporters have fixture-based tests in `tests/`; add a fixture when
 
 This repository began as a cloud product (accounts, Supabase, real-time collaboration, live DB import, an MCP
 server, paid plans). It was converted to a free local-first app. The last commit that contains the backend is
-[`60f5636`](https://github.com/prateesh7777/schemaforge/commit/60f5636).
+[`60f5636`](https://github.com/prateesh7777/modellr/commit/60f5636).
 
 ## License
 

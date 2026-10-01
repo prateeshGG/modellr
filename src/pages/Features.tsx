@@ -106,7 +106,7 @@ export function Features() {
           <p className="pd-cta-sub">Free and open source under the MIT license. No sign-up.</p>
           <div style={{ display: 'flex', gap: '16px', justifyContent: 'center', flexWrap: 'wrap' }}>
             <button className="pd-btn-primary" onClick={() => navigate('/app')}>Open the editor →</button>
-            <a className="pd-btn-outline" href="https://github.com/prateesh7777/schemaforge" target="_blank" rel="noopener noreferrer" style={{ textDecoration: 'none' }}>View on GitHub</a>
+            <a className="pd-btn-outline" href="https://github.com/prateesh7777/modellr" target="_blank" rel="noopener noreferrer" style={{ textDecoration: 'none' }}>View on GitHub</a>
           </div>
         </div>
       </div>
