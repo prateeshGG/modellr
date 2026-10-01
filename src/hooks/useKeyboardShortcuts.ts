@@ -28,7 +28,8 @@ export function useKeyboardShortcuts() {
       // ── Always-active shortcuts ──────────────────
       if (mod && (e.key === 'k' || e.key === 'K')) {
         e.preventDefault();
-        paletteOpen ? closePalette() : openPalette();
+        if (paletteOpen) closePalette();
+        else openPalette();
         return;
       }
 

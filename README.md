@@ -1,90 +1,82 @@
-# ⚒️ Modellr
+# Modellr
 
-**The Visual Database Architect for Modern Developers.**
+**A free, open-source database schema designer that runs entirely in your browser.** No sign-up, no server,
+no tracking. Draw tables and relationships, import the SQL or Prisma schema you already have, and export
+SQL, Prisma, Drizzle or DBML.
 
-Modellr is a professional database design platform that bridges the gap between visual diagrams and live code. Build complex relational schemas with a drag-and-drop canvas, generate them with AI, and sync them directly to your IDE via the Model Context Protocol (MCP).
+MIT licensed.
 
----
+## What it does
 
-## ✨ Key Features
+- **Visual canvas**: tables, fields (types, PK/FK, unique, nullable, defaults, checks, comments),
+  drag-to-connect relationships, notes, groups, auto-layout, search, command palette (`Ctrl/Cmd+K`),
+  undo/redo, light and dark themes, canvas/split/code views.
+- **Import**: SQL DDL (PostgreSQL, MySQL, SQLite, SQL Server syntax; `pg_dump` and `mysqldump` files work),
+  Prisma schemas. Saved projects and backups can be re-imported as JSON from the dashboard. The previous
+  schema is saved as a snapshot before a SQL/Prisma import replaces it.
+- **Export**: SQL (PostgreSQL, MySQL, SQLite, SQL Server), Prisma, Drizzle ORM, DBML, JSON, PNG, SVG.
+- **Snapshots and diff**: save versions of a schema, compare with a snapshot, generate migration SQL.
+  Always read generated migrations before running them: a rename shows up as drop + add.
+- **Share**: stateless links and iframe embeds. The schema is compressed into the URL; recipients get a
+  read-only snapshot. Nothing is uploaded.
+- **Optional AI assistant (bring your own key)**: generate or modify a schema from a description. Calls an
+  OpenAI-compatible endpoint you choose (OpenAI, OpenRouter, or a local model such as Ollama) directly from
+  your browser. Your key stays in your browser. Review AI output before using it.
 
-- **🎨 Professional Visual Canvas**: Interactive, high-performance canvas for designing tables and relationships.
-- **✦ AI-Powered Materialization**: Describe your app in plain English and let AI generate the entire schema.
-- **🔌 Model Context Protocol (MCP)**: Sync your live canvas state directly into Cursor, Windsurf, or Claude Desktop.
-- **🏗️ Multi-Dialect Export**: Generate SQL (PostgreSQL, MySQL), DBML, Prisma, and Drizzle schemas in one click.
-- **🔄 Schema Diffing & Migrations**: Automatically calculate differences between versions and generate safe migration scripts.
-- **👥 Real-time Collaboration**: Built-in Yjs support for multi-user editing with live cursors.
+## What it does not do
 
----
+No accounts, cloud sync, real-time collaboration, live database connections, billing, or hosted AI. Earlier
+versions had some of these as a cloud product; that code was removed (see [History](#history)).
 
-## 🚀 Getting Started
+## Your data
 
-### Local Development
+Projects are stored in your browser (IndexedDB). Clearing site data deletes them. Use **Backup all**
+(dashboard or Settings) or per-project **Export** now and then. If your browser blocks storage the app warns
+you and falls back to memory for that session.
 
-1. **Clone the repository**:
-   ```bash
-   git clone https://github.com/prateesh7777/Modellr.git
-   cd Modellr
-   ```
+## Run it
 
-2. **Install dependencies**:
-   ```bash
-   npm install
-   cd mcp-server && npm install && cd ..
-   ```
-
-3. **Environment Setup**:
-   Create a `.env` file in the root:
-   ```env
-   VITE_SUPABASE_URL=your_supabase_url
-   VITE_SUPABASE_ANON_KEY=your_anon_key
-   ```
-
-4. **Run the App & Backend**:
-   ```bash
-   npm run dev
-   ```
-
----
-
-## 🔌 Using the MCP Server
-
-Modellr includes a specialized MCP server that lets your AI coding assistant read and modify your diagrams.
-
-### 1. Local Stdio (Cursor/Claude Desktop)
-Add this to your `mcp.json` or Desktop config:
-```json
-{
-  "mcpServers": {
-    "Modellr": {
-      "command": "node",
-      "args": ["/path/to/Modellr/mcp-server/index.js"],
-      "env": {
-        "SCHEMA_FORGE_TOKEN": "sfk_live_..."
-      }
-    }
-  }
-}
+```bash
+npm install
+npm run dev        # http://localhost:5173
+npm test           # vitest
+npm run build      # static files in dist/
 ```
 
-### 2. Cloud SSE (Remote)
-If hosted on Railway:
-```json
-{
-  "mcpServers": {
-    "Modellr": {
-      "url": "https://your-mcp-server.up.railway.app/sse"
-    }
-  }
-}
-```
+Self-hosting is serving `dist/` from any static host. The app uses client-side routing, so configure the
+host to fall back to `index.html` (a `vercel.json` rewrite is included).
 
----
+## Performance
 
-## 🛠️ Built With
+Measured on a 4-vCPU container with software rendering: dragging stays at about 60 fps and a single edit
+takes under 0.3 s at 1,000 tables. Initial import/render of 500+ tables still takes a few seconds. Method,
+numbers and limits are in [docs/PERFORMANCE.md](docs/PERFORMANCE.md).
 
-- **Frontend**: React 18, TypeScript, Vite, React Flow
-- **Backend**: Node.js, Express, WebSocket (Yjs)
-- **Database**: Supabase (PostgreSQL)
-- **Styling**: Vanilla CSS (Custom Token System)
-- **AI**: OpenAI GPT-4o
+## AI setup
+
+Settings, then **Set up AI**. Pick a provider preset (OpenAI, OpenRouter, local Ollama or custom), paste a
+key if the provider needs one, and use **Test connection**. Notes:
+
+- The request includes your schema as context, and goes to the endpoint you configured.
+- Some providers block direct browser calls (CORS). If a provider fails with a network error, try
+  OpenRouter or a local model.
+- For a local model: `ollama serve`, set the base URL to `http://localhost:11434/v1`, leave the key empty.
+
+## Project layout
+
+See [docs/ARCHITECTURE.md](docs/ARCHITECTURE.md). Stack: React, TypeScript, Vite, React Flow, Zustand.
+
+## Contributing
+
+Issues and pull requests are welcome. Please run `npm run typecheck`, `npm test` and `npm run lint` first.
+Importers and exporters have fixture-based tests in `tests/`; add a fixture when you fix a parsing bug.
+
+## History
+
+This repository began as a cloud product (accounts, Supabase, real-time collaboration, live DB import, an MCP
+server, paid plans). It was converted to a free local-first app. The last commit that contains the backend is
+[`60f5636`](https://github.com/prateesh7777/schemaforge/commit/60f5636).
+
+## License
+
+[MIT](LICENSE)

@@ -2,8 +2,7 @@ import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { TEMPLATES, getTemplate } from '../utils/templates';
 import { TEMPLATE_CATEGORIES } from '../utils/constants';
-import { useAuthStore } from '../store/authStore';
-import { supabase } from '../lib/supabase';
+import { createProject } from '../lib/projectStore';
 import { useUIStore } from '../store/ui';
 import { TemplatePreviewModal } from '../components/dashboard/TemplatePreviewModal';
 import './TemplateGallery.css';
@@ -11,56 +10,22 @@ import './TemplateGallery.css';
 
 
 export const TemplatesPage: React.FC = () => {
-  const { session } = useAuthStore();
-  const showDialog = useUIStore((s) => s.showDialog);
   const navigate = useNavigate();
   const [activeCategory, setActiveCategory] = useState('all');
   const [selectedTemplateId, setSelectedTemplateId] = useState<string | null>(null);
 
   const handleUseTemplate = async (templateId: string) => {
-    // Fix #78: guests get a sign-in prompt instead of a silent no-op
-    if (!session?.user?.id) {
-      showDialog({
-        title: 'Sign in to use templates',
-        message: 'Create a free account to save this template to your dashboard and start building.',
-        type: 'alert',
-      });
-      return;
-    }
-    
-    // Check limit (shared with Dashboard logic)
-    const { count } = await supabase
-      .from('schemas')
-      .select('*', { count: 'exact', head: true })
-      .eq('owner_id', session.user.id);
-      
-    if (count !== null && count >= 3) {
-      showDialog({
-        title: 'Upgrade Required',
-        message: 'Free tier limit reached (3 schemas). Upgrade to Pro to use more templates.',
-        type: 'alert'
-      });
-      return;
-    }
-
     const tpl = getTemplate(templateId);
     if (!tpl) return;
-
-    const { data, error } = await supabase
-      .from('schemas')
-      .insert([{ 
-        owner_id: session.user.id, 
-        name: tpl.label + ' Starter',
-        canvas_state: { tables: tpl.tables, relationships: tpl.relationships, viewport: { x: 0, y: 0, zoom: 1 } }
-      }])
-      .select()
-      .single();
-
-    if (error || !data) {
-      useUIStore.getState().showToast('Failed to create schema from template. Try again.', 'error');
-      return;
+    try {
+      const project = await createProject({
+        name: tpl.label + ' starter',
+        canvas_state: { tables: tpl.tables, relationships: tpl.relationships },
+      });
+      navigate(`/app/${project.id}`);
+    } catch {
+      useUIStore.getState().showToast('Could not create the project (browser storage may be full or blocked).', 'error');
     }
-    navigate(`/app/${data.id}`);
   };
 
   const templateList = Object.entries(TEMPLATES).map(([id, tpl]) => ({ id, ...tpl }));

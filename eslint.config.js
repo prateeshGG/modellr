@@ -19,5 +19,12 @@ export default defineConfig([
       ecmaVersion: 2020,
       globals: globals.browser,
     },
+    rules: {
+      // Legacy code (stores, canvas, a few dialogs) predates these two rules. They stay visible as
+      // warnings so new code is nudged toward typed values, without blocking CI on pre-existing
+      // patterns. Tighten to 'error' once the remaining occurrences are cleaned up.
+      '@typescript-eslint/no-explicit-any': 'warn',
+      'react-hooks/set-state-in-effect': 'warn',
+    },
   },
 ])

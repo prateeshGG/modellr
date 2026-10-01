@@ -2,37 +2,10 @@ import { useNavigate } from 'react-router-dom';
 import { PublicNav } from '../components/layout/PublicNav';
 import { Footer } from '../components/layout/Footer';
 import { ArrowRight, Calendar } from 'lucide-react';
+import { POSTS } from './blogPosts';
 import '../styles/public-dark.css';
 
-const STATIC_POSTS = [
-  {
-    id: 'announcing-Modellr',
-    title: 'Announcing Modellr: The AI-first database design tool',
-    excerpt: 'Today we are thrilled to announce Modellr. We built it because we were tired of wrestling with legacy diagramming tools while working with modern ORMs like Prisma and Drizzle.',
-    date: 'April 11, ' + new Date().getFullYear(),
-    category: 'Company',
-    readTime: '3 min read',
-  },
-  {
-    id: 'why-visual-diagrams-fail',
-    title: 'Why visual diagrams fail development teams',
-    excerpt: 'Static diagrams are out of date the minute you write your first migration. Here is how a synchronized workflow fixes the disconnect between architecture and code.',
-    date: 'April 10, ' + new Date().getFullYear(),
-    category: 'Engineering',
-    readTime: '5 min read',
-  },
-  {
-    id: 'prisma-vs-drizzle-schema-design',
-    title: 'Prisma vs Drizzle: A schema design perspective',
-    excerpt: 'Both ORMs are taking the TypeScript world by storm. We take a deep dive into how you should approach relational database design depending on which stack you choose.',
-    date: 'April 5, ' + new Date().getFullYear(),
-    category: 'Database',
-    readTime: '8 min read',
-  },
-];
-
 const CATEGORY_COLORS: Record<string, string> = {
-  Company:     '#ae7aff',
   Engineering: '#00e5a0',
   Database:    '#f59e0b',
 };
@@ -52,7 +25,7 @@ export function BlogIndex() {
           <div className="pd-label">// Blog</div>
           <h1 className="pd-h1">The Modellr Blog</h1>
           <p className="pd-lead">
-            Thoughts on data architecture, modern backend development, and building tools for developers.
+            Short notes on schema design and working with databases.
           </p>
         </div>
       </div>
@@ -61,7 +34,7 @@ export function BlogIndex() {
       <section className="pd-section">
         <div className="pd-inner--narrow" style={{ maxWidth: '860px' }}>
           <div style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
-            {STATIC_POSTS.map(post => (
+            {POSTS.map(post => (
               <article
                 key={post.id}
                 className="pd-blog-card"
@@ -78,8 +51,6 @@ export function BlogIndex() {
                   <span style={{ color: 'var(--pd-muted)', display: 'flex', alignItems: 'center', gap: '5px', fontSize: '12px', fontFamily: 'var(--pd-mono)' }}>
                     <Calendar size={12} /> {post.date}
                   </span>
-                  <span style={{ color: 'var(--pd-border-hi)' }}>·</span>
-                  <span style={{ color: 'var(--pd-muted)', fontSize: '12px', fontFamily: 'var(--pd-mono)' }}>{post.readTime}</span>
                 </div>
 
                 <h2 style={{ fontFamily: 'var(--pd-display)', fontSize: 'clamp(1.2rem, 2.5vw, 1.6rem)', fontWeight: 800, color: 'var(--pd-text)', margin: '0 0 12px 0', letterSpacing: '-0.02em', lineHeight: 1.2 }}>

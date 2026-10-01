@@ -46,15 +46,6 @@ export const CommandPalette: React.FC = () => {
       },
     },
     {
-      id: 'connect-live-db', label: 'Connect live database',
-      description: 'Introspect a live PostgreSQL or MySQL database',
-      category: 'Actions', icon: '⚲',
-      action: () => {
-        closePalette();
-        window.dispatchEvent(new CustomEvent('sf:open-live-import'));
-      },
-    },
-    {
       id: 'search', label: 'Search tables & fields',
       description: 'Find any table or field across the schema (Ctrl+F)',
       category: 'Actions', icon: '◎',
@@ -105,7 +96,7 @@ export const CommandPalette: React.FC = () => {
       action: () => { window.dispatchEvent(new CustomEvent('sf:auto-layout')); closePalette(); },
     },
     {
-      id: 'fit-view', label: 'Fit canvas to view', shortcut: '0',
+      id: 'fit-view', label: 'Fit canvas to view', shortcut: 'F',
       category: 'Actions', icon: '⤢',
       action: () => { window.dispatchEvent(new CustomEvent('sf:fit-view')); closePalette(); },
     },

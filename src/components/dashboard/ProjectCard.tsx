@@ -1,23 +1,20 @@
 import React from 'react';
 import { useNavigate } from 'react-router-dom';
 import { ACCENT_HEX } from '../../utils/constants';
-import type { Table, AccentColor } from '../../types/schema';
+import type { AccentColor } from '../../types/schema';
+import type { Project } from '../../lib/projectStore';
 
 interface ProjectCardProps {
-  schema: any;
-  onDuplicate: (e: React.MouseEvent, schema: any) => void;
-  onExport: (e: React.MouseEvent, schema: any) => void;
+  schema: Project;
+  onDuplicate: (e: React.MouseEvent, schema: Project) => void;
+  onExport: (e: React.MouseEvent, schema: Project) => void;
   onDelete: (e: React.MouseEvent, id: string) => void;
 }
 
 export const ProjectCard: React.FC<ProjectCardProps> = ({ schema, onDuplicate, onExport, onDelete }) => {
   const navigate = useNavigate();
   
-  let tables: Table[] = [];
-  try {
-    const cs = typeof schema.canvas_state === 'string' ? JSON.parse(schema.canvas_state) : schema.canvas_state;
-    tables = cs?.tables || [];
-  } catch {}
+  const tables = schema.canvas_state?.tables ?? [];
 
   const lastUpdate = new Date(schema.updated_at).toLocaleDateString('en-US', {
     month: 'short', day: 'numeric', year: 'numeric'
@@ -55,7 +52,6 @@ export const ProjectCard: React.FC<ProjectCardProps> = ({ schema, onDuplicate, o
       <div className="project-info">
         <div className="project-title-row">
           <h3 className="project-title">{schema.name}</h3>
-          {schema.is_public && <span className="status-badge status-badge--public">Public</span>}
         </div>
         
         <div className="project-meta">

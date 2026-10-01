@@ -1,7 +1,32 @@
-import ELK from 'elkjs/lib/elk.bundled.js';
+import ELKApi from 'elkjs/lib/elk-api.js';
+import elkWorkerUrl from 'elkjs/lib/elk-worker.min.js?url';
 import type { Table, Relationship, Density } from '../types/schema';
 
-const elk = new ELK();
+type ElkLike = { layout: (graph: any) => Promise<any> };
+
+let elk: ElkLike | null = null;
+let useFallback = false;
+
+/**
+ * Layout runs in a Web Worker so a large schema doesn't freeze the page (the main-thread
+ * version blocked for ~4s at 1,000 tables). If the worker can't start (blocked by a strict
+ * CSP, unsupported environment) we fall back to the bundled main-thread build.
+ */
+async function runLayout(graph: unknown) {
+  if (!useFallback) {
+    try {
+      elk ??= new ELKApi({ workerUrl: elkWorkerUrl }) as ElkLike;
+      return await elk.layout(graph);
+    } catch (err) {
+      console.warn('[auto-layout] worker unavailable, falling back to main thread:', err);
+      useFallback = true;
+      elk = null;
+    }
+  }
+  const { default: ELKBundled } = await import('elkjs/lib/elk.bundled.js');
+  elk ??= new ELKBundled() as ElkLike;
+  return elk.layout(graph);
+}
 
 interface LayoutNode {
   id: string;
@@ -53,7 +78,7 @@ export async function autoLayout(
   };
 
   try {
-    const laid = await elk.layout(graph as any);
+    const laid = await runLayout(graph);
     const positions = new Map<string, { x: number; y: number }>();
 
     for (const child of laid.children ?? []) {

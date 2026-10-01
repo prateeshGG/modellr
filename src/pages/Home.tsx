@@ -2,74 +2,53 @@ import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import {
   Maximize2, Minimize2, Bot, Eye, Code2,
-  Share2, Layers, RefreshCw, ExternalLink, History as HistoryIcon,
+  Share2, Layers, Upload, Download, History as HistoryIcon,
+  HardDrive, GitBranch,
 } from 'lucide-react';
 import { Footer } from '../components/layout/Footer';
 import { PublicNav } from '../components/layout/PublicNav';
 import Editor from './Editor';
 import './Home.css';
 
-/* ─── Persona data ─────────────────────────────────────────── */
-const PERSONAS = {
-  indie: {
-    label: 'Indie Hackers',
-    title: 'Launch your SaaS without overthinking your database',
-    tables: ['User', 'Subscription', 'Invoice', 'FeatureFlag'],
-    color: '#00e5a0',
-  },
-  team: {
-    label: 'Dev Teams',
-    title: 'Ship without schema regrets',
-    tables: ['User', 'Team', 'Permission', 'AuditLog'],
-    color: '#ae7aff',
-  },
-  client: {
-    label: 'Client Work',
-    title: 'Communicate clearly with stakeholders',
-    tables: ['Client', 'Project', 'Deliverable', 'Feedback'],
-    color: '#f59e0b',
-  },
-} as const;
-
-type PersonaKey = keyof typeof PERSONAS;
+const REPO_URL = 'https://github.com/prateesh7777/schemaforge';
 
 /* ─── Feature cards ────────────────────────────────────────── */
 const FEATURES = [
   {
-    icon: <Bot size={20} />,
-    comment: '// AI Schema Generation',
-    code: `model Blog {\n  id     String @id\n  posts  Post[]  // ← auto-suggested\n  author User\n}`,
-    badge: 'AI-Powered',
-  },
-  {
-    icon: <RefreshCw size={20} />,
-    comment: '// Real-Time Sync',
-    code: `// Edit code → canvas updates live\n↔  Code  ↔  Visual  ↔  AI\n// Zero switching. Zero overhead.`,
-    badge: 'Live Sync',
-  },
-  {
-    icon: <ExternalLink size={20} />,
-    comment: '// Modern Exports',
-    code: `$ export --format=prisma\n✓ schema.prisma generated\n✓ Relations preserved`,
-    badge: 'One Click',
-  },
-  {
     icon: <Layers size={20} />,
-    comment: '// Auto Layout',
-    code: `// 20 tables, 0 manual dragging\nelk.layout(graph)\n✓ Clean diagram — instantly`,
-    badge: 'Smart Layout',
+    comment: '// Visual canvas',
+    code: `// tables, fields, relationships\norders.user_id → users.id\n// drag to link, auto-layout to tidy`,
+    badge: 'Canvas',
   },
   {
-    icon: <Share2 size={20} />,
-    comment: '// Collaboration',
-    code: `// Real-time cursors + share links\nconst link = await share(schema)\n// Read-only or editable`,
-    badge: 'Multiplayer',
+    icon: <Upload size={20} />,
+    comment: '// Import',
+    code: `$ import schema.sql\n$ import schema.prisma\n$ import backup.json`,
+    badge: 'SQL · Prisma · JSON',
+  },
+  {
+    icon: <Download size={20} />,
+    comment: '// Export',
+    code: `$ export --format=drizzle\n// SQL (Postgres, MySQL, SQLite,\n// SQL Server), Prisma, Drizzle,\n// DBML, JSON, PNG, SVG`,
+    badge: '7 formats',
   },
   {
     icon: <HistoryIcon size={20} />,
-    comment: '// Version History',
-    code: `// Experiment without fear\ngit diff schema@v3 schema@v4\n✓ Roll back anytime`,
-    badge: 'Snapshots',
+    comment: '// Snapshots & diff',
+    code: `// save a snapshot, keep editing\ndiff current ↔ snapshot\n// generates migration SQL to review`,
+    badge: 'Local history',
+  },
+  {
+    icon: <Share2 size={20} />,
+    comment: '// Share links',
+    code: `// schema is compressed into the URL\n/app/shared#/schema/…\n// recipients get a read-only snapshot`,
+    badge: 'No server',
+  },
+  {
+    icon: <Bot size={20} />,
+    comment: '// Optional AI',
+    code: `// bring your own key\nbaseUrl = "http://localhost:11434/v1"\n// OpenAI, OpenRouter, or Ollama`,
+    badge: 'Your key',
   },
 ];
 
@@ -77,7 +56,6 @@ const FEATURES = [
 export default function Home() {
   const navigate = useNavigate();
   const [isFullscreen, setIsFullscreen] = useState(false);
-  const [activePersona, setActivePersona] = useState<PersonaKey>('indie');
   const [cursorVisible, setCursorVisible] = useState(true);
 
   // Blinking cursor
@@ -85,8 +63,6 @@ export default function Home() {
     const id = setInterval(() => setCursorVisible(v => !v), 530);
     return () => clearInterval(id);
   }, []);
-
-  const persona = PERSONAS[activePersona];
 
   return (
     <div className="home-root">
@@ -113,30 +89,30 @@ export default function Home() {
           </div>
 
           <h1 className="hero-h1">
-            Generate schemas<br />
-            <span className="hero-h1--outline">from a prompt.</span>
+            Design database schemas<br />
+            <span className="hero-h1--outline">in your browser.</span>
           </h1>
 
           <p className="hero-sub">
-            AI-powered database design that exports directly to Prisma or Drizzle.
+            A free, open-source database schema designer. No sign-up. Your schemas stay in your browser.
           </p>
 
           <div className="hero-actions">
             <button
               className="btn-primary"
-              onClick={() => navigate('/login')}
+              onClick={() => navigate('/app')}
             >
-              Start building free
+              Open the editor
             </button>
             <button
               className="btn-ghost"
-              onClick={() => document.getElementById('demo-anchor')?.scrollIntoView({ behavior: 'smooth' })}
+              onClick={() => window.open(REPO_URL, '_blank', 'noopener,noreferrer')}
             >
-              See how it works →
+              View on GitHub →
             </button>
           </div>
 
-          <p className="hero-footnote">No signup required · Start instantly in your browser</p>
+          <p className="hero-footnote">MIT licensed · No accounts · Nothing is uploaded</p>
         </div>
 
         {/* Right column — live code preview */}
@@ -165,7 +141,7 @@ export default function Home() {
                 <span className="tok-attr">@unique</span>
               </div>
               <div className="code-line code-line--indent tok-comment">
-                {'// ← auto-suggested by AI'}
+                {'// ← relation to Post'}
               </div>
               <div className="code-line code-line--indent">
                 <span className="tok-field">posts</span>
@@ -215,11 +191,11 @@ export default function Home() {
       {/* ── 2. DEMO SANDBOX ─────────────────────────────────── */}
       <section id="demo-anchor" className="demo-section">
         <div className="section-label">// Live Sandbox</div>
-        <h2 className="section-h2">From idea → schema in seconds</h2>
+        <h2 className="section-h2">Try the editor right here</h2>
 
         <div className="demo-prompt-pill">
-          <Bot size={16} color="#ae7aff" />
-          <code>"Build a SaaS schema with users, billing, and analytics"</code>
+          <Eye size={16} color="#ae7aff" />
+          <code>Starts from the E-commerce template. Edits here are not saved.</code>
         </div>
 
         <div
@@ -235,7 +211,7 @@ export default function Home() {
               <span className="code-window__dot code-window__dot--red" />
               <span className="code-window__dot code-window__dot--yellow" />
               <span className="code-window__dot code-window__dot--green" />
-              <span className="demo-frame__bar-label">Live Sandbox — Try editing!</span>
+              <span className="demo-frame__bar-label">Live Sandbox — try editing</span>
             </div>
             <button
               className="demo-frame__fullscreen"
@@ -252,52 +228,48 @@ export default function Home() {
 
         <p className="demo-caption">
           <span className="demo-caption__arrow">→</span>
-          15 tables generated instantly. Fully linked. Ready to export.
+          The sandbox is the same editor you get at /app, minus saving.
         </p>
       </section>
 
       {/* ── 3. PROBLEM / SOLUTION (git diff) ────────────────── */}
       <section className="diff-section">
         <div className="diff-inner">
-          <div className="section-label">// The Problem</div>
+          <div className="section-label">// Why local-first</div>
 
           <div className="diff-window">
             <div className="diff-window__tabs">
-              <span className="diff-tab diff-tab--inactive">before.dbml</span>
-              <span className="diff-tab diff-tab--active">after.dbml</span>
+              <span className="diff-tab diff-tab--inactive">usual-setup.txt</span>
+              <span className="diff-tab diff-tab--active">modellr.txt</span>
             </div>
             <div className="diff-window__body">
               <div className="diff-line diff-line--removed">
                 <span className="diff-sign">−</span>
-                Jump between SQL editor, ORM docs, and diagram tools
+                Create an account before drawing a table
               </div>
               <div className="diff-line diff-line--removed">
                 <span className="diff-sign">−</span>
-                Manually draw every relation line
-              </div>
-              <div className="diff-line diff-line--removed">
-                <span className="diff-sign">−</span>
-                Export SQL then manually translate to Prisma
+                Upload your schema to someone else's server
               </div>
               <div className="diff-line diff-line--removed" style={{ marginBottom: '20px' }}>
                 <span className="diff-sign">−</span>
-                Repeat for every single project
+                Re-type the same design for every target format
               </div>
               <div className="diff-line diff-line--added">
                 <span className="diff-sign">+</span>
-                Describe your app in plain English
+                Open the editor and start
               </div>
               <div className="diff-line diff-line--added">
                 <span className="diff-sign">+</span>
-                Full schema with indexes and relations — instant
+                Schemas saved in your browser (IndexedDB)
               </div>
               <div className="diff-line diff-line--added">
                 <span className="diff-sign">+</span>
-                One-click Prisma or Drizzle export
+                Export SQL, Prisma, Drizzle, DBML, JSON, PNG or SVG
               </div>
               <div className="diff-line diff-line--added">
                 <span className="diff-sign">+</span>
-                Version controlled from the start
+                MIT licensed. Read the source.
               </div>
             </div>
           </div>
@@ -308,7 +280,7 @@ export default function Home() {
       <section className="features-section">
         <div className="features-inner">
           <div className="section-label">// What you get</div>
-          <h2 className="section-h2">Built for how developers actually work</h2>
+          <h2 className="section-h2">What's in the editor</h2>
 
           <div className="features-grid">
             {FEATURES.map((f, i) => (
@@ -328,16 +300,16 @@ export default function Home() {
       {/* ── 5. THREE MODES ──────────────────────────────────── */}
       <section className="modes-section">
         <div className="modes-inner">
-          <div className="section-label">// One tool. Three ways to build.</div>
+          <div className="section-label">// How it works</div>
           <h2 className="section-h2">
-            The only tool where AI, code, and visual design are fully synchronized.
+            A static web app. Your browser does the work.
           </h2>
 
           <div className="modes-grid">
             {[
-              { icon: <Eye size={24} />, title: 'Visual', desc: 'Design with a clean, auto-layout canvas. Drag, connect, and organize without touching code.' },
-              { icon: <Code2 size={24} />, title: 'Code', desc: 'Write DBML or SQL with instant visual preview. Your canvas updates as you type.' },
-              { icon: <Bot size={24} />, title: 'AI', desc: 'Describe your system in plain English — get a full schema with relations and indexes instantly.' },
+              { icon: <Eye size={24} />, title: 'Canvas, split or code view', desc: 'Design on a visual canvas, or open split mode to watch the generated SQL, DBML, Prisma or Drizzle update beside it. The code panel is read-only.' },
+              { icon: <HardDrive size={24} />, title: 'Saved in your browser', desc: 'Projects live in IndexedDB on your device. Back up and restore everything as a JSON file. Clearing browser data deletes your projects, so keep a backup.' },
+              { icon: <Code2 size={24} />, title: 'Open source, MIT', desc: 'Built with React, TypeScript, Vite, React Flow and Zustand. To self-host, build the static files and serve them from any static host.' },
             ].map((m, i) => (
               <div key={i} className="mode-card">
                 <div className="mode-card__icon">{m.icon}</div>
@@ -349,109 +321,23 @@ export default function Home() {
         </div>
       </section>
 
-      {/* ── 6. PERSONA SELECTOR ─────────────────────────────── */}
-      <section className="persona-section">
-        <div className="persona-inner">
-          <div className="section-label">// Built for real workflows</div>
-
-          <div className="persona-tabs">
-            {(Object.keys(PERSONAS) as PersonaKey[]).map(key => (
-              <button
-                key={key}
-                className={`persona-tab${activePersona === key ? ' persona-tab--active' : ''}`}
-                style={activePersona === key ? { borderColor: PERSONAS[key].color, color: PERSONAS[key].color } : {}}
-                onClick={() => setActivePersona(key)}
-              >
-                {PERSONAS[key].label}
-              </button>
-            ))}
-          </div>
-
-          <div className="persona-content">
-            <h3 className="persona-title">{persona.title}</h3>
-            <div
-              className="persona-schema"
-              style={{ borderLeftColor: persona.color }}
-            >
-              <div className="persona-schema__header">
-                <span className="tok-keyword">model</span>
-                <span className="tok-name"> {persona.tables[0]} </span>
-                <span className="tok-brace">{'{'}</span>
-              </div>
-              {persona.tables.map((t, i) => (
-                <div key={t} className="persona-schema__row">
-                  {i === 0
-                    ? <><span className="tok-field">id</span><span className="tok-type">     String @id</span></>
-                    : <><span className="tok-field">{t.toLowerCase()}</span><span className="tok-type">  {t}[]</span></>
-                  }
-                </div>
-              ))}
-              <div className="persona-schema__header">
-                <span className="tok-brace">{'}'}</span>
-              </div>
-            </div>
-          </div>
-        </div>
-      </section>
-
-      {/* ── 7. PRICING ──────────────────────────────────────── */}
-      <section className="pricing-section">
-        <div className="pricing-inner">
-          <div className="section-label">// Simple, honest pricing</div>
-          <h2 className="section-h2">If this saves you even 2 hours, it pays for itself.</h2>
-
-          <div className="pricing-grid">
-            {/* Free */}
-            <div className="pricing-card">
-              <div className="pricing-card__tier">Free</div>
-              <div className="pricing-card__price">$0<span>/mo</span></div>
-              <div className="pricing-card__tagline">Start building instantly.</div>
-              <ul className="pricing-card__features">
-                <li><span className="check">✓</span> Unlimited editing</li>
-                <li><span className="check">✓</span> 3 saved schemas</li>
-                <li><span className="check">✓</span> SQL / DBML export</li>
-                <li><span className="check">✓</span> Limited AI usage</li>
-              </ul>
-              <button className="btn-outline" onClick={() => navigate('/login')}>
-                Start free
-              </button>
-            </div>
-
-            {/* Pro */}
-            <div className="pricing-card pricing-card--pro">
-              <div className="pricing-card__badge">MOST POPULAR</div>
-              <div className="pricing-card__tier">Pro</div>
-              <div className="pricing-card__price">$15<span>/mo</span></div>
-              <div className="pricing-card__tagline" style={{ color: '#ae7aff' }}>
-                Everything you need to ship faster.
-              </div>
-              <ul className="pricing-card__features">
-                <li><span className="check">✓</span> Unlimited schemas</li>
-                <li><span className="check">✓</span> Prisma &amp; Drizzle export</li>
-                <li><span className="check">✓</span> Full AI capabilities</li>
-                <li><span className="check">✓</span> Version history</li>
-                <li><span className="check">✓</span> Real-time collaboration</li>
-              </ul>
-              <button className="btn-primary" onClick={() => navigate('/pricing')}>
-                Upgrade to Pro
-              </button>
-            </div>
-          </div>
-        </div>
-      </section>
-
-      {/* ── 8. FINAL CTA ────────────────────────────────────── */}
+      {/* ── 6. FINAL CTA ────────────────────────────────────── */}
       <section className="cta-section">
         <div className="cta-glow cta-glow--left" aria-hidden />
         <div className="cta-glow cta-glow--right" aria-hidden />
         <div className="cta-inner">
           <h2 className="cta-h2">
-            Design your database<br />in minutes.
+            Design your database<br />in your browser.
           </h2>
-          <button className="btn-cta" onClick={() => navigate('/login')}>
-            Start building free →
+          <button className="btn-cta" onClick={() => navigate('/app')}>
+            Open the editor →
           </button>
-          <p className="cta-footnote">No credit card · Cancel anytime · Free forever</p>
+          <p className="cta-footnote">
+            Free and open source ·{' '}
+            <a href={REPO_URL} target="_blank" rel="noopener noreferrer" style={{ color: 'inherit', textDecoration: 'underline' }}>
+              <GitBranch size={12} style={{ verticalAlign: '-1px' }} /> GitHub
+            </a>
+          </p>
         </div>
       </section>
 

@@ -28,10 +28,8 @@ export const RelationshipEdge: React.FC<RelationshipEdgeProps> = ({
   markerEnd,
   markerStart,
 }) => {
-  const { tables } = useSchemaStore();
-
   const sourceTableId = data?.sourceTableId as string | undefined;
-  const sourceTable = tables.find((t) => t.id === sourceTableId);
+  const sourceTable = useSchemaStore((s) => s.tables.find((t) => t.id === sourceTableId));
   const accentHex = sourceTable ? ACCENT_HEX[sourceTable.accentColor] : '#378ADD';
 
   const [edgePath] = getBezierPath({

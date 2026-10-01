@@ -1,9 +1,17 @@
-import { useEffect, useState } from 'react';
+import { useCallback, useEffect, useRef, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { supabase } from '../lib/supabase';
-import { useAuthStore } from '../store/authStore';
 import { useUIStore } from '../store/ui';
 import { getTemplate } from '../utils/templates';
+import {
+  createProject,
+  deleteProject,
+  duplicateProject,
+  exportAllProjectsJson,
+  importProjectsJson,
+  listProjects,
+  storageMode,
+  type Project,
+} from '../lib/projectStore';
 
 import { DashboardHeader } from '../components/dashboard/DashboardHeader';
 import { DashboardStats } from '../components/dashboard/DashboardStats';
@@ -11,261 +19,183 @@ import { ProjectCard } from '../components/dashboard/ProjectCard';
 
 import './Dashboard.css';
 
-const FREE_TIER_LIMIT = 3;
+function download(filename: string, text: string) {
+  const url = URL.createObjectURL(new Blob([text], { type: 'application/json' }));
+  const a = document.createElement('a');
+  a.href = url;
+  a.download = filename;
+  a.click();
+  URL.revokeObjectURL(url);
+}
 
 export function Dashboard() {
-  const { session } = useAuthStore();
   const showDialog = useUIStore((s) => s.showDialog);
+  const showToast = useUIStore((s) => s.showToast);
   const navigate = useNavigate();
-  
-  const [schemas, setSchemas] = useState<any[]>([]);
+
+  const [projects, setProjects] = useState<Project[]>([]);
   const [searchQuery, setSearchQuery] = useState('');
-  const [isLoadingSchemas, setIsLoadingSchemas] = useState(true);
-  const [userProfile, setUserProfile] = useState<any>(null);
-  
-  const [showClaimModal, setShowClaimModal] = useState(false);
-  const [sandboxData, setSandboxData] = useState<any>(null);
+  const [loading, setLoading] = useState(true);
+  const [creating, setCreating] = useState(false);
+  const fileRef = useRef<HTMLInputElement>(null);
 
-  // 1. Load User Data & Schemas
-  useEffect(() => {
-    async function loadData() {
-      if (!session?.user?.id) { setIsLoadingSchemas(false); return; }
-      setIsLoadingSchemas(true);
-
-      // Fetch Profile (Tier)
-      const { data: profile } = await supabase
-        .from('users')
-        .select('*')
-        .eq('id', session.user.id)
-        .single();
-      
-      if (profile) setUserProfile(profile);
-
-      // Fetch Schemas
-      const { data } = await supabase
-        .from('schemas')
-        .select('*')
-        .order('updated_at', { ascending: false });
-
-      if (data) setSchemas(data);
-      setIsLoadingSchemas(false);
+  const refresh = useCallback(async () => {
+    try {
+      setProjects(await listProjects());
+    } catch {
+      showToast('Could not read projects from browser storage.', 'error');
+    } finally {
+      setLoading(false);
     }
-    loadData();
-  }, [session]);
+  }, [showToast]);
 
-  // 2. Check for Sandbox
-  useEffect(() => {
-    // Only show if the user isn't already "in" a session where they dismissed it
-    const dismissedThisSession = sessionStorage.getItem('dismissed_sandbox_claim');
-    if (dismissedThisSession) return;
+  useEffect(() => { refresh(); }, [refresh]);
 
-    const local = localStorage.getItem('sandbox_schema');
-    if (local) {
-      try {
-        const parsed = JSON.parse(local);
-        if (parsed.tables && parsed.tables.length > 0) {
-          setSandboxData(parsed);
-          setShowClaimModal(true);
-        }
-      } catch {}
-    }
-  }, []);
-
-  // 3. Handlers
   const handleCreateNew = async (templateId?: string) => {
-    if (!session?.user?.id) return;
-    if (schemas.length >= FREE_TIER_LIMIT) return;
-    
-    let initialState = null;
-    let name = 'Untitled Project';
-
-    if (templateId) {
-      const tpl = getTemplate(templateId);
-      if (tpl) {
-        name = tpl.label + ' Template';
-        initialState = { tables: tpl.tables, relationships: tpl.relationships, viewport: { x: 0, y: 0, zoom: 1 } };
+    if (creating) return; // guard against double-clicks creating duplicates
+    setCreating(true);
+    try {
+      let name = 'Untitled schema';
+      let canvas_state = null;
+      if (templateId) {
+        const tpl = getTemplate(templateId);
+        if (tpl) {
+          name = `${tpl.label} starter`;
+          canvas_state = { tables: tpl.tables, relationships: tpl.relationships };
+        }
       }
+      const project = await createProject({ name, canvas_state });
+      navigate(`/app/${project.id}`);
+    } catch {
+      showToast('Could not create the project (browser storage may be full or blocked).', 'error');
+      setCreating(false);
     }
-
-    const { data } = await supabase
-      .from('schemas')
-      .insert([{ owner_id: session.user.id, name, canvas_state: initialState }])
-      .select().single();
-
-    if (data) navigate(`/app/${data.id}`);
   };
 
-  const handleDuplicate = async (e: React.MouseEvent, schema: any) => {
+  const handleDuplicate = async (e: React.MouseEvent, project: Project) => {
     e.stopPropagation();
-    if (!session?.user?.id || schemas.length >= FREE_TIER_LIMIT) return;
-
-    const { data } = await supabase
-      .from('schemas')
-      .insert([{ owner_id: session.user.id, name: schema.name + ' (Copy)', canvas_state: schema.canvas_state }])
-      .select().single();
-
-    if (data) setSchemas([data, ...schemas]);
+    const copy = await duplicateProject(project.id);
+    if (copy) setProjects((prev) => [copy, ...prev]);
   };
 
-  const handleExport = (e: React.MouseEvent, schema: any) => {
+  const handleExport = (e: React.MouseEvent, project: Project) => {
     e.stopPropagation();
-    const dataStr = typeof schema.canvas_state === 'string' ? schema.canvas_state : JSON.stringify(schema.canvas_state, null, 2);
-    const dataBlob = new Blob([dataStr], { type: 'application/json' });
-    const url = URL.createObjectURL(dataBlob);
-    const link = document.createElement('a');
-    link.href = url;
-    link.download = `${schema.name.replace(/\s+/g, '_').toLowerCase()}_schema.json`;
-    link.click();
-    URL.revokeObjectURL(url);
+    const safe = project.name.replace(/[^\w-]+/g, '_').toLowerCase() || 'schema';
+    download(`${safe}.modellr.json`, JSON.stringify({ name: project.name, canvas_state: project.canvas_state, snapshots: project.snapshots ?? [] }, null, 2));
   };
 
   const handleDelete = (e: React.MouseEvent, id: string) => {
     e.stopPropagation();
     showDialog({
-      title: 'Delete Schema',
-      message: 'Are you sure you want to permanently delete this schema? This action cannot be undone.',
+      title: 'Delete schema',
+      message: 'Delete this schema from this browser? This cannot be undone. Export it first if you may need it.',
       type: 'confirm',
       onConfirm: async () => {
-        await supabase.from('schemas').delete().eq('id', id);
-        // Fix #29: use functional updater to avoid stale closure
-        setSchemas((prev) => prev.filter((s) => s.id !== id));
-      }
+        await deleteProject(id);
+        setProjects((prev) => prev.filter((p) => p.id !== id));
+      },
     });
   };
 
-  const handleClaimSandbox = async () => {
-    if (!session?.user?.id || !sandboxData) return;
-
-    // Fix #28: sandbox claim must respect the free tier limit like all other creates
-    if (schemas.length >= FREE_TIER_LIMIT) {
-      useUIStore.getState().showToast(
-        `You've reached the ${FREE_TIER_LIMIT}-schema free tier limit. Upgrade to Pro to save this sandbox.`,
-        'error'
-      );
-      setShowClaimModal(false);
-      return;
-    }
-
-    const { data } = await supabase
-      .from('schemas')
-      .insert([{ owner_id: session.user.id, name: 'Saved Sandbox', canvas_state: sandboxData }])
-      .select().single();
-    if (data) {
-      localStorage.removeItem('sandbox_schema');
-      setSchemas((prev) => [data, ...prev]);
-      navigate(`/app/${data.id}`);
+  const handleImportFile = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    e.target.value = '';
+    if (!file) return;
+    try {
+      const n = await importProjectsJson(await file.text());
+      showToast(`Imported ${n} schema${n === 1 ? '' : 's'}`, 'success');
+      refresh();
+    } catch (err) {
+      showToast(err instanceof Error ? err.message : 'Import failed', 'error');
     }
   };
 
-  const filteredSchemas = schemas.filter(s => 
-    s.name.toLowerCase().includes(searchQuery.toLowerCase())
-  );
+  const handleBackup = async () => {
+    download(`modellr-backup-${new Date().toISOString().slice(0, 10)}.json`, await exportAllProjectsJson());
+  };
 
-  const limitReached = schemas.length >= FREE_TIER_LIMIT;
+  const filtered = projects.filter((p) => p.name.toLowerCase().includes(searchQuery.toLowerCase()));
 
   return (
-    <>
-      <main className="dashboard-main">
-        <DashboardHeader 
-          searchQuery={searchQuery}
-          setSearchQuery={setSearchQuery}
-          onCreateNew={() => handleCreateNew()}
-          limitReached={limitReached}
-        />
+    <main className="dashboard-main">
+      <DashboardHeader
+        searchQuery={searchQuery}
+        setSearchQuery={setSearchQuery}
+        onCreateNew={() => handleCreateNew()}
+        onImport={() => fileRef.current?.click()}
+        onBackup={handleBackup}
+        canBackup={projects.length > 0}
+      />
+      <input ref={fileRef} type="file" accept="application/json,.json" style={{ display: 'none' }} onChange={handleImportFile} />
 
-        <DashboardStats 
-          schemas={schemas} 
-          limit={userProfile?.tier === 'pro' ? 999 : FREE_TIER_LIMIT} 
-          userTier={userProfile?.tier || 'free'}
-        />
+      {storageMode() === 'memory' && (
+        <div style={{ padding: '12px 16px', borderRadius: 6, marginBottom: 24, background: 'var(--alert-warning)', color: '#000', fontSize: 13 }}>
+          Your browser is blocking local storage. Projects will be lost when you close this tab. Use Export to keep your work.
+        </div>
+      )}
 
-        {/* Pro Up-sell banner */}
-        {limitReached && (
-          <div className="pro-banner" style={{ padding: '20px 24px', borderRadius: '6px', display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '32px', flexWrap: 'wrap', gap: '12px' }}>
-            <div>
-              <h3 style={{ margin: 0, fontSize: '15px', fontWeight: 700, color: '#e8e8f0', fontFamily: "'Syne','Geist',sans-serif" }}>Unlock unlimited projects</h3>
-              <p style={{ margin: '4px 0 0 0', fontSize: '13px', color: '#6b6b80', fontFamily: "'Instrument Sans','Geist',sans-serif" }}>You've reached the free tier limit of 3 schemas. Upgrade to Pro for unlimited canvases.</p>
+      <DashboardStats projects={projects} />
+
+      <div className="projects-section">
+        <div className="projects-section-header">
+          <h2>Your projects</h2>
+          <div style={{ fontSize: '12px', color: 'var(--text-muted)' }}>
+            {filtered.length} saved in this browser
+          </div>
+        </div>
+
+        {loading ? (
+          <div style={{ padding: '48px', textAlign: 'center', color: 'var(--text-muted)', fontSize: '13px' }}>Loading…</div>
+        ) : (
+          <div className="projects-grid">
+            {filtered.map((project) => (
+              <ProjectCard
+                key={project.id}
+                schema={project}
+                onDuplicate={handleDuplicate}
+                onExport={handleExport}
+                onDelete={handleDelete}
+              />
+            ))}
+
+            <div className="create-card" onClick={() => handleCreateNew()}>
+              <div className="create-icon">+</div>
+              <div style={{ fontWeight: 700, marginBottom: '4px', fontSize: '14px' }}>New schema</div>
+              <div style={{ fontSize: '12px', color: 'var(--text-muted)' }}>Start from scratch</div>
             </div>
-            <button onClick={() => navigate('/pricing')} className="btn-primary">Upgrade — $15/mo</button>
           </div>
         )}
 
-        <div className="projects-section">
-          <div className="projects-section-header">
-            <h2>Your Projects</h2>
-            <div style={{ fontSize: '12px', color: 'var(--text-muted)' }}>{filteredSchemas.length} projects found</div>
-          </div>
+        <p style={{ marginTop: 24, fontSize: 12, color: 'var(--text-muted)' }}>
+          Projects are stored only in this browser. Clearing site data deletes them, so use <b>Backup</b> now and then.
+        </p>
+      </div>
 
-          {/* Fix #59: show loading indicator instead of flashing empty state */}
-          {isLoadingSchemas ? (
-            <div style={{ padding: '48px', textAlign: 'center', color: '#6b6b80', fontSize: '13px', fontFamily: "'Geist Mono',monospace" }}>
-              Loading your schemas…
-            </div>
-          ) : (
-            <div className="projects-grid">
-              {filteredSchemas.map(schema => (
-                <ProjectCard 
-                  key={schema.id} 
-                  schema={schema}
-                  onDuplicate={handleDuplicate}
-                  onExport={handleExport}
-                  onDelete={handleDelete}
-                />
-              ))}
-
-              <div className="create-card" onClick={() => handleCreateNew()}>
-                <div className="create-icon">+</div>
-                <div style={{ fontWeight: 700, color: '#e8e8f0', marginBottom: '4px', fontFamily: "'Syne','Geist',sans-serif", fontSize: '14px' }}>New Design</div>
-                <div style={{ fontSize: '12px', color: '#6b6b80', fontFamily: "'Geist Mono',monospace" }}>Start from scratch</div>
-              </div>
-            </div>
-          )}
+      <div id="templates" style={{ marginTop: '56px' }}>
+        <div className="projects-section-header">
+          <h2>Start from a template</h2>
         </div>
-
-        <div id="templates" style={{ marginTop: '56px' }}>
-          <div className="projects-section-header">
-            <h2>Suggested Starters</h2>
-          </div>
-          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: '12px' }}>
-            {[
-              { id: 'ecommerce', name: 'E-commerce' },
-              { id: 'saas', name: 'Multi-tenant SaaS' },
-              { id: 'blog', name: 'Blog + CMS' },
-              { id: 'auth', name: 'Social App' }
-            ].map(tpl => (
-              <div key={tpl.id} className="sidebar-link" onClick={() => handleCreateNew(tpl.id)} style={{ background: '#0c0c10', border: '1px solid #1e1e2e', padding: '14px 16px', justifyContent: 'center', borderRadius: '5px', cursor: 'pointer', transition: 'border-color 0.15s' }}
-                onMouseEnter={e => (e.currentTarget.style.borderColor = '#ae7aff')}
-                onMouseLeave={e => (e.currentTarget.style.borderColor = '#1e1e2e')}
-              >
-                <span style={{ fontWeight: 600, fontSize: '13px', color: '#e8e8f0', fontFamily: "'Instrument Sans','Geist',sans-serif" }}>{tpl.name}</span>
-              </div>
-            ))}
-          </div>
-        </div>
-      </main>
-
-      {showClaimModal && (
-        <div style={{ position: 'fixed', top: 0, left: 0, right: 0, bottom: 0, zIndex: 9999, background: 'rgba(0,0,0,0.85)', display: 'flex', alignItems: 'center', justifyContent: 'center', backdropFilter: 'blur(12px)' }}>
-          <div style={{ background: '#0c0c10', padding: '32px', borderRadius: '8px', maxWidth: '380px', width: '90%', border: '1px solid #2e2e4e', textAlign: 'center', boxShadow: '0 24px 80px rgba(0,0,0,0.7)' }}>
-            <div style={{ fontFamily: "'Geist Mono',monospace", fontSize: '11px', color: '#00e5a0', letterSpacing: '0.08em', marginBottom: '10px' }}>// Sandbox work detected</div>
-            <h2 style={{ fontFamily: "'Syne','Geist',sans-serif", fontSize: '20px', fontWeight: 800, color: '#e8e8f0', marginTop: 0, marginBottom: '10px' }}>Save Sandbox Work?</h2>
-            <p style={{ color: '#6b6b80', lineHeight: 1.6, fontSize: '14px', marginBottom: '28px' }}>Would you like to move the progress you made in the sandbox to your new cloud dashboard?</p>
-            <div style={{ display: 'flex', gap: '10px' }}>
-              <button onClick={handleClaimSandbox} style={{ flex: 1, background: '#ae7aff', color: '#fff', border: 'none', padding: '11px', borderRadius: '4px', fontWeight: 700, cursor: 'pointer', fontFamily: "'Geist Mono',monospace", fontSize: '13px', boxShadow: '0 0 16px rgba(174,122,255,0.2)' }}>Save to Cloud</button>
-              <button
-                onClick={() => {
-                  localStorage.removeItem('sandbox_schema');
-                  sessionStorage.setItem('dismissed_sandbox_claim', 'true');
-                  setShowClaimModal(false);
-                }}
-                style={{ flex: 1, background: 'transparent', border: '1px solid #1e1e2e', color: '#6b6b80', borderRadius: '4px', cursor: 'pointer', fontFamily: "'Geist Mono',monospace", fontSize: '13px', transition: 'border-color 0.15s' }}
-                onMouseEnter={e => (e.currentTarget.style.borderColor = '#2e2e4e')}
-                onMouseLeave={e => (e.currentTarget.style.borderColor = '#1e1e2e')}
-              >Discard</button>
+        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(160px, 1fr))', gap: '12px' }}>
+          {[
+            { id: 'ecommerce', name: 'E-commerce' },
+            { id: 'saas', name: 'Multi-tenant SaaS' },
+            { id: 'blog', name: 'Blog + CMS' },
+            { id: 'auth', name: 'Social app' },
+          ].map((tpl) => (
+            <div
+              key={tpl.id}
+              className="sidebar-link"
+              role="button"
+              tabIndex={0}
+              onClick={() => handleCreateNew(tpl.id)}
+              onKeyDown={(e) => e.key === 'Enter' && handleCreateNew(tpl.id)}
+              style={{ border: '1px solid var(--border-subtle)', padding: '14px 16px', justifyContent: 'center', borderRadius: '5px', cursor: 'pointer' }}
+            >
+              <span style={{ fontWeight: 600, fontSize: '13px' }}>{tpl.name}</span>
             </div>
-          </div>
+          ))}
         </div>
-      )}
-    </>
+      </div>
+    </main>
   );
 }

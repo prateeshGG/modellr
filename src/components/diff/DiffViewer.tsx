@@ -2,66 +2,16 @@ import React, { useMemo, useState } from 'react';
 import { useSchemaStore } from '../../store/schema';
 import { useHistoryStore } from '../../store/history';
 import { useUIStore } from '../../store/ui';
-import type { Table, Field } from '../../types/schema';
+import type { Table, Field, Relationship } from '../../types/schema';
 import CodeMirror from '@uiw/react-codemirror';
 import { sql as sqlLang } from '@codemirror/lang-sql';
 import { vscodeDark } from '@uiw/codemirror-theme-vscode';
-import { generateMigrationsSQL, type TableDiff, type FieldDiff } from '../../utils/exporters/migrations';
+import { generateMigrationsSQL } from '../../utils/exporters/migrations';
+import { diffSchemas, diffRelationships } from '../../utils/schemaDiff';
 import './DiffViewer.css';
 
 interface DiffViewerProps {
   onClose: () => void;
-}
-
-function diffSchemas(
-  before: { tables: Table[] },
-  after:  { tables: Table[] }
-): TableDiff[] {
-  const diffs: TableDiff[] = [];
-
-  const beforeMap = new Map(before.tables.map((t) => [t.name, t]));
-  const afterMap  = new Map(after.tables.map((t)  => [t.name, t]));
-
-  // Removed tables
-  for (const [name, table] of beforeMap) {
-    if (!afterMap.has(name)) diffs.push({ kind: 'removed', table });
-  }
-
-  // Added tables
-  for (const [name, table] of afterMap) {
-    if (!beforeMap.has(name)) diffs.push({ kind: 'added', table });
-  }
-
-  // Changed tables (exist in both)
-  for (const [name, afterTable] of afterMap) {
-    const beforeTable = beforeMap.get(name);
-    if (!beforeTable) continue;
-
-    const fieldDiffs: FieldDiff[] = [];
-    const beforeFields = new Map(beforeTable.fields.map((f) => [f.name, f]));
-    const afterFields  = new Map(afterTable.fields.map((f)  => [f.name, f]));
-
-    for (const [fn, f] of beforeFields) {
-      if (!afterFields.has(fn)) fieldDiffs.push({ kind: 'removed', field: f });
-    }
-    for (const [fn, f] of afterFields) {
-      if (!beforeFields.has(fn)) {
-        fieldDiffs.push({ kind: 'added', field: f });
-      } else {
-        const bf = beforeFields.get(fn)!;
-        if (bf.type !== f.type || bf.nullable !== f.nullable ||
-            bf.unique !== f.unique || bf.isPK !== f.isPK) {
-          fieldDiffs.push({ kind: 'changed', before: bf, after: f });
-        }
-      }
-    }
-
-    if (fieldDiffs.length > 0) {
-      diffs.push({ kind: 'changed', tableName: name, fields: fieldDiffs });
-    }
-  }
-
-  return diffs;
 }
 
 function fieldBadges(f: Field) {
@@ -74,7 +24,7 @@ function fieldBadges(f: Field) {
 }
 
 export const DiffViewer: React.FC<DiffViewerProps> = ({ onClose }) => {
-  const { tables, dialect } = useSchemaStore();
+  const { tables, relationships, dialect } = useSchemaStore();
   const { snapshots, restoreSnapshot } = useHistoryStore();
   const { showDialog } = useUIStore();
   const [showSql, setShowSql] = useState(false);
@@ -94,7 +44,15 @@ export const DiffViewer: React.FC<DiffViewerProps> = ({ onClose }) => {
     );
   }, [snapshot, tables]);
 
-  const hasChanges = diffs.length > 0;
+  const relDiffs = useMemo(() => {
+    if (!snapshot) return [];
+    return diffRelationships(
+      { tables: snapshot.tables as Table[], relationships: snapshot.relationships as Relationship[] },
+      { tables, relationships },
+    );
+  }, [snapshot, tables, relationships]);
+
+  const hasChanges = diffs.length > 0 || relDiffs.length > 0;
   const addedCount   = diffs.filter((d) => d.kind === 'added').length;
   const removedCount = diffs.filter((d) => d.kind === 'removed').length;
   const changedCount = diffs.filter((d) => d.kind === 'changed').length;
@@ -243,7 +201,7 @@ export const DiffViewer: React.FC<DiffViewerProps> = ({ onClose }) => {
             <h3 style={{ margin: '0 0 8px 0', fontSize: '13px', color: '#94a3b8' }}>Generated SQL Migration</h3>
             <div className="code-mirror-wrapper" style={{ height: '200px', border: '1px solid #334155', borderRadius: '4px', overflow: 'hidden' }}>
               <CodeMirror
-                value={generateMigrationsSQL(diffs, dialect)}
+                value={generateMigrationsSQL(diffs, dialect, relDiffs)}
                 height="100%"
                 extensions={[sqlLang()]}
                 theme={vscodeDark}

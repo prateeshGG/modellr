@@ -1,15 +1,13 @@
 import { Outlet, useLocation, useNavigate } from 'react-router-dom';
-import { useAuthStore } from '../../store/authStore';
 import './AppLayout.css';
 
 export const AppSidebar = () => {
   const navigate = useNavigate();
   const location = useLocation();
-  const { signOut, session } = useAuthStore();
 
   const navItems = [
     { label: 'My Projects', path: '/app', icon: null },
-    { label: 'Community Templates', path: '/app/templates', icon: null },
+    { label: 'Templates', path: '/app/templates', icon: null },
     { label: 'Documentation', path: '/docs', icon: null },
   ];
 
@@ -49,11 +47,6 @@ export const AppSidebar = () => {
         >
           Settings
         </div>
-        {session && (
-          <div className="sidebar-link" onClick={signOut} style={{ color: 'var(--alert-error)' }}>
-            Sign Out
-          </div>
-        )}
       </div>
     </aside>
   );

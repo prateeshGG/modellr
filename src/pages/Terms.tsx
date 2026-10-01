@@ -7,32 +7,37 @@ export function Terms() {
     <div className="pd-root">
       <PublicNav dark />
       <div className="pd-legal" style={{ paddingTop: '100px' }}>
-        <h1>Terms of Service</h1>
-        <span className="pd-date">Last updated: April 24, 2026</span>
+        <h1>Terms of Use</h1>
+        <span className="pd-date">Last updated: 2026-10-01</span>
 
         <section>
-          <h2>1. Agreement to Terms</h2>
-          <p>By accessing or using Modellr, you agree to be bound by these Terms of Service. If you disagree with any part of the terms, you may not access the service. These Terms apply to all visitors, users, and others who access or use the Service.</p>
+          <h2>1. License</h2>
+          <p>Modellr is free, open-source software released under the MIT license. The full license text is in the <a href="https://github.com/prateesh7777/schemaforge" target="_blank" rel="noopener noreferrer" style={{ color: 'var(--pd-brand)' }}>project repository</a>. You may use, copy, modify and distribute it under those terms.</p>
         </section>
 
         <section>
-          <h2>2. Accounts</h2>
-          <p>When you create an account with us, you must provide information that is accurate, complete, and current at all times. Failure to do so constitutes a breach of the Terms, which may result in immediate termination of your account on our Service. You are responsible for safeguarding the password that you use to access the Service and for any activities or actions under your password.</p>
+          <h2>2. No warranty</h2>
+          <p>The software and this website are provided "as is", without warranty of any kind, express or implied. To the extent permitted by law, the authors and contributors are not liable for any claim, damages or other liability arising from the use of the software.</p>
         </section>
 
         <section>
-          <h2>3. Acceptable Use</h2>
-          <p>You agree not to use Modellr to construct schemas that explicitly facilitate illegal activities. You also agree not to reverse engineer the canvas drawing protocol, abuse the AI API limits, or spam the collaboration WebSocket channels.</p>
+          <h2>3. Your schemas and exports</h2>
+          <p>Your schemas and anything you export from Modellr belong to you. They are stored in your browser, not by us. You are responsible for keeping backups: clearing browser data deletes your projects.</p>
         </section>
 
         <section>
-          <h2>4. Intellectual Property</h2>
-          <p>Any database schemas, exported files (SQL, Prisma, DBML), and data structures you architect and export using Modellr are entirely your intellectual property. We claim no ownership over the database designs you create. The Modellr platform interface, code, and branded assets themselves remain the exclusive property of Modellr Inc.</p>
+          <h2>4. Review before you run</h2>
+          <p>Generated SQL, Prisma and Drizzle code, and migration scripts from the diff viewer are starting points. Importers may not support every syntax. Review everything before running it against a real database, and test it on a copy first.</p>
         </section>
 
         <section>
-          <h2>5. Limitation of Liability</h2>
-          <p>In no event shall Modellr, nor its directors, employees, partners, agents, suppliers, or affiliates, be liable for any indirect, incidental, special, consequential or punitive damages, including without limitation, loss of profits, data, use, goodwill, or other intangible losses, resulting from your access to or use of or inability to access or use the Service.</p>
+          <h2>5. AI output</h2>
+          <p>The optional AI assistant uses a provider and key that you supply. Its output can be wrong or incomplete, and your use of that provider is subject to that provider's terms.</p>
+        </section>
+
+        <section>
+          <h2>6. Changes</h2>
+          <p>These terms may be updated as the project evolves. This page is a plain-language summary and is not legal advice.</p>
         </section>
       </div>
       <Footer />

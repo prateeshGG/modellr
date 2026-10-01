@@ -10,25 +10,24 @@ export const DocsLayout: React.FC<DocsLayoutProps> = ({ currentArticle, onSelect
 
   const navGroups = [
     {
-      title: 'Documentation',
+      title: 'Guides',
       items: [
         { id: 'getting-started', label: 'Getting Started' },
-        { id: 'ai-usage', label: 'AI Usage' },
+        { id: 'import', label: 'Importing' },
+        { id: 'export', label: 'Exporting' },
+        { id: 'snapshots-diff', label: 'Snapshots & Diff' },
+        { id: 'sharing', label: 'Sharing & Embeds' },
+        { id: 'ai-setup', label: 'AI (Your Own Key)' },
+        { id: 'backup', label: 'Backup & Restore' },
       ],
     },
     {
-      title: 'Exports',
+      title: 'Reference',
       items: [
-        { id: 'export-prisma', label: 'Prisma' },
-        { id: 'export-drizzle', label: 'Drizzle' },
-        { id: 'export-sql', label: 'SQL / DBML' },
-      ],
-    },
-    {
-      title: 'Resources',
-      items: [
-        { id: 'examples', label: 'Examples' },
-        { id: 'notes', label: 'Notes & Limitations' },
+        { id: 'shortcuts', label: 'Keyboard Shortcuts' },
+        { id: 'examples', label: 'Templates' },
+        { id: 'self-hosting', label: 'Self-hosting' },
+        { id: 'notes', label: 'What Modellr Does Not Do' },
       ],
     },
   ];
@@ -40,7 +39,7 @@ export const DocsLayout: React.FC<DocsLayoutProps> = ({ currentArticle, onSelect
           Documentation
         </div>
         <div style={{ color: '#6b6b80', fontSize: '12px', marginBottom: '28px', lineHeight: 1.5, fontFamily: "'Instrument Sans','Geist',sans-serif" }}>
-          Learn how to design, generate, and export database schemas.
+          Learn how to design, import, and export database schemas with Modellr.
         </div>
 
         <nav>

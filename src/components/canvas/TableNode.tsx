@@ -11,8 +11,15 @@ type TableNodeData = Table;
 
 export const TableNode: React.FC<NodeProps> = ({ data, selected }) => {
   const table = data as unknown as TableNodeData;
-  const { addField, reorderFields, updateTable, removeTable } = useSchemaStore();
-  const { setSelection, density, selection, clearSelection, readOnly } = useUIStore();
+  const addField = useSchemaStore((s) => s.addField);
+  const reorderFields = useSchemaStore((s) => s.reorderFields);
+  const updateTable = useSchemaStore((s) => s.updateTable);
+  const removeTable = useSchemaStore((s) => s.removeTable);
+  const setSelection = useUIStore((s) => s.setSelection);
+  const density = useUIStore((s) => s.density);
+  const selection = useUIStore((s) => (s.selection?.type === 'table' && s.selection.tableId === table.id ? s.selection : null));
+  const clearSelection = useUIStore((s) => s.clearSelection);
+  const readOnly = useUIStore((s) => s.readOnly);
   const [dragFromIndex, setDragFromIndex] = useState<number | null>(null);
   const [dragOverIndex, setDragOverIndex] = useState<number | null>(null);
 

@@ -12,8 +12,8 @@ export const Footer: React.FC = () => {
     fontFamily: "'Instrument Sans', 'Geist', sans-serif",
   };
 
-  const onHover = (e: React.MouseEvent<HTMLSpanElement>) => (e.currentTarget.style.color = '#e8e8f0');
-  const onLeave = (e: React.MouseEvent<HTMLSpanElement>) => (e.currentTarget.style.color = '#6b6b80');
+  const onHover = (e: React.MouseEvent<HTMLElement>) => (e.currentTarget.style.color = '#e8e8f0');
+  const onLeave = (e: React.MouseEvent<HTMLElement>) => (e.currentTarget.style.color = '#6b6b80');
 
   const Link: React.FC<{ to: string; children: React.ReactNode }> = ({ to, children }) => (
     <span
@@ -31,7 +31,7 @@ export const Footer: React.FC = () => {
       heading: 'Product',
       links: [
         { label: 'Templates', to: '/templates' },
-        { label: 'Pricing',   to: '/pricing' },
+        { label: 'Blog',      to: '/blog' },
         { label: 'Docs',      to: '/docs' },
         { label: 'Features',  to: '/features' },
       ],
@@ -45,14 +45,7 @@ export const Footer: React.FC = () => {
       ],
     },
     {
-      heading: 'Compare',
-      links: [
-        { label: 'vs dbdiagram', to: '/compare/dbdiagram' },
-        { label: 'vs DrawSQL',   to: '/compare/drawsql' },
-      ],
-    },
-    {
-      heading: 'Company',
+      heading: 'Project',
       links: [
         { label: 'About',   to: '/about' },
         { label: 'Blog',    to: '/blog' },
@@ -63,7 +56,7 @@ export const Footer: React.FC = () => {
       heading: 'Legal',
       links: [
         { label: 'Privacy Policy',   to: '/privacy' },
-        { label: 'Terms of Service', to: '/terms' },
+        { label: 'Terms of Use', to: '/terms' },
       ],
     },
   ];
@@ -87,7 +80,7 @@ export const Footer: React.FC = () => {
             <span style={{ fontFamily: "'Syne', 'Geist', sans-serif", fontWeight: 800, fontSize: '18px', color: '#e8e8f0' }}>Modellr</span>
           </div>
           <p style={{ fontSize: '13px', lineHeight: 1.65, color: '#6b6b80', fontFamily: "'Instrument Sans', 'Geist', sans-serif" }}>
-            The intelligent choice for modern data architecture — built natively for Prisma, Drizzle, and modern stacks.
+            A free, open-source, local-first database schema designer. Runs in your browser; no account needed.
           </p>
         </div>
 
@@ -105,6 +98,18 @@ export const Footer: React.FC = () => {
                 {col.heading}
               </strong>
               {col.links.map(l => <Link key={l.to} to={l.to}>{l.label}</Link>)}
+              {col.heading === 'Project' && (
+                <a
+                  href="https://github.com/prateesh7777/schemaforge"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  style={{ ...linkStyle, textDecoration: 'none' }}
+                  onMouseEnter={onHover}
+                  onMouseLeave={onLeave}
+                >
+                  GitHub
+                </a>
+              )}
             </div>
           ))}
         </div>
@@ -124,8 +129,8 @@ export const Footer: React.FC = () => {
         gap: '8px',
         fontFamily: "'Geist Mono', monospace",
       }}>
-        <span>© {new Date().getFullYear()} Modellr Inc. All rights reserved.</span>
-        <span style={{ color: '#2e2e4e' }}>Designed natively on the grid.</span>
+        <span>Modellr is free and open-source software, released under the MIT license.</span>
+        <span style={{ color: '#2e2e4e' }}>Your schemas stay in your browser.</span>
       </div>
     </footer>
   );
