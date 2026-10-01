@@ -59,7 +59,7 @@ function buildTheme(isDark: boolean) {
       '.tok-string': { color: isDark ? '#97C459' : '#639922' },
       '.tok-number': { color: isDark ? '#F5BC5A' : '#B9A717' },
       '.tok-comment': { color: isDark ? '#686965' : '#9B998F', fontStyle: 'italic' },
-      '.tok-typeName': { color: isDark ? '#A09AEB' : '#7F77DD' },
+      '.tok-typeName': { color: isDark ? '#FF8A63' : '#C63A12' },
       '.tok-name': { color: isDark ? '#F0EEE8' : '#1C1B18' },
       '.tok-punctuation': { color: isDark ? '#A8A69E' : '#5A5955' },
       '.tok-operator': { color: isDark ? '#F07070' : '#E24B4A' },

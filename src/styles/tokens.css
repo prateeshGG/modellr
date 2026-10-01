@@ -5,23 +5,23 @@
 
 :root {
   /* ── BACKGROUNDS ─────────────────────────────── */
-  --canvas-bg: #EFEDE7;
-  --surface-low: #F7F6F2;
+  --canvas-bg: #F3F3F1;
+  --surface-low: #FAFAF9;
   --surface-base: #FFFFFF;
-  --surface-raised: #F2F0EA;
-  --surface-overlay: #E8E6DF;
+  --surface-raised: #F1F1EF;
+  --surface-overlay: #E7E7E4;
 
   /* ── TEXT ────────────────────────────────────── */
-  --text-primary: #1C1B18;
-  --text-secondary: #5A5955;
-  --text-muted: #9B998F;
+  --text-primary: #0B0C0E;
+  --text-secondary: #4A4F57;
+  --text-muted: #6B717A;
   --text-accent: #185FA5;
 
   /* ── BORDERS ─────────────────────────────────── */
-  --border-subtle: #E4E2DA;
-  --border-default: #CBC9C0;
+  --border-subtle: #E6E6E3;
+  --border-default: #D2D2CE;
   --border-focus: #378ADD;
-  --border-ai: #7F77DD;
+  --border-ai: #E24A1C;
 
   /* ── SEMANTIC: INFO ──────────────────────────── */
   --info-bg: #EBF3FD;
@@ -40,8 +40,8 @@
   --danger-text: #E24B4A;
 
   /* ── SEMANTIC: AI ────────────────────────────── */
-  --ai-bg: #EEEDF9;
-  --ai-text: #7F77DD;
+  --ai-bg: #FDEDE7;
+  --ai-text: #C63A12;
 
   /* ── DIFF COLORS ─────────────────────────────── */
   --diff-added: #639922;
@@ -121,26 +121,27 @@
   /* ── BRAND COLOR ─────────────────────────────── */
   /* Fix #98: single source of truth for the primary brand purple.
      Use var(--brand) for solid fills and rgba(var(--brand-rgb), α) for tints. */
-  --brand: rgb(162, 107, 252);
-  --brand-rgb: 162, 107, 252;
-  --brand-glow: rgba(162, 107, 252, 0.4);
+  --brand: rgb(226, 74, 28);
+  --brand-rgb: 226, 74, 28;
+  --brand-ink: #ffffff;
+  --brand-glow: rgba(226, 74, 28, 0.35);
 }
 
 /* ── DARK MODE ─────────────────────────────────── */
 [data-theme="dark"] {
-  --canvas-bg: #131312;
-  --surface-low: #1A1A18;
-  --surface-base: #242422;
-  --surface-raised: #2E2E2B;
-  --surface-overlay: #383835;
+  --canvas-bg: #08090A;
+  --surface-low: #0C0D0F;
+  --surface-base: #121417;
+  --surface-raised: #181B1F;
+  --surface-overlay: #1F2328;
 
-  --text-primary: #F0EEE8;
-  --text-secondary: #A8A69E;
-  --text-muted: #686965;
+  --text-primary: #F5F6F7;
+  --text-secondary: #A3A8AF;
+  --text-muted: #7D838B;
   --text-accent: #85B7EB;
 
-  --border-subtle: #353532;
-  --border-default: #484845;
+  --border-subtle: #1D2025;
+  --border-default: #2B3036;
   /* border-focus and border-ai stay same in dark */
 
   --info-bg: #0C2340;
@@ -155,17 +156,18 @@
   --danger-bg: #2E0C0C;
   --danger-text: #F07070;
 
-  --ai-bg: #1C1A36;
-  --ai-text: #A09AEB;
+  --ai-bg: #2A140C;
+  --ai-text: #FF8A63;
 
   --diff-added: #97C459;
   --diff-removed: #F07070;
   --diff-modified: #F5BC5A;
 
-  /* Brand stays consistent in dark mode — purple reads well on dark surfaces */
-  --brand: rgb(174, 122, 255);
-  --brand-rgb: 174, 122, 255;
-  --brand-glow: rgba(174, 122, 255, 0.35);
+  /* Brand stays consistent in dark mode — orange reads well on dark surfaces */
+  --brand: rgb(255, 106, 61);
+  --brand-rgb: 255, 106, 61;
+  --brand-ink: #1a0802;
+  --brand-glow: rgba(255, 106, 61, 0.35);
 }
 
 /* ── REDUCED MOTION ────────────────────────────── */
