@@ -22,7 +22,7 @@ export function Contact() {
             <a className="n-card" href={REPO_URL} target="_blank" rel="noopener noreferrer">
               <span className="n-card__meta">Source</span><h2 className="n-h3">Read the code</h2>
               <p className="n-small">Fork it, or send a pull request. Modellr is MIT licensed.</p>
-              <span className="n-arrow">prateesh7777/modellr</span>
+              <span className="n-arrow">prateeshGG/modellr</span>
             </a>
           </div>
           {DONATE_URL && (

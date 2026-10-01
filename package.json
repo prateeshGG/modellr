@@ -53,7 +53,7 @@
   "description": "Free, open-source, local-first database schema designer.",
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/prateesh7777/modellr.git"
+    "url": "git+https://github.com/prateeshGG/modellr.git"
   },
   "engines": {
     "node": ">=22.18"

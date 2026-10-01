@@ -1,7 +1,7 @@
 /** Public project links and optional settings. */
 
 /** GitHub repository in owner/name form. Change here if the repo is ever renamed again. */
-export const GITHUB_REPO = 'prateesh7777/modellr';
+export const GITHUB_REPO = 'prateeshGG/modellr';
 export const REPO_URL = `https://github.com/${GITHUB_REPO}`;
 
 /**

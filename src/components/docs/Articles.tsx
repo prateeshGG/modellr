@@ -1,6 +1,6 @@
 // Documentation Articles
 
-const REPO_URL = 'https://github.com/prateesh7777/modellr';
+const REPO_URL = 'https://github.com/prateeshGG/modellr';
 
 const extLink = (href: string, text: string) => (
   <a href={href} target="_blank" rel="noopener noreferrer">{text}</a>
@@ -280,7 +280,7 @@ npm run build
     </ul>
 
     <h2>Source and license</h2>
-    <p>The code is MIT licensed: {extLink(REPO_URL, 'github.com/prateesh7777/modellr')}.</p>
+    <p>The code is MIT licensed: {extLink(REPO_URL, 'github.com/prateeshGG/modellr')}.</p>
   </article>
 );
 

@@ -21,7 +21,7 @@ export function About() {
             <p>Sketching a database schema should not need an account, a subscription or an upload. Modellr started as a hosted service. It is now a free, open-source, local-first web app: you open it, design your tables, and export the result as SQL, Prisma, Drizzle, DBML, JSON, PNG or SVG.</p>
             <p>It is a static site. There is no backend, no sign-in and no database on our side. Your schemas are saved in your browser, and you can back them up as a JSON file.</p>
             <h2>How it is built</h2>
-            <p>Modellr is a single-page app written in TypeScript with React and Vite. The canvas uses React Flow and state is managed with Zustand. The repository is maintained by <a href="https://github.com/prateesh7777" target="_blank" rel="noopener noreferrer">prateesh7777</a>.</p>
+            <p>Modellr is a single-page app written in TypeScript with React and Vite. The canvas uses React Flow and state is managed with Zustand. The repository is maintained by <a href="https://github.com/prateeshGG" target="_blank" rel="noopener noreferrer">prateeshGG</a>.</p>
             <div className="n-panel">
               <div className="n-panel__head"><span>terminal</span></div>
               <pre className="n-code" tabIndex={0}>{`git clone ${REPO_URL}\nnpm install && npm run build\n# then serve the dist/ folder from any static host`}</pre>
