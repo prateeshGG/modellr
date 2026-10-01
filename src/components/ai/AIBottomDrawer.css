@@ -249,14 +249,14 @@
   transition: border-color 0.2s;
 }
 .ai-drawer__input-area input:focus {
-  border-color: #A09AEB;
+  border-color: #FF8A63;
 }
 .ai-drawer__input-area input::placeholder {
   color: var(--text-muted, #777);
 }
 
 .ai-send-btn {
-  background-color: #A09AEB;
+  background-color: #FF8A63;
   color: #111;
   border: none;
   border-radius: 8px;
@@ -299,5 +299,5 @@
 .ai-bubble--loading span:nth-child(2) { animation-delay: -0.16s; }
 @keyframes bounce {
   0%, 80%, 100% { transform: scale(0); background-color: var(--text-muted, #888); }
-  40% { transform: scale(1); background-color: #A09AEB; }
+  40% { transform: scale(1); background-color: #FF8A63; }
 }

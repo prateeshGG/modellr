@@ -65,3 +65,15 @@ export const TEMPLATE_CATEGORIES = [
   { id: 'cms',       label: 'CMS & Blogs' },
   { id: 'auth',      label: 'Auth & Social' },
 ] as const;
+
+/** Which template ids belong to each gallery category (a category id is not always a template id, e.g. "cms" -> "blog"). */
+const CATEGORY_TEMPLATES: Record<string, string[]> = {
+  saas: ['saas'],
+  ecommerce: ['ecommerce'],
+  cms: ['blog'],
+  auth: ['auth'],
+};
+
+export function templateInCategory(templateId: string, categoryId: string): boolean {
+  return categoryId === 'all' || (CATEGORY_TEMPLATES[categoryId] ?? [categoryId]).includes(templateId);
+}

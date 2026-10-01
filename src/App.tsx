@@ -19,16 +19,19 @@ const About = lazy(() => import('./pages/About').then(m => ({ default: m.About }
 const Contact = lazy(() => import('./pages/Contact').then(m => ({ default: m.Contact })));
 const BlogIndex = lazy(() => import('./pages/BlogIndex').then(m => ({ default: m.BlogIndex })));
 const BlogPost = lazy(() => import('./pages/BlogPost').then(m => ({ default: m.BlogPost })));
+const NotFound = lazy(() => import('./pages/NotFound'));
 import { AppLayout } from './components/layout/AppLayout';
 import { DialogModal } from './components/shared/DialogModal';
+import { Toast } from './components/shared/Toast';
 import { AISettingsHost } from './components/ai/AISettingsDialog';
 
 export default function App() {
   return (
     <BrowserRouter>
       <DialogModal />
+      <Toast />
       <AISettingsHost />
-      <Suspense fallback={<div style={{ display: 'flex', height: '100vh', alignItems: 'center', justifyContent: 'center', color: 'var(--text-muted)' }}>Loading...</div>}>
+      <Suspense fallback={<div role="status" aria-live="polite" style={{ display: 'flex', height: '100vh', alignItems: 'center', justifyContent: 'center', color: 'var(--text-muted)', fontFamily: "'Geist Variable', system-ui, sans-serif", fontSize: 14 }}>Loading…</div>}>
         <Routes>
         {/* Marketing Routes */}
         <Route path="/" element={<Home />} />
@@ -48,6 +51,7 @@ export default function App() {
         <Route path="/privacy" element={<Privacy />} />
         <Route path="/terms" element={<Terms />} />
         <Route path="/docs" element={<Docs />} />
+        <Route path="/docs/:slug" element={<Docs />} />
         <Route path="/embed" element={<EmbedViewer />} />
         {/* Shell Wrapped App Routes */}
         <Route element={<AppLayout />}>
@@ -69,6 +73,7 @@ export default function App() {
             <Editor isSharedView={true} />
           </div>
         } />
+        <Route path="*" element={<NotFound />} />
         </Routes>
       </Suspense>
     </BrowserRouter>

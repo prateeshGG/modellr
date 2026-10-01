@@ -57,7 +57,7 @@ export const ShareModal: React.FC<ShareModalProps> = ({ onClose }) => {
           </p>
 
           {tooLong && (
-            <p className="share-modal__desc" style={{ color: 'var(--alert-warning)' }}>
+            <p className="share-modal__desc" style={{ color: 'var(--warn-text)' }}>
               This schema produces a very long link ({Math.round(linkInfo.link.length / 1000)}k characters). Some chat apps
               and browsers may cut it off. For large schemas, share an exported file instead.
             </p>

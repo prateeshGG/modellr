@@ -44,7 +44,26 @@ npm run build      # static files in dist/
 ```
 
 Self-hosting is serving `dist/` from any static host. The app uses client-side routing, so configure the
-host to fall back to `index.html` (a `vercel.json` rewrite is included).
+host to fall back to `index.html` (a `vercel.json` rewrite and a Netlify/Cloudflare `_redirects` file are included).
+Node 22.18 or newer is needed for the build.
+
+### Deploying and search engines
+
+`npm run build` also writes one static HTML file per public page (own title, description, canonical link), `robots.txt`
+(the editor, dashboard and embeds are disallowed) and, when you tell it where the site lives, `sitemap.xml`:
+
+```bash
+SITE_URL=https://your-domain.example npm run build
+```
+
+Without `SITE_URL` the pages still get titles and descriptions but no canonical links or sitemap. Do not add a
+top-level `404.html`: on Cloudflare Pages that turns off the single-page-app fallback and breaks `/app/<id>` links.
+
+## Design and verification
+
+The public pages and the app shell use the "Night" design system (`src/styles/night.css`). The research behind it, the written spec,
+the mockups and the verification scripts (user flows, computed-style assertions, contrast, overflow at 8 widths) are in
+[clone-workspace/modellr](clone-workspace/modellr/README.md).
 
 ## Performance
 
@@ -75,7 +94,7 @@ Importers and exporters have fixture-based tests in `tests/`; add a fixture when
 
 This repository began as a cloud product (accounts, Supabase, real-time collaboration, live DB import, an MCP
 server, paid plans). It was converted to a free local-first app. The last commit that contains the backend is
-[`60f5636`](https://github.com/prateesh7777/schemaforge/commit/60f5636).
+[`60f5636`](https://github.com/prateesh7777/modellr/commit/60f5636).
 
 ## License
 

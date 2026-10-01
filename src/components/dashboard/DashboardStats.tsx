@@ -1,11 +1,7 @@
-import React, { useState } from 'react';
+import { useState } from 'react';
 import type { Project } from '../../lib/projectStore';
 
-interface DashboardStatsProps {
-  projects: Project[];
-}
-
-export const DashboardStats: React.FC<DashboardStatsProps> = ({ projects }) => {
+export function DashboardStats({ projects }: { projects: Project[] }) {
   // Captured once per mount: calling Date.now() during render is impure.
   const [now] = useState(() => Date.now());
   const totalTables = projects.reduce((acc, p) => acc + (p.canvas_state?.tables?.length ?? 0), 0);
@@ -14,19 +10,10 @@ export const DashboardStats: React.FC<DashboardStatsProps> = ({ projects }) => {
   const lastActivity = hours === null ? 'Never' : hours < 1 ? 'Just now' : hours < 48 ? `${hours}h ago` : `${Math.floor(hours / 24)}d ago`;
 
   return (
-    <div className="dashboard-stats-grid">
-      <div className="stat-card">
-        <div className="stat-label">Schemas</div>
-        <div className="stat-value">{projects.length}</div>
-      </div>
-      <div className="stat-card">
-        <div className="stat-label">Total tables</div>
-        <div className="stat-value" style={{ color: '#ae7aff' }}>{totalTables}</div>
-      </div>
-      <div className="stat-card">
-        <div className="stat-label">Last activity</div>
-        <div className="stat-value">{lastActivity}</div>
-      </div>
+    <div className="n-stats">
+      <div className="n-stat"><span className="n-small">Schemas</span><b>{projects.length}</b></div>
+      <div className="n-stat"><span className="n-small">Total tables</span><b>{totalTables}</b></div>
+      <div className="n-stat"><span className="n-small">Last activity</span><b>{lastActivity}</b></div>
     </div>
   );
-};
+}

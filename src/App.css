@@ -1,4 +1,6 @@
 .app-shell {
+  container-type: inline-size;
+  container-name: editor;
   display: flex;
   flex-direction: column;
   height: 100%;
@@ -68,4 +70,30 @@
 @keyframes codePaneSlideIn {
   from { opacity: 0; transform: translateX(24px); }
   to   { opacity: 1; transform: translateX(0); }
+}
+
+/* Notices above the editor top bar */
+.app-banner {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 8px 16px;
+  background: var(--surface-raised);
+  border-bottom: 1px solid var(--border-subtle);
+  color: var(--text-primary);
+  font-size: 13px;
+}
+.app-banner--warn {
+  background: var(--warn-bg);
+  color: var(--warn-text);
+  border-bottom-color: var(--warn-text);
+}
+.app-banner__btn {
+  padding: 5px 12px;
+  border-radius: var(--r-md);
+  background: var(--brand);
+  color: var(--brand-ink);
+  font-size: 12px;
+  font-weight: 600;
+  cursor: pointer;
 }

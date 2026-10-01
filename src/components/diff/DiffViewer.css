@@ -118,7 +118,7 @@
   font-weight: 600;
   padding: 2px 8px;
   border-radius: 999px;
-  font-family: 'Geist Mono', monospace;
+  font-family: 'Geist Mono Variable', 'Geist Mono', monospace;
 }
 
 .diff-pill--added   { background: var(--success-bg); color: var(--success-text); }
@@ -195,7 +195,7 @@
   font-size: 13px;
   font-weight: 600;
   color: var(--text-primary);
-  font-family: 'Geist Mono', monospace;
+  font-family: 'Geist Mono Variable', 'Geist Mono', monospace;
 }
 
 .diff-block__meta {
@@ -219,7 +219,7 @@
   padding: 3px var(--space-2);
   border-radius: var(--r-sm);
   font-size: 12px;
-  font-family: 'Geist Mono', monospace;
+  font-family: 'Geist Mono Variable', 'Geist Mono', monospace;
 }
 
 .diff-field--added   { background: color-mix(in srgb, var(--success-bg) 60%, transparent); }
@@ -264,7 +264,7 @@
 }
 
 .diff-dialog__sql-panel .code-mirror-wrapper {
-  font-family: 'Geist Mono', monospace;
+  font-family: 'Geist Mono Variable', 'Geist Mono', monospace;
   font-size: 13px;
 }
 

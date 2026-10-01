@@ -67,3 +67,10 @@
   background-color: var(--surface-raised);
   fill: var(--text-primary);
 }
+
+/* Minimap: smaller, and dropped entirely in narrow editors where it covered the tables. */
+@container editor (max-width: 960px) { .react-flow__minimap { display: none; } }
+
+/* Zoom controls were nearly invisible in the light theme. */
+.react-flow__controls-button { color: var(--text-primary); }
+.react-flow__controls-button svg { fill: currentColor; }

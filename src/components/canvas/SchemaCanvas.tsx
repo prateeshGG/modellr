@@ -441,6 +441,9 @@ function CanvasInner() {
           }}
           maskColor="var(--canvas-bg)"
           style={{
+            // width/height must be props-level (not CSS) or the SVG viewBox no longer matches and clips.
+            width: 150,
+            height: 96,
             background: 'var(--surface-low)',
             border: '1px solid var(--border-subtle)',
             borderRadius: 'var(--r-lg)',

@@ -1,77 +1,47 @@
-import { useState } from 'react';
-import { useNavigate } from 'react-router-dom';
-import { PublicNav } from '../components/layout/PublicNav';
-import { Footer } from '../components/layout/Footer';
+import { Link, Navigate, useParams } from 'react-router-dom';
+import { SiteShell } from '../components/site/SiteShell';
 import { DocsLayout } from '../components/docs/DocsLayout';
+import { DOCS_NAV } from '../components/docs/docsNav';
+import { DOCS_META, docsPath, docsTitle } from '../lib/routeMeta';
 import {
-  GettingStartedArticle,
-  ImportArticle,
-  ExportArticle,
-  SnapshotsDiffArticle,
-  SharingArticle,
-  AiSetupArticle,
-  BackupArticle,
-  ShortcutsArticle,
-  SelfHostingArticle,
-  ExamplesArticle,
-  NotesArticle,
+  GettingStartedArticle, ImportArticle, ExportArticle, SnapshotsDiffArticle, SharingArticle, AiSetupArticle,
+  BackupArticle, ShortcutsArticle, SelfHostingArticle, ExamplesArticle, NotesArticle,
 } from '../components/docs/Articles';
-import './Docs.css';
+
+const COMPONENTS: Record<string, React.ComponentType> = {
+  'getting-started': GettingStartedArticle,
+  import: ImportArticle,
+  export: ExportArticle,
+  'snapshots-diff': SnapshotsDiffArticle,
+  sharing: SharingArticle,
+  'ai-setup': AiSetupArticle,
+  backup: BackupArticle,
+  shortcuts: ShortcutsArticle,
+  examples: ExamplesArticle,
+  'self-hosting': SelfHostingArticle,
+  notes: NotesArticle,
+};
+
+const ORDER = DOCS_NAV.flatMap((g) => g.items.map((i) => i.id as string));
 
 export function Docs() {
-  const navigate = useNavigate();
-  const [activeArticle, setActiveArticle] = useState('getting-started');
+  const { slug = 'getting-started' } = useParams();
+  const meta = DOCS_META[slug];
+  if (!meta) return <Navigate to="/docs" replace />;
 
-  const renderArticle = () => {
-    switch (activeArticle) {
-      case 'getting-started':
-        return <GettingStartedArticle />;
-      case 'import':
-        return <ImportArticle />;
-      case 'export':
-        return <ExportArticle />;
-      case 'snapshots-diff':
-        return <SnapshotsDiffArticle />;
-      case 'sharing':
-        return <SharingArticle />;
-      case 'ai-setup':
-        return <AiSetupArticle />;
-      case 'backup':
-        return <BackupArticle />;
-      case 'shortcuts':
-        return <ShortcutsArticle />;
-      case 'self-hosting':
-        return <SelfHostingArticle />;
-      case 'examples':
-        return <ExamplesArticle />;
-      case 'notes':
-        return <NotesArticle />;
-      default:
-        return <GettingStartedArticle />;
-    }
-  };
+  const Component = COMPONENTS[slug];
+  const next = ORDER[ORDER.indexOf(slug) + 1];
 
   return (
-    <div style={{ background: '#050507', minHeight: '100vh', color: '#e8e8f0', display: 'flex', flexDirection: 'column' }}>
-      <PublicNav dark />
-
-      <div style={{ flex: 1, paddingBottom: '64px' }}>
-        <DocsLayout currentArticle={activeArticle} onSelect={setActiveArticle}>
-          {renderArticle()}
-          
-          <div style={{ marginTop: '80px', paddingTop: '40px', borderTop: '1px solid #1e1e2e', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-            <h3 style={{ fontFamily: "'Syne','Geist',sans-serif", fontSize: '20px', fontWeight: 700, margin: 0, color: '#e8e8f0' }}>Start building</h3>
-            <button 
-              onClick={() => navigate('/app')}
-              style={{ padding: '10px 24px', background: '#ae7aff', color: '#fff', border: 'none', borderRadius: '4px', fontWeight: 600, cursor: 'pointer', fontFamily: "'Geist Mono',monospace", fontSize: '13px', boxShadow: '0 0 16px rgba(174,122,255,0.2)' }}
-            >
-              Open editor
-            </button>
-          </div>
-        </DocsLayout>
-      </div>
-
-      <Footer />
-    </div>
+    <SiteShell title={docsTitle(slug)} description={meta.description} path={docsPath(slug)}>
+      <DocsLayout current={slug}>
+        <span className="n-eyebrow">Docs</span>
+        <Component />
+        <div style={{ display: 'flex', gap: 16, alignItems: 'center', flexWrap: 'wrap', marginTop: '3em' }}>
+          <Link to="/app" className="n-btn">Open the editor</Link>
+          {next && <Link to={docsPath(next)} className="n-arrow">Next: {DOCS_META[next].label}</Link>}
+        </div>
+      </DocsLayout>
+    </SiteShell>
   );
 }

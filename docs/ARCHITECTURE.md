@@ -5,10 +5,13 @@ Modellr is a static single-page app. There is no backend: build it and serve the
 ```
 src/
   pages/            Route components (landing, dashboard, editor, docs, ...)
-  components/       Canvas (React Flow), panels, dialogs, AI drawer, dashboard
+  components/       Canvas (React Flow), panels, dialogs, AI drawer, dashboard,
+                    site/ (public-page shell: nav, footer, SEO), docs/
+  styles/           night.css (public pages + app shell design system), tokens.css (editor tokens)
   store/            Zustand stores: schema (tables, relationships, undo via zundo), ui, history (snapshots)
   hooks/            useProjectPersistence (load + autosave), useShareLink, useUndoRedo, shortcuts, useAI
-  lib/              projectStore (IndexedDB), sanitizeSchema (validation), aiClient/aiConfig/aiPrompts
+  lib/              projectStore (IndexedDB), sanitizeSchema (validation), aiClient/aiConfig/aiPrompts,
+                    seo + routeMeta (per-route titles and descriptions)
   utils/
     importers/      SQL DDL and Prisma -> schema model
     exporters/      schema model -> SQL / Prisma / Drizzle / DBML / migrations / image
@@ -44,3 +47,13 @@ Model output is parsed defensively (`lib/aiPrompts.ts`) before it touches the sc
 Earlier versions were a cloud product (accounts, Supabase, real-time collaboration, live DB import, an MCP
 server, billing). That code was removed. It remains in git history; the last commit that contains it is
 `60f5636`.
+
+## Public site and design system
+
+Public pages, the docs and the app shell (dashboard, templates, settings) use `styles/night.css` (class prefix `n-`).
+The editor keeps its own component CSS but shares the same neutral surfaces and orange brand through `styles/tokens.css`.
+Theme is the `data-theme` attribute on `<html>` (`dark` by default, saved as `sf-theme`); both style sheets key off it.
+The design spec, the research behind it and the verification scripts live in `clone-workspace/modellr/`.
+
+`npm run build` also runs `scripts/postbuild-seo.mjs`, which writes a static HTML file per public route (own title, description,
+canonical), `robots.txt` and, when `SITE_URL` is set, `sitemap.xml`. Titles and descriptions come from `src/lib/routeMeta.ts`.

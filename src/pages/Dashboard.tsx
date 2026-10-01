@@ -1,5 +1,6 @@
 import { useCallback, useEffect, useRef, useState } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
+import { useSeo } from '../lib/seo';
 import { useUIStore } from '../store/ui';
 import { getTemplate } from '../utils/templates';
 import {
@@ -17,7 +18,6 @@ import { DashboardHeader } from '../components/dashboard/DashboardHeader';
 import { DashboardStats } from '../components/dashboard/DashboardStats';
 import { ProjectCard } from '../components/dashboard/ProjectCard';
 
-import './Dashboard.css';
 
 function download(filename: string, text: string) {
   const url = URL.createObjectURL(new Blob([text], { type: 'application/json' }));
@@ -29,6 +29,7 @@ function download(filename: string, text: string) {
 }
 
 export function Dashboard() {
+  useSeo({ title: 'Projects', noindex: true });
   const showDialog = useUIStore((s) => s.showDialog);
   const showToast = useUIStore((s) => s.showToast);
   const navigate = useNavigate();
@@ -117,7 +118,7 @@ export function Dashboard() {
   const filtered = projects.filter((p) => p.name.toLowerCase().includes(searchQuery.toLowerCase()));
 
   return (
-    <main className="dashboard-main">
+    <>
       <DashboardHeader
         searchQuery={searchQuery}
         setSearchQuery={setSearchQuery}
@@ -125,77 +126,65 @@ export function Dashboard() {
         onImport={() => fileRef.current?.click()}
         onBackup={handleBackup}
         canBackup={projects.length > 0}
+        creating={creating}
       />
-      <input ref={fileRef} type="file" accept="application/json,.json" style={{ display: 'none' }} onChange={handleImportFile} />
+      <input ref={fileRef} type="file" accept="application/json,.json" style={{ display: 'none' }} onChange={handleImportFile} aria-label="Import a Modellr JSON file" />
 
       {storageMode() === 'memory' && (
-        <div style={{ padding: '12px 16px', borderRadius: 6, marginBottom: 24, background: 'var(--alert-warning)', color: '#000', fontSize: 13 }}>
-          Your browser is blocking local storage. Projects will be lost when you close this tab. Use Export to keep your work.
+        <div className="n-alert n-alert--warn" role="alert" style={{ marginBottom: 24 }}>
+          <span><b>Storage blocked.</b> Your browser is blocking local storage, so projects will be lost when you close this tab. Use Export to keep your work.</span>
         </div>
       )}
 
-      <DashboardStats projects={projects} />
+      {projects.length > 0 && <DashboardStats projects={projects} />}
 
-      <div className="projects-section">
-        <div className="projects-section-header">
-          <h2>Your projects</h2>
-          <div style={{ fontSize: '12px', color: 'var(--text-muted)' }}>
-            {filtered.length} saved in this browser
+      {loading ? (
+        <div className="n-cards-fit" aria-busy="true" aria-label="Loading projects">
+          {[0, 1, 2].map((i) => <div key={i} className="n-skeleton" style={{ height: 300, borderRadius: 12 }} />)}
+        </div>
+      ) : projects.length === 0 ? (
+        <div className="n-empty">
+          <h2 className="n-h3">No projects yet.</h2>
+          <p className="n-small" style={{ maxWidth: '36em' }}>Start from a blank schema, a template, or paste the SQL you already have. Everything you make is saved in this browser only.</p>
+          <div className="n-actions" style={{ justifyContent: 'center' }}>
+            <button type="button" className="n-btn" onClick={() => handleCreateNew()} disabled={creating}>New schema</button>
+            <Link className="n-arrow" to="/app/templates">Browse templates</Link>
           </div>
         </div>
-
-        {loading ? (
-          <div style={{ padding: '48px', textAlign: 'center', color: 'var(--text-muted)', fontSize: '13px' }}>Loading…</div>
-        ) : (
-          <div className="projects-grid">
-            {filtered.map((project) => (
-              <ProjectCard
-                key={project.id}
-                schema={project}
-                onDuplicate={handleDuplicate}
-                onExport={handleExport}
-                onDelete={handleDelete}
-              />
-            ))}
-
-            <div className="create-card" onClick={() => handleCreateNew()}>
-              <div className="create-icon">+</div>
-              <div style={{ fontWeight: 700, marginBottom: '4px', fontSize: '14px' }}>New schema</div>
-              <div style={{ fontSize: '12px', color: 'var(--text-muted)' }}>Start from scratch</div>
+      ) : (
+        <>
+          <p className="n-small" style={{ marginBottom: 16 }}>{filtered.length} saved in this browser</p>
+          {filtered.length === 0 ? (
+            <div className="n-empty"><h2 className="n-h3">No project matches "{searchQuery}".</h2><button type="button" className="n-btn n-btn--secondary" onClick={() => setSearchQuery('')}>Clear search</button></div>
+          ) : (
+            <div className="n-cards-fit">
+              {filtered.map((project) => (
+                <ProjectCard key={project.id} schema={project} onDuplicate={handleDuplicate} onExport={handleExport} onDelete={handleDelete} />
+              ))}
+              <button type="button" className="n-card n-card--new" onClick={() => handleCreateNew()} disabled={creating}>
+                <span aria-hidden="true">+</span>
+                <span>New schema</span>
+                <span className="n-small">Start from scratch</span>
+              </button>
             </div>
-          </div>
-        )}
+          )}
+        </>
+      )}
 
-        <p style={{ marginTop: 24, fontSize: 12, color: 'var(--text-muted)' }}>
-          Projects are stored only in this browser. Clearing site data deletes them, so use <b>Backup</b> now and then.
-        </p>
-      </div>
-
-      <div id="templates" style={{ marginTop: '56px' }}>
-        <div className="projects-section-header">
-          <h2>Start from a template</h2>
-        </div>
-        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(160px, 1fr))', gap: '12px' }}>
+      <section style={{ marginTop: 56 }} aria-labelledby="dash-templates">
+        <h2 id="dash-templates" className="n-h3" style={{ marginBottom: 16 }}>Start from a template</h2>
+        <div className="n-toolbar">
           {[
             { id: 'ecommerce', name: 'E-commerce' },
             { id: 'saas', name: 'Multi-tenant SaaS' },
             { id: 'blog', name: 'Blog + CMS' },
-            { id: 'auth', name: 'Social app' },
+            { id: 'auth', name: 'Auth & Users' },
           ].map((tpl) => (
-            <div
-              key={tpl.id}
-              className="sidebar-link"
-              role="button"
-              tabIndex={0}
-              onClick={() => handleCreateNew(tpl.id)}
-              onKeyDown={(e) => e.key === 'Enter' && handleCreateNew(tpl.id)}
-              style={{ border: '1px solid var(--border-subtle)', padding: '14px 16px', justifyContent: 'center', borderRadius: '5px', cursor: 'pointer' }}
-            >
-              <span style={{ fontWeight: 600, fontSize: '13px' }}>{tpl.name}</span>
-            </div>
+            <button key={tpl.id} type="button" className="n-chip" onClick={() => handleCreateNew(tpl.id)} disabled={creating}>{tpl.name}</button>
           ))}
         </div>
-      </div>
-    </main>
+        <p className="n-small">Projects are stored only in this browser. Clearing site data deletes them, so use <b>Backup all</b> now and then.</p>
+      </section>
+    </>
   );
 }

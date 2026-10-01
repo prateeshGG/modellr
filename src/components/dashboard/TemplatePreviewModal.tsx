@@ -1,4 +1,4 @@
-import React, { useMemo } from 'react';
+import React, { useEffect, useMemo, useRef } from 'react';
 import { 
   ReactFlow, 
   Background, 
@@ -10,6 +10,7 @@ import { TEMPLATES } from '../../utils/templates';
 import { TableNode } from '../canvas/TableNode';
 import { RelationshipEdge, RelationshipMarkerDefs } from '../canvas/RelationshipEdge';
 import '../canvas/SchemaCanvas.css';
+import { IconClose } from '../site/icons';
 
 interface TemplatePreviewModalProps {
   templateId: string;
@@ -22,6 +23,16 @@ const edgeTypes = { relationshipEdge: RelationshipEdge };
 
 const PreviewInner: React.FC<TemplatePreviewModalProps> = ({ templateId, onClose, onUse }) => {
   const template = TEMPLATES[templateId];
+  const dialogRef = useRef<HTMLDivElement>(null);
+
+  // Escape closes; focus moves into the dialog and returns to the trigger afterwards.
+  useEffect(() => {
+    const prev = document.activeElement as HTMLElement | null;
+    dialogRef.current?.querySelector<HTMLElement>('button')?.focus();
+    const onKey = (e: KeyboardEvent) => { if (e.key === 'Escape') onClose(); };
+    window.addEventListener('keydown', onKey);
+    return () => { window.removeEventListener('keydown', onKey); prev?.focus?.(); };
+  }, [onClose]);
 
   // Fix #24: guard BEFORE any hooks to avoid violating the Rules of Hooks
   // (hooks must not be called after a conditional return)
@@ -57,22 +68,16 @@ const PreviewInner: React.FC<TemplatePreviewModalProps> = ({ templateId, onClose
   if (!template) return null;
 
   return (
-    <div className="preview-modal-overlay" onClick={onClose}>
-      <div className="preview-modal-content" onClick={(e) => e.stopPropagation()}>
-        <header className="preview-header">
+    <div className="n-scrim" onClick={onClose}>
+      <div ref={dialogRef} className="n-modal n-modal--wide" role="dialog" aria-modal="true" aria-labelledby="tpl-preview-title" onClick={(e) => e.stopPropagation()}>
+        <div className="n-modal__head">
           <div>
-            <h2 style={{ margin: 0, fontSize: '20px' }}>{template.label} Preview</h2>
-            <div style={{ fontSize: '13px', color: 'var(--text-secondary)' }}>{template.description}</div>
+            <h2 id="tpl-preview-title" className="n-h3">{template.label}</h2>
+            <span className="n-card__meta">{template.tables.length} tables · {template.description}</span>
           </div>
-          <button 
-            onClick={onClose} 
-            style={{ background: 'transparent', border: 'none', color: 'var(--text-muted)', fontSize: '24px', cursor: 'pointer' }}
-          >
-            ✕
-          </button>
-        </header>
-
-        <div className="preview-canvas-wrapper">
+          <button type="button" className="n-icon-btn" onClick={onClose} aria-label="Close preview"><IconClose /></button>
+        </div>
+        <div className="n-preview">
           <RelationshipMarkerDefs />
           <ReactFlow
             nodes={nodes}
@@ -85,34 +90,13 @@ const PreviewInner: React.FC<TemplatePreviewModalProps> = ({ templateId, onClose
             elementsSelectable={false}
             proOptions={{ hideAttribution: true }}
           >
-            <Background 
-              variant={BackgroundVariant.Dots} 
-              gap={24} 
-              size={1.5} 
-              color="var(--text-muted)" 
-              style={{ opacity: 0.08 }} 
-            />
+            <Background variant={BackgroundVariant.Dots} gap={24} size={1.5} color="var(--text-muted)" style={{ opacity: 0.08 }} />
           </ReactFlow>
         </div>
-
-        <footer className="preview-footer">
-          <div style={{ flex: 1, color: 'var(--text-secondary)', fontSize: '14px' }}>
-             Start with this {template.tables.length}-table architecture.
-          </div>
-          <button 
-            className="btn-primary" 
-            onClick={onUse}
-            style={{ padding: '12px 32px' }}
-          >
-            Use Template
-          </button>
-          <button 
-            onClick={onClose}
-            style={{ background: 'transparent', border: '1px solid var(--border-subtle)', color: 'var(--text-primary)', padding: '12px 24px', borderRadius: '10px', cursor: 'pointer' }}
-          >
-            Close
-          </button>
-        </footer>
+        <div className="n-modal__foot">
+          <button type="button" className="n-btn n-btn--secondary" onClick={onClose}>Cancel</button>
+          <button type="button" className="n-btn" onClick={onUse}>Use this template</button>
+        </div>
       </div>
     </div>
   );

@@ -97,7 +97,7 @@
   font-size: 11px;
   color: var(--text-muted);
   flex-shrink: 0;
-  font-family: 'Geist Mono', monospace;
+  font-family: 'Geist Mono Variable', 'Geist Mono', monospace;
 }
 
 .field-badges {
@@ -112,7 +112,7 @@
   padding: 1px 4px;
   border-radius: var(--r-xs);
   letter-spacing: 0.02em;
-  font-family: 'Geist', sans-serif;
+  font-family: 'Geist Variable', 'Geist', sans-serif;
 }
 
 .badge--pk {

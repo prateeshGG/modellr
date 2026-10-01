@@ -1,117 +1,92 @@
-import { useNavigate } from 'react-router-dom';
-import { PublicNav } from '../components/layout/PublicNav';
-import { Footer } from '../components/layout/Footer';
-import { Bot, Layers, ExternalLink, Upload, Link2, History, HardDrive, Command } from 'lucide-react';
-import '../styles/public-dark.css';
+import { Link } from 'react-router-dom';
+import { SiteShell, PageHead } from '../components/site/SiteShell';
+import { ArtStack } from '../components/site/Art';
+import { GitHubMark } from '../components/layout/GitHubMark';
+import { REPO_URL } from '../config';
+import { useUIStore } from '../store/ui';
+import editorDark from '../assets/editor-dark.webp';
+import editorLight from '../assets/editor-light.webp';
 
-const FEATURES = [
-  {
-    icon: <Layers size={24} />,
-    title: 'Visual schema editor',
-    comment: '// canvas',
-    body: 'Build tables on a canvas. Fields support types, primary and foreign keys, unique, nullable, defaults, check constraints and comments. Drag between fields to create relationships, and add notes and groups to organise the diagram. Auto-layout, search, undo/redo and light or dark theme are built in.',
-  },
-  {
-    icon: <Command size={24} />,
-    title: 'Command palette & split view',
-    comment: '// Ctrl/Cmd+K',
-    body: 'Press Ctrl/Cmd+K to search commands: add a table, auto-layout, import, compare, share, switch theme. Switch between canvas, split and code views. Split view shows generated SQL, DBML, Prisma or Drizzle next to the canvas; the code panel is read-only, so you edit on the canvas.',
-  },
-  {
-    icon: <Upload size={24} />,
-    title: 'Import',
-    comment: '// import schema.sql',
-    body: 'Paste SQL DDL (CREATE TABLE and friends) or a Prisma schema. PostgreSQL and MySQL are the primary SQL dialects; SQLite and SQL Server syntax is only partly supported, so check the result. You can also import a Modellr JSON file for a single schema or a full backup.',
-  },
-  {
-    icon: <ExternalLink size={24} />,
-    title: 'Export',
-    comment: '// export --format=prisma',
-    body: 'Export SQL for PostgreSQL, MySQL, SQLite or SQL Server, plus Prisma, Drizzle ORM, DBML and JSON. Save the canvas as PNG or SVG for docs and wikis. Always review exported code before using it in a real project.',
-  },
-  {
-    icon: <History size={24} />,
-    title: 'Snapshots & diff',
-    comment: '// compare with snapshot',
-    body: 'Save local snapshots of a project as you go, restore an earlier one, or compare the current schema with a snapshot. The diff viewer generates migration SQL for the changes. Review it before you run it: a renamed column or table appears as a drop plus an add.',
-  },
-  {
-    icon: <Link2 size={24} />,
-    title: 'Share links & embeds',
-    comment: '// stateless share',
-    body: 'A share link compresses the schema into the URL itself, so there is no server involved. Whoever opens it sees a read-only snapshot, and an iframe embed works the same way. Very large schemas produce very long links; export JSON instead.',
-  },
-  {
-    icon: <HardDrive size={24} />,
-    title: 'Local-first storage',
-    comment: '// IndexedDB',
-    body: 'There are no accounts. Projects are saved in your browser only and nothing is uploaded. Back up and restore all schemas as one JSON file, or export a single schema. Clearing your browser data deletes your projects, so keep backups of anything important.',
-  },
-  {
-    icon: <Bot size={24} />,
-    title: 'Optional AI (bring your own key)',
-    comment: '// your key, your provider',
-    body: 'If you want AI help, add an OpenAI-compatible endpoint in Settings: OpenAI, OpenRouter, or a local model such as Ollama. Requests go from your browser straight to that provider and the key is stored only in your browser. There is no AI hosted by us. AI output can be wrong, so review it.',
-  },
-];
+const FORMATS = ['PostgreSQL', 'MySQL', 'SQLite', 'SQL Server', 'Prisma', 'Drizzle', 'DBML', 'JSON', 'PNG', 'SVG'];
 
 export function Features() {
-  const navigate = useNavigate();
-
+  const theme = useUIStore((s) => s.theme);
   return (
-    <div className="pd-root">
-      <PublicNav dark />
-
-      {/* ── Hero ── */}
-      <div className="pd-hero" style={{ paddingTop: '140px' }}>
-        <div className="pd-hero-dot-grid" aria-hidden />
-        <div className="pd-hero-glow" aria-hidden />
-        <div style={{ position: 'relative', zIndex: 1 }}>
-          <div className="pd-label">// Features</div>
-          <h1 className="pd-h1">What Modellr{' '}
-            <span style={{ WebkitTextStroke: '1.5px var(--pd-text)', WebkitTextFillColor: 'transparent', fontStyle: 'italic' }}>
-              does.
-            </span>
-          </h1>
-          <p className="pd-lead">
-            A free, open-source, local-first database schema designer. It runs entirely in your browser, with no account.
-          </p>
-        </div>
-      </div>
-
-      {/* ── Feature cards ── */}
-      <section className="pd-section">
-        <div className="pd-inner--wide">
-          <div className="pd-grid-3">
-            {FEATURES.map((f, i) => (
-              <div key={i} className="pd-card" style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
-                <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
-                  <span className="pd-card__icon" style={{ marginBottom: 0 }}>{f.icon}</span>
-                  <span style={{ fontFamily: 'var(--pd-mono)', fontSize: '11px', color: 'var(--pd-muted)' }}>{f.comment}</span>
-                </div>
-                <h3 className="pd-h3" style={{ fontSize: '18px' }}>{f.title}</h3>
-                <p className="pd-body-text" style={{ fontSize: '14px' }}>{f.body}</p>
+    <SiteShell route="/features">
+      <PageHead
+        eyebrow="Features"
+        title="Everything a schema designer needs. Nothing it doesn't."
+        lead="A free, open-source, local-first designer. It runs entirely in your browser, with no account."
+      />
+      <section className="n-section n-section--tight" style={{ paddingTop: 24 }}>
+        <div className="n-wrap">
+          <div className="n-bento" style={{ marginTop: 0 }}>
+            <article className="n-card span-4">
+              <div className="n-card__crop">
+                <img src={theme === 'light' ? editorLight : editorDark} alt="The canvas with four linked tables" width={1800} height={1018} loading="lazy" />
               </div>
-            ))}
+              <h2 className="n-h4">Visual canvas</h2>
+              <p className="n-small">Tables with typed fields, primary and foreign keys, unique, nullable, defaults, checks and comments. Drag between fields to create relationships; add notes and groups; auto-layout, search, undo/redo and a command palette (Ctrl/Cmd+K). Split and code views show generated SQL, DBML, Prisma or Drizzle next to the canvas.</p>
+            </article>
+            <article className="n-card span-2">
+              <div className="n-panel" style={{ marginBottom: 6 }}>
+                <pre className="n-code" style={{ fontSize: '.72rem', padding: '14px 16px', lineHeight: 1.7 }}>{'CREATE TABLE posts (\n  id serial PRIMARY KEY,\n  author_id uuid\n    REFERENCES users(id)\n);'}</pre>
+              </div>
+              <h2 className="n-h4">Import</h2>
+              <p className="n-small">Paste SQL DDL (pg_dump and mysqldump files work) or a Prisma schema, or import a Modellr JSON file. PostgreSQL and MySQL are the primary dialects; check the result for SQLite and SQL Server. Unsupported statements are reported, not fatal.</p>
+            </article>
+            <article className="n-card span-2">
+              <div style={{ display: 'flex', flexWrap: 'wrap', gap: 8, minHeight: 96, alignContent: 'flex-start' }}>
+                {FORMATS.map((f) => <span key={f} className="n-badge" style={{ height: 26, padding: '0 10px', fontSize: '.75rem' }}>{f}</span>)}
+              </div>
+              <h2 className="n-h4">Export</h2>
+              <p className="n-small">SQL for four dialects, Prisma, Drizzle ORM, DBML and JSON; PNG and SVG for docs. Covered by round-trip tests. Always review exported code before using it on a real database.</p>
+            </article>
+            <article className="n-card span-2">
+              <div className="n-panel" style={{ marginBottom: 6 }}>
+                <pre className="n-code" style={{ fontSize: '.78rem', padding: '14px 16px', lineHeight: 1.8 }}>
+                  <span className="c">-- WARNING: destructive</span>{'\n'}
+                  <span style={{ color: '#ff8080' }}>- DROP COLUMN legacy_id</span>{'\n'}
+                  <span style={{ color: '#8fd7a8' }}>+ ADD COLUMN tags jsonb</span>
+                </pre>
+              </div>
+              <h2 className="n-h4">Snapshots and diff</h2>
+              <p className="n-small">Save versions, restore one, or diff against the current schema and generate migration SQL. A renamed column shows up as a drop plus an add, so review before you run it.</p>
+            </article>
+            <article className="n-card span-2">
+              <div className="n-panel" style={{ marginBottom: 6 }}>
+                <div className="n-panel__head"><span>/app/shared#N4Ig3gzg…</span><span className="n-badge n-badge--ok">read-only</span></div>
+                <div style={{ padding: '14px 16px', fontFamily: 'var(--n-mono)', fontSize: '.75rem', color: '#8b929b' }}>schema in the URL · 0 bytes uploaded</div>
+              </div>
+              <h2 className="n-h4">Share links and embeds</h2>
+              <p className="n-small">The schema is compressed into the URL, so there is no server. Recipients see a read-only snapshot and can save a copy; an iframe embed works the same way. Very large schemas make very long links: export JSON instead.</p>
+            </article>
+            <article className="n-card span-3">
+              <div className="n-card__art" style={{ aspectRatio: '16 / 6' }}><ArtStack /></div>
+              <h2 className="n-h4">Local-first storage</h2>
+              <p className="n-small">No accounts. Projects live in your browser (IndexedDB) and nothing is uploaded. Back everything up as one JSON file and restore it anywhere. Clearing site data deletes your projects, so keep backups.</p>
+            </article>
+            <article className="n-card span-3">
+              <div className="n-card__art" style={{ aspectRatio: '16 / 6', padding: 18 }}>
+                <div style={{ display: 'grid', gap: 8, width: '100%', fontFamily: 'var(--n-mono)', fontSize: '.75rem', color: 'var(--n-text-2)' }}>
+                  <span>→ OpenAI</span><span>→ OpenRouter</span><span>→ Ollama · localhost:11434</span><span className="n-dim">your key stays in this browser</span>
+                </div>
+              </div>
+              <h2 className="n-h4">AI assistant, bring your own key</h2>
+              <p className="n-small">Optional. Add an OpenAI-compatible endpoint in Settings. The request goes from your browser straight to the provider you choose; we host no AI. Proposals are reviewed before they touch your schema, and AI output can be wrong.</p>
+            </article>
           </div>
         </div>
       </section>
-
-      {/* ── CTA ── */}
-      <div className="pd-cta pd-section--alt">
-        <div className="pd-cta-glow-l" aria-hidden />
-        <div className="pd-cta-glow-r" aria-hidden />
-        <div className="pd-cta-inner">
-          <h2 className="pd-cta-h2">Try it in your browser.</h2>
-          <p className="pd-cta-sub">Free and open source under the MIT license. No sign-up.</p>
-          <div style={{ display: 'flex', gap: '16px', justifyContent: 'center', flexWrap: 'wrap' }}>
-            <button className="pd-btn-primary" onClick={() => navigate('/app')}>Open the editor →</button>
-            <a className="pd-btn-outline" href="https://github.com/prateesh7777/schemaforge" target="_blank" rel="noopener noreferrer" style={{ textDecoration: 'none' }}>View on GitHub</a>
+      <section className="n-section n-cta">
+        <div className="n-wrap n-center">
+          <h2 className="n-h1">Try it in your browser.</h2>
+          <div className="n-cta__actions">
+            <Link to="/app" className="n-btn n-btn--lg">Open the editor</Link>
+            <a className="n-btn n-btn--secondary n-btn--lg" href={REPO_URL} target="_blank" rel="noopener noreferrer"><GitHubMark size={16} /> Star on GitHub</a>
           </div>
         </div>
-      </div>
-
-      <Footer />
-    </div>
+      </section>
+    </SiteShell>
   );
 }

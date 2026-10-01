@@ -1,95 +1,83 @@
-import React, { useState } from 'react';
+import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { TEMPLATES, getTemplate } from '../utils/templates';
-import { TEMPLATE_CATEGORIES } from '../utils/constants';
+import { TEMPLATE_CATEGORIES, templateInCategory } from '../utils/constants';
 import { createProject } from '../lib/projectStore';
 import { useUIStore } from '../store/ui';
+import { useSeo } from '../lib/seo';
+import { MiniSchema } from '../components/site/MiniSchema';
 import { TemplatePreviewModal } from '../components/dashboard/TemplatePreviewModal';
-import './TemplateGallery.css';
 
-
-
-export const TemplatesPage: React.FC = () => {
+export function TemplatesPage() {
+  useSeo({ title: 'Templates', noindex: true });
   const navigate = useNavigate();
   const [activeCategory, setActiveCategory] = useState('all');
   const [selectedTemplateId, setSelectedTemplateId] = useState<string | null>(null);
+  const [creating, setCreating] = useState(false);
 
   const handleUseTemplate = async (templateId: string) => {
     const tpl = getTemplate(templateId);
-    if (!tpl) return;
+    if (!tpl || creating) return;
+    setCreating(true);
     try {
       const project = await createProject({
-        name: tpl.label + ' starter',
+        name: `${tpl.label} starter`,
         canvas_state: { tables: tpl.tables, relationships: tpl.relationships },
       });
       navigate(`/app/${project.id}`);
     } catch {
       useUIStore.getState().showToast('Could not create the project (browser storage may be full or blocked).', 'error');
+      setCreating(false);
     }
   };
 
-  const templateList = Object.entries(TEMPLATES).map(([id, tpl]) => ({ id, ...tpl }));
-  const filteredTemplates = activeCategory === 'all' 
-    ? templateList 
-    : templateList.filter(t => t.id === activeCategory || t.label.toLowerCase().includes(activeCategory.toLowerCase()));
+  const list = Object.entries(TEMPLATES)
+    .map(([id, tpl]) => ({ id, ...tpl }))
+    .filter((t) => templateInCategory(t.id, activeCategory));
 
   return (
-    <div style={{ display: 'flex', width: '100%', minHeight: '100%' }}>
-      
-      <div className="templates-sidebar">
-        <div className="category-title">Categories</div>
-        {TEMPLATE_CATEGORIES.map(cat => (
-          <div 
-            key={cat.id} 
-            className={`category-item ${activeCategory === cat.id ? 'category-item--active' : ''}`}
-            onClick={() => setActiveCategory(cat.id)}
-          >
-            {cat.label}
-          </div>
+    <>
+      <div className="n-main__head">
+        <div>
+          <span className="n-eyebrow">Templates</span>
+          <h1 className="n-h2" style={{ marginTop: 10 }}>Template gallery</h1>
+          <p className="n-small" style={{ marginTop: 6 }}>Start with a battle-tested database architecture. A copy opens as a new project.</p>
+        </div>
+      </div>
+
+      <div className="n-toolbar" role="group" aria-label="Filter by category">
+        {TEMPLATE_CATEGORIES.map((c) => (
+          <button key={c.id} type="button" className="n-chip" aria-pressed={activeCategory === c.id} onClick={() => setActiveCategory(c.id)}>{c.label}</button>
         ))}
       </div>
 
-      <main className="templates-main">
-        <header style={{ marginBottom: '36px' }}>
-          <h1 style={{ fontFamily: "'Syne','Geist',sans-serif", fontSize: '28px', fontWeight: 800, margin: '0 0 6px 0', letterSpacing: '-0.03em', color: '#e8e8f0' }}>Template Gallery</h1>
-          <p style={{ color: '#6b6b80', fontSize: '14px', margin: 0, fontFamily: "'Instrument Sans','Geist',sans-serif" }}>Start with a battle-tested database architecture.</p>
-        </header>
-
-        <div className="gallery-grid">
-          {filteredTemplates.map(tpl => (
-            <div key={tpl.id} className="template-card" onClick={() => setSelectedTemplateId(tpl.id)}>
-              <div className="template-thumb">
-                <div style={{ padding: '20px', textAlign: 'center' }}>
-                  <div style={{ fontWeight: 700, fontSize: '13px', color: 'var(--text-primary)', marginBottom: '4px' }}>{tpl.label}</div>
-                  <div style={{ fontSize: '11px', color: 'var(--text-muted)' }}>{tpl.tables.length} tables rendered</div>
-                </div>
+      {list.length === 0 ? (
+        <div className="n-empty">
+          <h2 className="n-h3">No templates in that category yet.</h2>
+          <button type="button" className="n-btn" onClick={() => setActiveCategory('all')}>Show all templates</button>
+        </div>
+      ) : (
+        <div className="n-cards-fit">
+          {list.map((tpl) => (
+            <article key={tpl.id} className="n-card">
+              <button type="button" className="n-card__art" style={{ border: 0, padding: 0, cursor: 'pointer', width: 'calc(100% + 16px)' }} onClick={() => setSelectedTemplateId(tpl.id)} aria-label={`Preview ${tpl.label}`}>
+                <MiniSchema tables={tpl.tables} />
+              </button>
+              <span className="n-card__meta">{tpl.tables.length} tables</span>
+              <h2 className="n-h3">{tpl.label}</h2>
+              <p className="n-small">{tpl.description}</p>
+              <div className="n-row" style={{ marginTop: 6 }}>
+                <button type="button" className="n-btn n-btn--sm" onClick={() => handleUseTemplate(tpl.id)} disabled={creating}>Use template</button>
+                <button type="button" className="n-btn n-btn--secondary n-btn--sm" onClick={() => setSelectedTemplateId(tpl.id)}>Preview</button>
               </div>
-              <div className="template-content">
-                <h3 className="template-name">{tpl.label}</h3>
-                <p className="template-desc">{tpl.description}</p>
-                <div className="template-footer">
-                  <span className="template-badge">Starter</span>
-                  <button 
-                    className="btn-primary" 
-                    style={{ padding: '6px 12px', fontSize: '12px' }}
-                    onClick={(e) => { e.stopPropagation(); handleUseTemplate(tpl.id); }}
-                  >
-                    Use Template
-                  </button>
-                </div>
-              </div>
-            </div>
+            </article>
           ))}
         </div>
-      </main>
+      )}
 
       {selectedTemplateId && (
-        <TemplatePreviewModal 
-          templateId={selectedTemplateId} 
-          onClose={() => setSelectedTemplateId(null)}
-          onUse={() => handleUseTemplate(selectedTemplateId)}
-        />
+        <TemplatePreviewModal templateId={selectedTemplateId} onClose={() => setSelectedTemplateId(null)} onUse={() => handleUseTemplate(selectedTemplateId)} />
       )}
-    </div>
+    </>
   );
-};
+}

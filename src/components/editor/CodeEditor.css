@@ -11,5 +11,5 @@
 .code-editor .cm-scroller {
   overflow: auto;
   height: 100%;
-  font-family: 'Geist Mono', 'Fira Code', monospace;
+  font-family: 'Geist Mono Variable', 'Geist Mono', 'Fira Code', monospace;
 }

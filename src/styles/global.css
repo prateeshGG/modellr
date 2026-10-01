@@ -1,4 +1,3 @@
-@import url('https://fonts.googleapis.com/css2?family=Geist:wght@400;500;600&family=Geist+Mono:wght@400;500&display=swap');
 @import './tokens.css';
 
 /* ── RESET ─────────────────────────────────────── */
@@ -14,7 +13,7 @@ html, body, #root {
 }
 
 body {
-  font-family: 'Geist', -apple-system, BlinkMacSystemFont, sans-serif;
+  font-family: 'Geist Variable', 'Geist', -apple-system, BlinkMacSystemFont, sans-serif;
   font-size: 13px;
   line-height: 1.5;
   color: var(--text-primary);
@@ -47,7 +46,7 @@ input, textarea, select {
 }
 
 code, pre, .mono {
-  font-family: 'Geist Mono', 'Fira Code', monospace;
+  font-family: 'Geist Mono Variable', 'Geist Mono', 'Fira Code', monospace;
 }
 
 /* ── REACT FLOW OVERRIDES ───────────────────────── */

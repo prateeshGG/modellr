@@ -110,5 +110,5 @@
   color: var(--text-secondary);
   min-width: 36px;
   text-align: center;
-  font-family: 'Geist Mono', monospace;
+  font-family: 'Geist Mono Variable', 'Geist Mono', monospace;
 }

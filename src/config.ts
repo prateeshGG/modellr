@@ -1,13 +1,15 @@
 /** Public project links and optional settings. */
 
-export const REPO_URL = 'https://github.com/prateesh7777/schemaforge';
+/** GitHub repository in owner/name form. Change here if the repo is ever renamed again. */
+export const GITHUB_REPO = 'prateesh7777/modellr';
+export const REPO_URL = `https://github.com/${GITHUB_REPO}`;
 
 /**
  * Your Buy Me a Coffee page, e.g. 'https://buymeacoffee.com/yourname'.
  * While this is empty, every "support" button and sentence stays hidden.
  * You can also set it at build time with the VITE_DONATE_URL environment variable.
  */
-const CONFIGURED_DONATE_URL = '';
+const CONFIGURED_DONATE_URL = 'https://buymeacoffee.com/prateeshG';
 
 const ALLOWED_DONATE_HOSTS = ['buymeacoffee.com', 'www.buymeacoffee.com', 'bmc.link'];
 
