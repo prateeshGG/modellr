@@ -1,102 +1,50 @@
-import React, { useState } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useState } from 'react';
+import { Link } from 'react-router-dom';
+import { SiteShell, PageHead } from '../components/site/SiteShell';
+import { MiniSchema } from '../components/site/MiniSchema';
 import { TEMPLATES } from '../utils/templates';
-import { TEMPLATE_CATEGORIES } from '../utils/constants';
-import { PublicNav } from '../components/layout/PublicNav';
-import { Footer } from '../components/layout/Footer';
-import '../styles/public-dark.css';
+import { TEMPLATE_CATEGORIES, templateInCategory } from '../utils/constants';
 
-export const PublicTemplates: React.FC = () => {
-  const navigate = useNavigate();
-  const [activeCategory, setActiveCategory] = useState('all');
-
-  const templateList = Object.entries(TEMPLATES).map(([id, tpl]) => ({ id, ...tpl }));
-  const filteredTemplates = activeCategory === 'all'
-    ? templateList
-    : templateList.filter(t => t.id === activeCategory || t.label.toLowerCase().includes(activeCategory.toLowerCase()));
+export function PublicTemplates() {
+  const [active, setActive] = useState<string>('all');
+  const list = Object.entries(TEMPLATES).map(([id, tpl]) => ({ id, ...tpl }));
+  const shown = list.filter((t) => templateInCategory(t.id, active));
 
   return (
-    <div className="pd-root">
-      <PublicNav dark />
-
-      {/* ── Hero ── */}
-      <div className="pd-hero" style={{ paddingTop: '140px' }}>
-        <div className="pd-hero-dot-grid" aria-hidden />
-        <div className="pd-hero-glow" aria-hidden />
-        <div style={{ position: 'relative', zIndex: 1 }}>
-          <div className="pd-label">// Templates</div>
-          <h1 className="pd-h1">Template Gallery</h1>
-          <p className="pd-lead">
-            Starter schemas you can open in the editor and adapt. Free, and nothing to sign up for.
-          </p>
-        </div>
-      </div>
-
-      {/* ── Filter tabs ── */}
-      <section className="pd-section" style={{ paddingBottom: '0' }}>
-        <div className="pd-inner--wide">
-          <div style={{ display: 'flex', gap: '10px', flexWrap: 'wrap', justifyContent: 'center', marginBottom: '40px' }}>
-            {TEMPLATE_CATEGORIES.map(cat => (
-              <button
-                key={cat.id}
-                className={`pd-template-filter-btn${activeCategory === cat.id ? ' pd-template-filter-btn--active' : ''}`}
-                onClick={() => setActiveCategory(cat.id)}
-              >
-                {cat.label}
-              </button>
+    <SiteShell
+      title="Database schema templates"
+      path="/templates"
+      description="Free starter database schemas: e-commerce, multi-tenant SaaS, blog and auth. Open one in the browser editor, change it, and export SQL, Prisma or Drizzle."
+    >
+      <PageHead eyebrow="Templates" title="Start from a real schema." lead="Starter schemas you can open in the editor and adapt. Free, and nothing to sign up for." />
+      <section className="n-section n-section--tight" style={{ paddingTop: 8 }}>
+        <div className="n-wrap">
+          <div className="n-toolbar" role="group" aria-label="Filter by category">
+            {TEMPLATE_CATEGORIES.map((c) => (
+              <button key={c.id} type="button" className="n-chip" aria-pressed={active === c.id} onClick={() => setActive(c.id)}>{c.label}</button>
             ))}
           </div>
+          {shown.length === 0 ? (
+            <div className="n-empty">
+              <h2 className="n-h3">No templates in that category yet.</h2>
+              <p className="n-small">Try another filter, or start from a blank schema and import your own SQL.</p>
+              <button type="button" className="n-btn" onClick={() => setActive('all')}>Show all templates</button>
+            </div>
+          ) : (
+            <div className="n-grid-2">
+              {shown.map((t) => (
+                <Link key={t.id} to="/app/templates" className="n-card">
+                  <div className="n-card__art"><MiniSchema tables={t.tables} /></div>
+                  <span className="n-card__meta">{t.tables.length} tables · {t.tables.reduce((n, x) => n + x.fields.length, 0)} fields</span>
+                  <h2 className="n-h3">{t.label}</h2>
+                  <p className="n-small">{t.description}</p>
+                  <span className="n-arrow">Open templates</span>
+                </Link>
+              ))}
+            </div>
+          )}
         </div>
       </section>
-
-      {/* ── Grid ── */}
-      <section className="pd-section" style={{ paddingTop: '0' }}>
-        <div className="pd-inner--wide">
-          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(280px, 1fr))', gap: '16px' }}>
-            {filteredTemplates.map(tpl => (
-              <div
-                key={tpl.id}
-                className="pd-card"
-                style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}
-              >
-                {/* Mini schema preview */}
-                <div className="pd-code-block" style={{ padding: '14px 16px', marginBottom: '4px' }}>
-                  <div style={{ fontFamily: 'var(--pd-mono)', fontSize: '11px', color: 'var(--pd-muted)', marginBottom: '6px' }}>// {tpl.label}</div>
-                  {tpl.tables.slice(0, 3).map((t: { name: string }) => (
-                    <div key={t.name} style={{ fontFamily: 'var(--pd-mono)', fontSize: '12px', color: 'var(--pd-text)', lineHeight: 1.6 }}>
-                      <span className="tok-keyword">model </span>
-                      <span className="tok-name">{t.name}</span>
-                    </div>
-                  ))}
-                  {tpl.tables.length > 3 && (
-                    <div style={{ fontFamily: 'var(--pd-mono)', fontSize: '11px', color: 'var(--pd-muted)', marginTop: '4px' }}>
-                      + {tpl.tables.length - 3} more tables
-                    </div>
-                  )}
-                </div>
-
-                <h3 className="pd-h3" style={{ fontSize: '16px', margin: 0 }}>{tpl.label}</h3>
-                <p className="pd-body-text" style={{ fontSize: '13px', flex: 1 }}>{tpl.description}</p>
-
-                <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginTop: '4px' }}>
-                  <span style={{ fontFamily: 'var(--pd-mono)', fontSize: '11px', color: 'var(--pd-brand)', background: 'var(--pd-brand-glow)', padding: '3px 8px', borderRadius: '3px' }}>
-                    {tpl.tables.length} tables
-                  </span>
-                  <button
-                    onClick={() => navigate('/app/templates')}
-                    className="pd-btn-primary"
-                    style={{ padding: '7px 14px', fontSize: '12px' }}
-                  >
-                    Open templates
-                  </button>
-                </div>
-              </div>
-            ))}
-          </div>
-        </div>
-      </section>
-
-      <Footer />
-    </div>
+    </SiteShell>
   );
-};
+}

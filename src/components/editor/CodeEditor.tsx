@@ -21,7 +21,7 @@ function buildTheme(isDark: boolean) {
       '&': {
         height: '100%',
         fontSize: '12px',
-        fontFamily: "'Geist Mono', 'Fira Code', monospace",
+        fontFamily: "'Geist Mono Variable', 'Geist Mono', 'Fira Code', monospace",
         backgroundColor: 'transparent',
       },
       '.cm-content': {

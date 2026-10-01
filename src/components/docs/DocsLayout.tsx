@@ -1,70 +1,41 @@
-// Layout wrapper for documentation 
+import { useEffect, useState } from 'react';
+import { Link, useLocation } from 'react-router-dom';
+import { IconMenu } from '../site/icons';
 
-interface DocsLayoutProps {
-  currentArticle: string;
-  onSelect: (id: string) => void;
-  children: React.ReactNode;
-}
+import { DOCS_NAV, docsPath } from './docsNav';
 
-export const DocsLayout: React.FC<DocsLayoutProps> = ({ currentArticle, onSelect, children }) => {
-
-  const navGroups = [
-    {
-      title: 'Guides',
-      items: [
-        { id: 'getting-started', label: 'Getting Started' },
-        { id: 'import', label: 'Importing' },
-        { id: 'export', label: 'Exporting' },
-        { id: 'snapshots-diff', label: 'Snapshots & Diff' },
-        { id: 'sharing', label: 'Sharing & Embeds' },
-        { id: 'ai-setup', label: 'AI (Your Own Key)' },
-        { id: 'backup', label: 'Backup & Restore' },
-      ],
-    },
-    {
-      title: 'Reference',
-      items: [
-        { id: 'shortcuts', label: 'Keyboard Shortcuts' },
-        { id: 'examples', label: 'Templates' },
-        { id: 'self-hosting', label: 'Self-hosting' },
-        { id: 'notes', label: 'What Modellr Does Not Do' },
-      ],
-    },
-  ];
+export function DocsLayout({ current, children }: { current: string; children: React.ReactNode }) {
+  const [open, setOpen] = useState(false);
+  const { pathname } = useLocation();
+  useEffect(() => setOpen(false), [pathname]);
 
   return (
-    <div className="docs-container">
-      <aside className="docs-sidebar">
-        <div className="docs-logo" style={{ fontSize: '17px', marginBottom: '6px' }}>
-          Documentation
+    <div className="n-wrap">
+      <div className="n-docs">
+        <div>
+          <button
+            type="button"
+            className="n-btn n-btn--secondary n-btn--sm n-docs__toggle"
+            aria-expanded={open}
+            aria-controls="docs-nav"
+            onClick={() => setOpen((o) => !o)}
+            style={{ marginBottom: 12 }}
+          >
+            <IconMenu size={16} /> Docs menu
+          </button>
+          <nav id="docs-nav" className={`n-docs__nav${open ? ' is-open' : ''}`} aria-label="Documentation">
+            {DOCS_NAV.map((group) => (
+              <div key={group.title}>
+                <h2>{group.title}</h2>
+                {group.items.map((item) => (
+                  <Link key={item.id} to={docsPath(item.id)} aria-current={current === item.id ? 'page' : undefined}>{item.label}</Link>
+                ))}
+              </div>
+            ))}
+          </nav>
         </div>
-        <div style={{ color: '#6b6b80', fontSize: '12px', marginBottom: '28px', lineHeight: 1.5, fontFamily: "'Instrument Sans','Geist',sans-serif" }}>
-          Learn how to design, import, and export database schemas with Modellr.
-        </div>
-
-        <nav>
-          {navGroups.map((group) => (
-            <div key={group.title} style={{ marginBottom: '32px' }}>
-              <div className="docs-nav-section">{group.title}</div>
-              {group.items.map((item) => (
-                <div
-                  key={item.id}
-                  className={`docs-nav-item ${currentArticle === item.id ? 'docs-nav-item--active' : ''}`}
-                  onClick={() => onSelect(item.id)}
-                >
-                  {item.label}
-                </div>
-              ))}
-            </div>
-          ))}
-        </nav>
-      </aside>
-
-      <main className="docs-article-wrapper">
-        <div className="docs-content">
-          {children}
-        </div>
-      </main>
+        <div className="n-prose">{children}</div>
+      </div>
     </div>
   );
-};
+}

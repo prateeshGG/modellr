@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
+import { useSeo } from '../lib/seo';
 import { useKeyboardShortcuts } from '../hooks/useKeyboardShortcuts';
 import { useProjectPersistence } from '../hooks/useProjectPersistence';
 import { useShareLink } from '../hooks/useShareLink';
@@ -39,6 +40,7 @@ export default function Editor({ isSandbox = false, isSharedView = false }: Edit
   const { id } = useParams();
   const navigate = useNavigate();
   useKeyboardShortcuts();
+  useSeo({ title: isSharedView ? 'Shared schema' : 'Editor', noindex: true, disabled: isSandbox });
 
   const persistedId = isSandbox || isSharedView ? undefined : id;
   const status = useProjectPersistence(persistedId);
@@ -101,13 +103,13 @@ export default function Editor({ isSandbox = false, isSharedView = false }: Edit
   return (
     <div className="app-shell">
       {isSharedView && (
-        <div style={{ display: 'flex', alignItems: 'center', gap: 12, padding: '8px 16px', background: 'var(--surface-raised)', borderBottom: '1px solid var(--border-subtle)', fontSize: 13, color: 'var(--text-primary)' }}>
+        <div className="app-banner" role="status">
           <span>You are viewing a read-only shared snapshot.</span>
-          <button className="btn-primary btn-sm" onClick={saveCopy}>Save a copy to edit</button>
+          <button type="button" className="app-banner__btn" onClick={saveCopy}>Save a copy to edit</button>
         </div>
       )}
       {!isSandbox && !isSharedView && storageMode() === 'memory' && (
-        <div style={{ padding: '8px 16px', background: 'var(--alert-warning)', color: '#000', fontSize: 13 }}>
+        <div className="app-banner app-banner--warn" role="alert">
           Your browser is blocking local storage, so this project will be lost when you close the tab. Export it before leaving.
         </div>
       )}

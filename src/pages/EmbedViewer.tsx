@@ -1,4 +1,5 @@
 import { useEffect, useState } from 'react';
+import { useSeo } from '../lib/seo';
 import { useSchemaStore } from '../store/schema';
 import { useUIStore } from '../store/ui';
 import { SchemaCanvas } from '../components/canvas/SchemaCanvas';
@@ -9,6 +10,7 @@ import { decodeShareHash } from '../hooks/useShareLink';
  *   <iframe src="https://<host>/embed#/schema/<data>">
  */
 export default function EmbedViewer() {
+  useSeo({ title: 'Embedded schema', noindex: true });
   // Decoded once; the hash never changes inside an embed.
   const [data] = useState(() => decodeShareHash(window.location.hash));
 
@@ -24,7 +26,7 @@ export default function EmbedViewer() {
 
   if (!data) {
     return (
-      <div style={{ height: '100vh', width: '100vw', display: 'flex', alignItems: 'center', justifyContent: 'center', background: 'var(--canvas-bg)', color: 'var(--alert-error)', textAlign: 'center', padding: '20px' }}>
+      <div style={{ height: '100vh', width: '100vw', display: 'flex', alignItems: 'center', justifyContent: 'center', background: 'var(--canvas-bg)', color: 'var(--danger-text)', textAlign: 'center', padding: '20px' }}>
         <div>
           <h2>Can't show this schema</h2>
           <p>This embed link is missing or damaged.</p>

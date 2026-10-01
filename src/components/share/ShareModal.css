@@ -224,7 +224,7 @@ input:disabled + .toggle-slider {
   padding: 12px;
   border-radius: 8px;
   color: var(--text-primary);
-  font-family: 'Geist Mono', monospace;
+  font-family: 'Geist Mono Variable', 'Geist Mono', monospace;
   font-size: 12px;
   resize: none;
   margin-bottom: 16px;

@@ -33,7 +33,7 @@
   border-radius: var(--r-md);
   letter-spacing: 0.04em;
   transition: color var(--dur-base) var(--ease-out), background var(--dur-base);
-  font-family: 'Geist Mono', monospace;
+  font-family: 'Geist Mono Variable', 'Geist Mono', monospace;
 }
 
 .format-tab:hover {
@@ -55,7 +55,7 @@
 .code-panel__line-count {
   font-size: 11px;
   color: var(--text-muted);
-  font-family: 'Geist Mono', monospace;
+  font-family: 'Geist Mono Variable', 'Geist Mono', monospace;
 }
 
 .code-panel__copy-btn {
@@ -115,7 +115,7 @@
   background: var(--info-bg);
   border-radius: var(--r-xs);
   padding: 1px 6px;
-  font-family: 'Geist Mono', monospace;
+  font-family: 'Geist Mono Variable', 'Geist Mono', monospace;
 }
 
 .code-panel__footer-hint {

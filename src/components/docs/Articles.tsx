@@ -7,7 +7,7 @@ const extLink = (href: string, text: string) => (
 );
 
 export const GettingStartedArticle = () => (
-  <article className="docs-article">
+  <article>
     <h1>Getting started</h1>
     <p>
       Modellr is a free, open-source schema designer that runs in your browser. There is nothing to install and no account to
@@ -47,7 +47,7 @@ export const GettingStartedArticle = () => (
 );
 
 export const ImportArticle = () => (
-  <article className="docs-article">
+  <article>
     <h1>Importing SQL, Prisma and JSON</h1>
     <p>Use the Import button in the editor top bar, or the command palette, to bring in an existing schema.</p>
 
@@ -71,7 +71,7 @@ export const ImportArticle = () => (
 );
 
 export const ExportArticle = () => (
-  <article className="docs-article">
+  <article>
     <h1>Exporting</h1>
     <p>Open the Export menu in the top bar (or press Ctrl/Cmd+Shift+E) and choose a format.</p>
 
@@ -103,7 +103,7 @@ export const ExportArticle = () => (
 );
 
 export const SnapshotsDiffArticle = () => (
-  <article className="docs-article">
+  <article>
     <h1>Snapshots and diff</h1>
     <p>Snapshots are local, per-project checkpoints. They are stored with the project in your browser.</p>
 
@@ -129,7 +129,7 @@ export const SnapshotsDiffArticle = () => (
 );
 
 export const SharingArticle = () => (
-  <article className="docs-article">
+  <article>
     <h1>Sharing links and embeds</h1>
     <p>
       Sharing is stateless. The schema is compressed into the URL itself, so there is no server, no account and nothing is stored
@@ -158,7 +158,7 @@ export const SharingArticle = () => (
 );
 
 export const AiSetupArticle = () => (
-  <article className="docs-article">
+  <article>
     <h1>AI assistant (bring your own key)</h1>
     <p>
       AI is optional and off by default. There is no AI hosted by Modellr. When you configure it, requests go from your browser
@@ -194,7 +194,7 @@ export const AiSetupArticle = () => (
 );
 
 export const BackupArticle = () => (
-  <article className="docs-article">
+  <article>
     <h1>Backup and restore</h1>
     <p>
       Projects live only in your browser's IndexedDB. If you clear site data, use a different browser or profile, or your
@@ -220,7 +220,7 @@ export const BackupArticle = () => (
 );
 
 export const ShortcutsArticle = () => (
-  <article className="docs-article">
+  <article>
     <h1>Keyboard shortcuts</h1>
     <p>
       Use Ctrl on Windows and Linux, and Cmd on macOS. Single-key shortcuts and undo/redo do not fire while you are typing in
@@ -260,7 +260,7 @@ export const ShortcutsArticle = () => (
 );
 
 export const SelfHostingArticle = () => (
-  <article className="docs-article">
+  <article>
     <h1>Self-hosting</h1>
     <p>Modellr is a static site. There is no backend to run and no database to set up.</p>
 
@@ -285,7 +285,7 @@ npm run build
 );
 
 export const ExamplesArticle = () => (
-  <article className="docs-article">
+  <article>
     <h1>Starter templates</h1>
     <p>These templates are included in the app:</p>
 
@@ -307,7 +307,7 @@ export const ExamplesArticle = () => (
 );
 
 export const NotesArticle = () => (
-  <article className="docs-article">
+  <article>
     <h1>What Modellr does not do</h1>
     <p>Modellr is deliberately small. It does not offer:</p>
 

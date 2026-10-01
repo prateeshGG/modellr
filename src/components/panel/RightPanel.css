@@ -108,7 +108,7 @@
 }
 
 .panel-input--mono {
-  font-family: 'Geist Mono', monospace;
+  font-family: 'Geist Mono Variable', 'Geist Mono', monospace;
   font-size: 12px;
 }
 
@@ -120,7 +120,7 @@
   padding: 7px 10px;
   font-size: 12px;
   color: var(--text-primary);
-  font-family: 'Geist Mono', monospace;
+  font-family: 'Geist Mono Variable', 'Geist Mono', monospace;
   cursor: pointer;
 }
 
@@ -133,7 +133,7 @@
   font-size: 12px;
   color: var(--text-primary);
   resize: vertical;
-  font-family: 'Geist', sans-serif;
+  font-family: 'Geist Variable', 'Geist', sans-serif;
   transition: border-color var(--dur-base);
 }
 
@@ -181,7 +181,7 @@
   padding: 4px 4px;
   font-size: 11px;
   color: var(--text-primary);
-  font-family: 'Geist Mono', monospace;
+  font-family: 'Geist Mono Variable', 'Geist Mono', monospace;
 }
 
 .panel-remove-btn {
@@ -344,13 +344,13 @@
   font-size: 13px;
   font-weight: 600;
   color: var(--text-primary);
-  font-family: 'Geist Mono', monospace;
+  font-family: 'Geist Mono Variable', 'Geist Mono', monospace;
 }
 
 .rel-editor__field-name {
   font-size: 11px;
   color: var(--text-muted);
-  font-family: 'Geist Mono', monospace;
+  font-family: 'Geist Mono Variable', 'Geist Mono', monospace;
 }
 
 .rel-editor__arrow {
@@ -369,7 +369,7 @@
   flex: 1;
   font-size: 13px;
   font-weight: 600;
-  font-family: 'Geist Mono', monospace;
+  font-family: 'Geist Mono Variable', 'Geist Mono', monospace;
   color: var(--text-muted);
   background: var(--surface-raised);
   border: 1px solid var(--border-subtle);

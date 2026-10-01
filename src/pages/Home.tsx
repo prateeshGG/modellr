@@ -1,26 +1,26 @@
-import { useMemo, useState } from 'react';
+import { Suspense, lazy, useMemo, useState } from 'react';
 import { Link } from 'react-router-dom';
-import {
-  ArrowRight, Bot, Download, Eye, GitCompare, HardDrive, Layers, Link2, Maximize2, Minimize2, ShieldCheck,
-  Star, Upload,
-} from 'lucide-react';
-import { Footer } from '../components/layout/Footer';
-import { PublicNav } from '../components/layout/PublicNav';
+import { SiteShell } from '../components/site/SiteShell';
+import { ArtBars, ArtCubes, ArtStack } from '../components/site/Art';
+import { MiniSchema } from '../components/site/MiniSchema';
 import { GitHubMark } from '../components/layout/GitHubMark';
-import { SupportLink } from '../components/shared/SupportLink';
-import Editor from './Editor';
 import { REPO_URL } from '../config';
 import { useGithubStars } from '../hooks/useGithubStars';
-import { useReveal } from '../hooks/useReveal';
 import { formatStars } from '../lib/githubStars';
+import { Highlighted, type CodeLang } from '../lib/highlight';
+import { useUIStore } from '../store/ui';
+import { TEMPLATES } from '../utils/templates';
 import { importSQL } from '../utils/importers/sql';
 import { exportSQL } from '../utils/exporters/sql';
 import { exportPrisma } from '../utils/exporters/prisma';
 import { exportDrizzle } from '../utils/exporters/drizzle';
 import { exportDBML } from '../utils/exporters/dbml';
-import './Home.css';
+import editorDark from '../assets/editor-dark.webp';
+import editorLight from '../assets/editor-light.webp';
 
-/* ── Real exporter output for the "one schema, every format" panel ───────────── */
+const Editor = lazy(() => import('./Editor'));
+
+/* Real exporter output for the "import / export" panel. */
 const SAMPLE_SQL = `CREATE TABLE users (
   id uuid PRIMARY KEY,
   email text NOT NULL UNIQUE,
@@ -30,16 +30,15 @@ const SAMPLE_SQL = `CREATE TABLE users (
 CREATE TABLE posts (
   id serial PRIMARY KEY,
   author_id uuid NOT NULL REFERENCES users(id),
-  title text NOT NULL,
-  published boolean DEFAULT false
+  title text NOT NULL
 );`;
 
 type FormatId = 'prisma' | 'drizzle' | 'sql' | 'dbml';
-const FORMATS: { id: FormatId; label: string; file: string }[] = [
-  { id: 'prisma', label: 'Prisma', file: 'schema.prisma' },
-  { id: 'drizzle', label: 'Drizzle', file: 'schema.ts' },
-  { id: 'sql', label: 'SQL', file: 'schema.sql' },
-  { id: 'dbml', label: 'DBML', file: 'schema.dbml' },
+const FORMATS: { id: FormatId; label: string; file: string; lang: CodeLang }[] = [
+  { id: 'prisma', label: 'Prisma', file: 'schema.prisma', lang: 'prisma' },
+  { id: 'drizzle', label: 'Drizzle', file: 'schema.ts', lang: 'ts' },
+  { id: 'sql', label: 'SQL', file: 'schema.sql', lang: 'sql' },
+  { id: 'dbml', label: 'DBML', file: 'schema.dbml', lang: 'dbml' },
 ];
 
 function useSampleExports(): Record<FormatId, string> {
@@ -55,339 +54,238 @@ function useSampleExports(): Record<FormatId, string> {
   }, []);
 }
 
-/* ── Small illustrative visuals for the feature cards (decorative) ───────────── */
-function CanvasVisual() {
-  return (
-    <svg className="bento__svg" viewBox="0 0 420 190" aria-hidden role="presentation">
-      <defs>
-        <linearGradient id="hv-line" x1="0" x2="1">
-          <stop offset="0" stopColor="#b085ff" />
-          <stop offset="1" stopColor="#00e5a0" />
-        </linearGradient>
-      </defs>
-      <path d="M118 62 C 170 62, 160 126, 214 126" fill="none" stroke="url(#hv-line)" strokeWidth="1.6" opacity=".85" />
-      <path d="M118 78 C 150 78, 270 40, 306 40" fill="none" stroke="url(#hv-line)" strokeWidth="1.6" opacity=".55" />
-      {[
-        { x: 20, y: 30, name: 'users', rows: ['id', 'email', 'name'], c: '#4aa3ff' },
-        { x: 214, y: 90, name: 'orders', rows: ['id', 'user_id', 'total'], c: '#ff7a59' },
-        { x: 306, y: 10, name: 'products', rows: ['id', 'name', 'price'], c: '#2ecb8f' },
-      ].map((t) => (
-        <g key={t.name} transform={`translate(${t.x} ${t.y})`}>
-          <rect width="98" height="76" rx="7" fill="#0f0f17" stroke="#2a2a40" />
-          <rect width="98" height="20" rx="7" fill="#161622" />
-          <rect y="14" width="98" height="6" fill="#161622" />
-          <rect width="3" height="76" rx="1.5" fill={t.c} />
-          <text x="12" y="14" fill="#ecebf5" fontSize="9.5" fontFamily="monospace" fontWeight="700">{t.name}</text>
-          {t.rows.map((r, i) => (
-            <text key={r} x="12" y={36 + i * 16} fill="#a6a5ba" fontSize="9" fontFamily="monospace">{r}</text>
-          ))}
-        </g>
-      ))}
-    </svg>
-  );
-}
+const FAQ = [
+  ['Is Modellr really free?', 'Yes. It is MIT-licensed open-source software with no paid plan, no ads and no account. If it saved you time you can optionally buy the author a coffee; that unlocks nothing.'],
+  ['Where are my schemas stored?', 'Only in your browser (IndexedDB). Nothing is uploaded to a server. Clearing your browser data deletes them, so use Backup in the dashboard to keep a JSON copy.'],
+  ['Does it connect to my database?', 'No. You paste or upload a SQL dump (PostgreSQL, MySQL, SQLite, SQL Server syntax) or a Prisma schema, or start from a template. That is also why it can promise your data never leaves your device.'],
+  ['What can I export?', 'SQL for PostgreSQL, MySQL, SQLite and SQL Server, plus Prisma, Drizzle ORM, DBML, JSON, PNG and SVG. Always read generated SQL and migrations before running them on a real database.'],
+  ['How does the AI assistant work?', 'It is optional and bring-your-own-key. You give Modellr an OpenAI-compatible endpoint (OpenAI, OpenRouter, or a local model such as Ollama). Requests go straight from your browser to that provider; there is no AI hosted by Modellr.'],
+  ['How big a schema can it handle?', 'Editing stays smooth up to a few hundred tables, and viewing or light edits work at around a thousand. The measurements and limits are published in the repository.'],
+  ['Can I self-host it?', 'Yes. It is a static web app: build it with npm run build and serve the dist folder from any static host.'],
+] as const;
 
-/* ── Hero video (only shown if the file exists and can play) ─────────────────── */
-function HeroVideo() {
-  // Stay hidden until the browser has really loaded a frame, so a missing or broken file never
-  // leaves an empty black box on the page.
-  const [ready, setReady] = useState(false);
+const CHANGELOG = [
+  { date: 'Oct 1, 2026', title: 'Free and local-first', body: 'Accounts, cloud sync and billing were removed. Everything runs in the browser under the MIT license.' },
+  { date: 'Oct 1, 2026', title: 'New importers and exporters', body: 'SQL and Prisma importers were rewritten; SQL, Prisma, Drizzle and DBML exporters are covered by round-trip tests.' },
+  { date: 'Oct 1, 2026', title: 'Bring-your-own-key AI', body: 'A browser-direct client for OpenAI-compatible endpoints, including local models.' },
+  { date: 'Oct 1, 2026', title: 'Performance at 1,000 tables', body: 'Selector-based store, virtualised rendering and a layout worker keep large schemas responsive.' },
+];
+
+function Hero() {
+  const theme = useUIStore((s) => s.theme);
+  const [live, setLive] = useState(false);
+  const img = theme === 'light' ? editorLight : editorDark;
+
   return (
-    <section className={`hv reveal${ready ? '' : ' hv--hidden'}`} aria-label="Product video" hidden={!ready}>
-      <div className="hv__frame">
-        <video
-          className="hv__video"
-          src="/media/hero.mp4"
-          poster="/media/hero-poster.jpg"
-          autoPlay
-          muted
-          loop
-          playsInline
-          preload="metadata"
-          onLoadedData={() => setReady(true)}
-        />
+    <section className="n-hero">
+      <div className="n-dots" aria-hidden="true" />
+      <div className="n-wrap">
+        <div className="n-hero__grid">
+          <div className="n-hero__copy">
+            <span className="n-eyebrow">Free · open source · MIT</span>
+            <h1 className="n-h1">The database designer that never leaves your browser.</h1>
+            <p className="n-lead">Draw tables and relationships, import the SQL or Prisma you already have, and export what your stack needs. No account. Nothing uploaded.</p>
+            <div className="n-hero__actions">
+              <Link to="/app" className="n-btn n-btn--lg">Open the editor</Link>
+              <a className="n-btn n-btn--secondary n-btn--lg" href={REPO_URL} target="_blank" rel="noopener noreferrer"><GitHubMark size={16} /> Star on GitHub</a>
+            </div>
+          </div>
+          <ul className="n-hero__meta" aria-label="Highlights">
+            <li>No sign-up, no server</li>
+            <li>PostgreSQL · MySQL · SQLite · SQL Server</li>
+            <li>SQL, Prisma, Drizzle, DBML, PNG, SVG</li>
+            <li>Smooth at 1,000 tables</li>
+          </ul>
+        </div>
+
+        <div className={`n-shot${live ? ' n-shot--open' : ''}`}>
+          <div className="n-shot__glow" aria-hidden="true" />
+          <div className="n-shot__frame">
+            <div className="n-shot__bar">
+              <span className="n-shot__dots" aria-hidden="true"><i /><i /><i /></span>
+              <span>{live ? 'modellr / e-commerce: live sandbox, edits are not saved' : 'modellr / e-commerce template'}</span>
+              <button type="button" className="n-btn n-btn--secondary n-btn--sm n-shot__live" onClick={() => setLive((v) => !v)}>
+                {live ? 'Back to preview' : 'Try it live'}
+              </button>
+            </div>
+            {live ? (
+              <div className="n-live">
+                <Suspense fallback={<div className="n-skeleton" style={{ position: 'absolute', inset: 0 }} />}>
+                  <Editor isSandbox />
+                </Suspense>
+              </div>
+            ) : (
+              <div className="n-shot__stage">
+                <img className="n-shot__img n-shot__img--wide" src={img} width={1800} height={1018} alt="The Modellr editor showing four linked tables: users, orders, products and order_items" />
+                <svg className="n-shot__rings" viewBox="0 0 2000 1131" preserveAspectRatio="none" aria-hidden="true">
+                  <g fill="none" stroke="var(--n-accent)" strokeWidth="3">
+                    <circle cx="815" cy="299" r="26" /><circle cx="1322" cy="353" r="26" />
+                    <path d="M752 168 L752 190 L800 280" /><path d="M1420 168 L1420 190 L1340 335" />
+                  </g>
+                </svg>
+                <span className="n-callout" style={{ left: '27.5%', top: '9.5%' }}>Primary key</span>
+                <span className="n-callout" style={{ left: '62%', top: '9.5%' }}>Foreign key: draws the line</span>
+              </div>
+            )}
+          </div>
+        </div>
       </div>
     </section>
   );
 }
 
-const FAQ = [
-  {
-    q: 'Is Modellr really free?',
-    a: 'Yes. It is MIT-licensed open-source software with no paid plan, no ads and no account. If it saved you time you can optionally buy the author a coffee; that unlocks nothing.',
-  },
-  {
-    q: 'Where are my schemas stored?',
-    a: 'Only in your browser (IndexedDB). Nothing is uploaded to a server. Clearing your browser data deletes them, so use Backup in the dashboard to keep a JSON copy.',
-  },
-  {
-    q: 'Does it connect to my database?',
-    a: 'No. You paste or upload a SQL dump (PostgreSQL, MySQL, SQLite, SQL Server syntax) or a Prisma schema, or start from a template. That is also why it can promise your data never leaves your device.',
-  },
-  {
-    q: 'What can I export?',
-    a: 'SQL for PostgreSQL, MySQL, SQLite and SQL Server, plus Prisma, Drizzle ORM, DBML, JSON, PNG and SVG. Always read generated SQL and migrations before running them on a real database.',
-  },
-  {
-    q: 'How does the AI assistant work?',
-    a: 'It is optional and bring-your-own-key. You give Modellr an OpenAI-compatible endpoint (OpenAI, OpenRouter, or a local model such as Ollama). Requests go straight from your browser to that provider; there is no AI hosted by Modellr.',
-  },
-  {
-    q: 'How big a schema can it handle?',
-    a: 'Editing stays smooth up to a few hundred tables, and viewing or light edits work at around a thousand. The measurements and limits are published in the repository.',
-  },
-  {
-    q: 'Can I self-host it?',
-    a: 'Yes. It is a static web app: build it with npm run build and serve the dist folder from any static host.',
-  },
-];
-
-export default function Home() {
-  const [isFullscreen, setIsFullscreen] = useState(false);
-  const [format, setFormat] = useState<FormatId>('prisma');
+function Formats() {
   const exports = useSampleExports();
-  const stars = useGithubStars();
-  useReveal();
-
+  const [format, setFormat] = useState<FormatId>('prisma');
   const active = FORMATS.find((f) => f.id === format)!;
-  const starLabel = stars !== null ? formatStars(stars) : '';
+
+  const onKey = (e: React.KeyboardEvent) => {
+    const i = FORMATS.findIndex((f) => f.id === format);
+    if (e.key === 'ArrowRight') setFormat(FORMATS[(i + 1) % FORMATS.length].id);
+    else if (e.key === 'ArrowLeft') setFormat(FORMATS[(i + FORMATS.length - 1) % FORMATS.length].id);
+    else return;
+    e.preventDefault();
+  };
 
   return (
-    <div className="home site-main">
-      <PublicNav />
-
-      {/* ── Hero ─────────────────────────────────────────────── */}
-      <header className="hero">
-        <div className="hero__grid" aria-hidden />
-        <div className="hero__glow hero__glow--a" aria-hidden />
-        <div className="hero__glow hero__glow--b" aria-hidden />
-
-        <div className="hero__inner">
-          <a className="hero__badge" href={REPO_URL} target="_blank" rel="noopener noreferrer">
-            <span className="hero__badge-dot" aria-hidden />
-            Free and open source · MIT
-            <ArrowRight size={14} aria-hidden />
-          </a>
-
-          <h1 className="hero__title">
-            Design database schemas <span className="hero__title-em">in your browser.</span>
-          </h1>
-          <p className="hero__sub">
-            Draw tables, import the SQL or Prisma you already have, and export SQL, Prisma, Drizzle or DBML.
-            No sign-up, and your schemas never leave your device.
-          </p>
-
-          <div className="hero__cta">
-            <Link to="/app" className="site-btn site-btn--accent site-btn--lg">
-              Open the editor <ArrowRight size={16} aria-hidden />
-            </Link>
-            <a className="site-btn site-btn--outline site-btn--lg" href={REPO_URL} target="_blank" rel="noopener noreferrer">
-              <GitHubMark size={16} />
-              Star on GitHub
-              {starLabel && (
-                <span className="hero__stars">
-                  <Star size={13} fill="currentColor" strokeWidth={0} aria-hidden />
-                  {starLabel}
-                </span>
-              )}
-            </a>
-          </div>
-
-          <ul className="hero__facts" aria-label="Highlights">
-            <li><ShieldCheck size={15} aria-hidden /> Nothing uploaded</li>
-            <li><Layers size={15} aria-hidden /> No account</li>
-            <li><Download size={15} aria-hidden /> 7 export formats</li>
-            <li><GitCompare size={15} aria-hidden /> Snapshots and diff</li>
-          </ul>
-        </div>
-
-        {/* Live editor (desktop). Phones get the video / a link instead: the editor needs room. */}
-        <div className="hero__stage reveal">
-          <div className={`stage${isFullscreen ? ' stage--full' : ''}`}>
-            <div className="stage__bar">
-              <span className="stage__dots" aria-hidden><i /><i /><i /></span>
-              <span className="stage__label"><Eye size={13} aria-hidden /> Live sandbox: try editing. Starts from the e-commerce template; edits here are not saved.</span>
-              <button
-                className="stage__full"
-                onClick={() => setIsFullscreen((f) => !f)}
-                aria-label={isFullscreen ? 'Exit fullscreen' : 'Fullscreen'}
-                title={isFullscreen ? 'Exit fullscreen' : 'Fullscreen'}
-              >
-                {isFullscreen ? <Minimize2 size={15} /> : <Maximize2 size={15} />}
+    <div className="n-formats">
+      <div className="n-panel">
+        <div className="n-panel__head"><span>schema.sql</span><span>input</span></div>
+        <pre className="n-code" tabIndex={0}><code><Highlighted code={SAMPLE_SQL} lang="sql" /></code></pre>
+      </div>
+      <div className="n-formats__arrow" aria-hidden="true">→</div>
+      <div className="n-panel">
+        <div className="n-panel__head">
+          <div className="n-tabs" role="tablist" aria-label="Export format" onKeyDown={onKey}>
+            {FORMATS.map((f) => (
+              <button key={f.id} type="button" role="tab" id={`fmt-tab-${f.id}`} aria-selected={f.id === format} aria-controls="fmt-panel" tabIndex={f.id === format ? 0 : -1} className="n-tab" onClick={() => setFormat(f.id)}>
+                {f.label}
               </button>
-            </div>
-            <div className="stage__body">
-              <Editor isSandbox />
-            </div>
-          </div>
-          <div className="hero__mobile-note">
-            <p>The full editor needs a bigger screen. Open it on a laptop or desktop to try it.</p>
-            <Link to="/app" className="site-btn site-btn--brand">Open the editor</Link>
-          </div>
-        </div>
-      </header>
-
-      <HeroVideo />
-
-      {/* ── Feature bento ────────────────────────────────────── */}
-      <section className="sec" id="features">
-        <div className="sec__inner">
-          <p className="eyebrow reveal">What you get</p>
-          <h2 className="sec__title reveal">Everything for the schema, nothing you have to sign up for.</h2>
-
-          <div className="bento">
-            <article className="bento__card bento__card--wide reveal">
-              <div className="bento__text">
-                <span className="bento__icon"><Layers size={18} aria-hidden /></span>
-                <h3>A visual canvas that stays fast</h3>
-                <p>
-                  Tables, typed fields, drag-to-connect relationships, notes and groups, auto-layout, search and
-                  undo. Smooth up to a few hundred tables.
-                </p>
-              </div>
-              <CanvasVisual />
-            </article>
-
-            <article className="bento__card reveal" style={{ ['--reveal-delay' as string]: '60ms' }}>
-              <span className="bento__icon"><Upload size={18} aria-hidden /></span>
-              <h3>Import what you have</h3>
-              <p>Paste a SQL dump or a Prisma schema. pg_dump and mysqldump files work, foreign keys included.</p>
-              <div className="bento__chips"><span>PostgreSQL</span><span>MySQL</span><span>SQLite</span><span>SQL Server</span><span>Prisma</span></div>
-            </article>
-
-            <article className="bento__card reveal" style={{ ['--reveal-delay' as string]: '120ms' }}>
-              <span className="bento__icon"><GitCompare size={18} aria-hidden /></span>
-              <h3>Snapshots and diff</h3>
-              <p>Save versions, compare with any snapshot and generate migration SQL to review.</p>
-              <div className="bento__diff" aria-hidden>
-                <div className="d-add">+ ALTER TABLE "posts" ADD COLUMN "slug" text;</div>
-                <div className="d-add">+ CREATE TABLE "tags" (...);</div>
-                <div className="d-del">- DROP COLUMN "legacy_id";</div>
-              </div>
-            </article>
-
-            <article className="bento__card reveal" style={{ ['--reveal-delay' as string]: '60ms' }}>
-              <span className="bento__icon"><Link2 size={18} aria-hidden /></span>
-              <h3>Share without a server</h3>
-              <p>The schema is compressed into the link. Anyone with it gets a read-only snapshot, or an iframe embed.</p>
-              <div className="bento__url" aria-hidden>/app/shared#/schema/N4IgLgh…</div>
-            </article>
-
-            <article className="bento__card reveal" style={{ ['--reveal-delay' as string]: '120ms' }}>
-              <span className="bento__icon"><HardDrive size={18} aria-hidden /></span>
-              <h3>Local-first</h3>
-              <p>Projects live in your browser's IndexedDB. Back up everything as one JSON file whenever you like.</p>
-              <div className="bento__chips"><span>IndexedDB</span><span>JSON backup</span><span>No account</span></div>
-            </article>
-
-            <article className="bento__card bento__card--full reveal" style={{ ['--reveal-delay' as string]: '180ms' }}>
-              <div className="bento__text">
-                <span className="bento__icon"><Bot size={18} aria-hidden /></span>
-                <h3>Optional AI, with your own key</h3>
-                <p>Describe a change in plain English and review the proposal before it touches your schema. Requests go straight from your browser to the provider you choose, including a local model.</p>
-              </div>
-              <div className="bento__chat" aria-hidden>
-                <div className="bento__bubble bento__bubble--you">add a comments table linked to users</div>
-                <div className="bento__bubble bento__bubble--ai">Proposal: add table <b>comments</b> (id, body, created_at) and relate <b>comments.user_id</b> to <b>users.id</b>. <span>Accept · Reject</span></div>
-                <div className="bento__chips"><span>OpenAI</span><span>OpenRouter</span><span>Ollama (local)</span></div>
-              </div>
-            </article>
-          </div>
-        </div>
-      </section>
-
-      {/* ── One schema, every format (real exporter output) ──── */}
-      <section className="sec sec--alt" id="formats">
-        <div className="sec__inner">
-          <p className="eyebrow reveal">One schema, every format</p>
-          <h2 className="sec__title reveal">Paste SQL. Get Prisma, Drizzle, SQL or DBML.</h2>
-          <p className="sec__lead reveal">
-            The panel on the right is real output from Modellr's exporters, generated live in your browser from the SQL on the left.
-          </p>
-
-          <div className="fmt reveal">
-            <div className="fmt__pane">
-              <div className="fmt__head"><span>schema.sql</span><span className="fmt__tag">input</span></div>
-              <pre className="fmt__code" tabIndex={0}><code>{SAMPLE_SQL}</code></pre>
-            </div>
-            <div className="fmt__arrow" aria-hidden><ArrowRight size={20} /></div>
-            <div className="fmt__pane">
-              <div className="fmt__head">
-                <div className="fmt__tabs" role="tablist" aria-label="Export format">
-                  {FORMATS.map((f) => (
-                    <button
-                      key={f.id}
-                      role="tab"
-                      aria-selected={f.id === format}
-                      className={`fmt__tab${f.id === format ? ' is-active' : ''}`}
-                      onClick={() => setFormat(f.id)}
-                    >
-                      {f.label}
-                    </button>
-                  ))}
-                </div>
-                <span className="fmt__tag">{active.file}</span>
-              </div>
-              <pre className="fmt__code" tabIndex={0} role="tabpanel"><code>{exports[format]}</code></pre>
-            </div>
-          </div>
-        </div>
-      </section>
-
-      {/* ── How it works ─────────────────────────────────────── */}
-      <section className="sec" id="how">
-        <div className="sec__inner">
-          <p className="eyebrow reveal">How it works</p>
-          <h2 className="sec__title reveal">From a dump to a diagram in three steps.</h2>
-          <ol className="steps">
-            {[
-              { n: '01', t: 'Bring your schema', d: 'Paste SQL or a Prisma schema, start from a template, or draw tables from scratch.' },
-              { n: '02', t: 'Refine on the canvas', d: 'Connect relationships, tidy with auto-layout, add notes, save snapshots as you go.' },
-              { n: '03', t: 'Export or share', d: 'Copy SQL, Prisma, Drizzle or DBML, save PNG/SVG, or send a read-only link.' },
-            ].map((s, i) => (
-              <li key={s.n} className="steps__item reveal" style={{ ['--reveal-delay' as string]: `${i * 90}ms` }}>
-                <span className="steps__n">{s.n}</span>
-                <h3>{s.t}</h3>
-                <p>{s.d}</p>
-              </li>
-            ))}
-          </ol>
-        </div>
-      </section>
-
-      {/* ── FAQ ──────────────────────────────────────────────── */}
-      <section className="sec sec--alt" id="faq">
-        <div className="sec__inner sec__inner--narrow">
-          <p className="eyebrow reveal">FAQ</p>
-          <h2 className="sec__title reveal">Questions, answered plainly.</h2>
-          <div className="faq reveal">
-            {FAQ.map((f) => (
-              <details key={f.q} className="faq__item">
-                <summary>{f.q}</summary>
-                <p>{f.a}</p>
-              </details>
             ))}
           </div>
+          <span>{active.file}</span>
         </div>
-      </section>
-
-      {/* ── Final CTA ────────────────────────────────────────── */}
-      <section className="cta">
-        <div className="cta__glow" aria-hidden />
-        <div className="cta__inner reveal">
-          <h2>Start designing. It's free.</h2>
-          <p>Open source under the MIT license. No sign-up, no install.</p>
-          <div className="cta__buttons">
-            <Link to="/app" className="site-btn site-btn--accent site-btn--lg">Open the editor <ArrowRight size={16} aria-hidden /></Link>
-            <a className="site-btn site-btn--outline site-btn--lg" href={REPO_URL} target="_blank" rel="noopener noreferrer">
-              <GitHubMark size={16} /> Star on GitHub
-            </a>
-          </div>
-          <SupportLink className="cta__support" />
-        </div>
-      </section>
-
-      <Footer />
+        <pre className="n-code" id="fmt-panel" role="tabpanel" aria-labelledby={`fmt-tab-${format}`} tabIndex={0}><code><Highlighted code={exports[format]} lang={active.lang} /></code></pre>
+      </div>
     </div>
+  );
+}
+
+export default function Home() {
+  const stars = useGithubStars();
+  const starLabel = stars !== null ? formatStars(stars) : '';
+  const demo = TEMPLATES.ecommerce ?? Object.values(TEMPLATES)[0];
+  const demoTables = demo.tables.slice(0, 3);
+
+  return (
+    <SiteShell path="/">
+      <Hero />
+
+      <section className="n-works" aria-label="Supported formats">
+        <div className="n-wrap">
+          <p className="n-works__label">Imports and exports the formats you already use</p>
+          <div className="n-works__row">
+            {['PostgreSQL', 'MySQL', 'SQLite', 'SQL Server', 'Prisma', 'Drizzle', 'DBML'].map((x) => <span key={x} className="n-works__item">{x}</span>)}
+          </div>
+        </div>
+      </section>
+
+      <section className="n-section">
+        <div className="n-wrap">
+          <p className="n-statement">
+            A schema tool that stays out of your way.{' '}
+            <span>Modellr runs entirely in your browser: your tables, relationships and snapshots live in IndexedDB on your machine. No account, no server, nothing to sync.</span>
+          </p>
+          <div className="n-trio">
+            <div><div className="n-trio__art"><ArtStack /></div><h3 className="n-h4">Local-first by design</h3><p className="n-small">Projects are stored in your browser. Back everything up as one JSON file and restore it on any machine.</p></div>
+            <div><div className="n-trio__art"><ArtCubes /></div><h3 className="n-h4">Real formats, tested</h3><p className="n-small">Importers and exporters are covered by round-trip tests, so what you paste in is what comes back out.</p></div>
+            <div><div className="n-trio__art"><ArtBars /></div><h3 className="n-h4">Built for big schemas</h3><p className="n-small">Virtualised canvas and a layout worker keep dragging near 60 fps at a thousand tables.</p></div>
+          </div>
+        </div>
+      </section>
+
+      <section className="n-section n-section--tight">
+        <div className="n-wrap">
+          <div className="n-feature__head">
+            <h2 className="n-h2">Import what you have.<br />Export what you ship.</h2>
+            <div className="n-feature__copy">
+              <p className="n-lead" style={{ fontSize: '1rem' }}>Paste a <code className="n-mono">pg_dump</code>, a <code className="n-mono">mysqldump</code> or a Prisma schema and get a diagram. Change it on the canvas, then copy SQL, Prisma, Drizzle or DBML. The output on the right is generated live by the real exporters.</p>
+              <Link className="n-arrow" to="/docs">Read the import docs</Link>
+            </div>
+          </div>
+          <Formats />
+        </div>
+      </section>
+
+      <section className="n-section n-section--tight">
+        <div className="n-wrap">
+          <div className="n-feature__head">
+            <h2 className="n-h2">Snapshots, diff<br />and share links.</h2>
+            <div className="n-feature__copy">
+              <p className="n-lead" style={{ fontSize: '1rem' }}>Save versions as you go, compare against any of them and generate migration SQL with destructive-change warnings. Share a read-only link that carries the whole schema in the URL.</p>
+              <Link className="n-arrow" to="/features">See all features</Link>
+            </div>
+          </div>
+          <div className="n-bento">
+            <article className="n-card span-3">
+              <div className="n-card__art"><MiniSchema tables={demoTables} label="Snapshot versions of the e-commerce schema" /></div>
+              <h3 className="n-h4">Snapshots and diff</h3>
+              <p className="n-small">Restore any version, or diff it against the current schema. Renames show as drop + add, so read migrations before running them.</p>
+            </article>
+            <article className="n-card span-3">
+              <div className="n-card__art" style={{ padding: 20, minHeight: 190, alignContent: 'center' }}>
+                <div className="n-panel" style={{ width: '100%' }}>
+                  <div className="n-panel__head"><span>/app/shared#N4Ig3gzg…</span><span className="n-badge n-badge--ok">read-only</span></div>
+                  <div style={{ padding: '14px 16px', fontFamily: 'var(--n-mono)', fontSize: '.75rem', color: '#8b929b' }}>schema in the URL · 0 bytes uploaded</div>
+                </div>
+              </div>
+              <h3 className="n-h4">Stateless share links</h3>
+              <p className="n-small">The schema is compressed into the URL. Nothing is uploaded; recipients get a read-only snapshot they can save as their own.</p>
+            </article>
+            <article className="n-card span-2"><span className="n-card__meta">AI · optional</span><h3 className="n-h4">Bring your own key</h3><p className="n-small">OpenAI, OpenRouter or a local Ollama, called straight from your browser.</p></article>
+            <article className="n-card span-2"><span className="n-card__meta">Export</span><h3 className="n-h4">PNG and SVG for docs</h3><p className="n-small">Drop the diagram into a README or a design doc.</p></article>
+            <article className="n-card span-2"><span className="n-card__meta"><kbd className="n-kbd">Ctrl</kbd> <kbd className="n-kbd">K</kbd></span><h3 className="n-h4">Command palette</h3><p className="n-small">Search tables, jump anywhere, run any action from the keyboard.</p></article>
+          </div>
+        </div>
+      </section>
+
+      <section className="n-section n-section--tight">
+        <div className="n-wrap">
+          <h2 className="n-h2">Changelog</h2>
+          <div className="n-changelog">
+            {CHANGELOG.map((c) => (
+              <div key={c.title} className="n-changelog__item"><span className="n-card__meta">{c.date}</span><h3 className="n-h4">{c.title}</h3><p className="n-small">{c.body}</p></div>
+            ))}
+          </div>
+          <div className="n-oss">
+            <div><b>MIT</b><span className="n-small">License. Fork it, host it, change it.</span></div>
+            <div><b>0</b><span className="n-small">Accounts, servers or trackers.</span></div>
+            <div><b>{starLabel ? `★ ${starLabel}` : '★'}</b><span className="n-small"><a className="n-link" href={REPO_URL} target="_blank" rel="noopener noreferrer">Star it on GitHub</a></span></div>
+          </div>
+        </div>
+      </section>
+
+      <section className="n-section n-section--tight">
+        <div className="n-wrap">
+          <h2 className="n-h2">Questions, answered plainly.</h2>
+          <div className="n-faq">
+            {FAQ.map(([q, a], i) => (
+              <details key={q} open={i === 0}><summary>{q}</summary><p>{a}</p></details>
+            ))}
+          </div>
+        </div>
+      </section>
+
+      <section className="n-section n-cta">
+        <div className="n-wrap n-center">
+          <h2 className="n-h1">Draw it. Export it.<br />Keep it.</h2>
+          <p className="n-lead">Free and open source. No sign-up, no install.</p>
+          <div className="n-cta__actions">
+            <Link to="/app" className="n-btn n-btn--lg">Open the editor</Link>
+            <a className="n-btn n-btn--secondary n-btn--lg" href={REPO_URL} target="_blank" rel="noopener noreferrer"><GitHubMark size={16} /> Star on GitHub</a>
+          </div>
+        </div>
+      </section>
+    </SiteShell>
   );
 }
