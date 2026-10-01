@@ -154,6 +154,10 @@
 .n-gh:hover { background: var(--n-surface-2); border-color: var(--n-line-3); }
 .n-gh svg { flex: none; }
 .n-gh__count { display: inline-flex; align-items: center; gap: 4px; padding: 2px 8px; border-radius: 5px; background: var(--n-surface-2); font-family: var(--n-mono); font-size: 0.75rem; color: var(--n-text-2); }
+.n-coffee { display: inline-flex; align-items: center; gap: 8px; min-height: 34px; padding: 0 12px; border-radius: 8px; border: 1px solid color-mix(in srgb, var(--n-accent) 45%, transparent); background: var(--n-accent-soft); color: var(--n-text); font-size: 0.8125rem; font-weight: 500; white-space: nowrap; transition: background 0.15s, border-color 0.15s; }
+.n-coffee:hover { border-color: var(--n-accent); background: color-mix(in srgb, var(--n-accent) 20%, transparent); }
+.n-coffee svg { color: var(--n-accent-text); flex: none; }
+@media (max-width: 1100px) { .n-coffee { width: 34px; padding: 0; justify-content: center; } .n-coffee__label { display: none; } }
 .n-nav__cta { min-height: 34px; padding: 0 14px; font-size: 0.875rem; border-radius: 8px; }
 .n-nav__toggle { display: none; width: 44px; height: 44px; align-items: center; justify-content: center; border: 1px solid var(--n-line-2); border-radius: 10px; background: transparent; color: var(--n-text); cursor: pointer; }
 .n-sheet { position: absolute; top: 100%; left: 0; right: 0; height: calc(100vh - var(--n-nav-h)); height: calc(100dvh - var(--n-nav-h)); z-index: 49; background: var(--n-bg); padding: 16px 20px 28px; display: flex; flex-direction: column; overflow-y: auto; }

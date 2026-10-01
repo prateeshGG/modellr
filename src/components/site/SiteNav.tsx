@@ -5,7 +5,8 @@ import { useGithubStars } from '../../hooks/useGithubStars';
 import { formatStars } from '../../lib/githubStars';
 import { GitHubMark } from '../layout/GitHubMark';
 import { Logo } from './Logo';
-import { IconClose, IconMenu } from './icons';
+import { IconClose, IconCoffee, IconMenu } from './icons';
+import { SupportLink } from '../shared/SupportLink';
 import { ThemeToggle } from './ThemeToggle';
 
 import { NAV_LINKS } from './navLinks';
@@ -74,6 +75,9 @@ export function SiteNav() {
           </ul>
           <span className="n-nav__spacer" />
           <ThemeToggle />
+          <SupportLink className="n-coffee" ariaLabel="Buy me a coffee (opens in a new tab)">
+            <IconCoffee /><span className="n-coffee__label">Buy me a coffee</span>
+          </SupportLink>
           <StarPill stars={stars} />
           <Link to="/app" className="n-btn n-nav__cta">Open editor</Link>
           <button
@@ -93,6 +97,7 @@ export function SiteNav() {
           <Link key={l.to} to={l.to} className="n-sheet__link">{l.label}</Link>
         ))}
         <div className="n-sheet__foot">
+          <SupportLink className="n-btn n-btn--secondary n-btn--lg n-btn--block"><IconCoffee /> Buy me a coffee</SupportLink>
           <Link to="/app" className="n-btn n-btn--lg n-btn--block">Open editor</Link>
           <a className="n-btn n-btn--secondary n-btn--lg n-btn--block" href={REPO_URL} target="_blank" rel="noopener noreferrer">
             <GitHubMark size={16} /> Star on GitHub{starLabel ? ` · ${starLabel}` : ''}

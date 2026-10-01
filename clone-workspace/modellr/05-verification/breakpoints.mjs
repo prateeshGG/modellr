@@ -1,6 +1,6 @@
 // Horizontal-overflow scan: every route at 320/375/390/430/768/1024/1280/1440, dark and light.   node breakpoints.mjs
 const { chromium } = await import(process.env.PLAYWRIGHT_CORE || 'playwright-core');
-const base = 'http://localhost:4173';
+const base = process.env.BASE || 'http://localhost:4173';
 const routes = ['/', '/features', '/templates', '/docs', '/docs/import', '/docs/notes', '/blog', '/blog/why-visual-diagrams-fail', '/about', '/contact', '/privacy', '/terms', '/use-cases/saas-database-schema', '/use-cases/ecommerce-schema', '/use-cases/auth-schema', '/nope', '/app', '/app/templates', '/app/settings'];
 const widths = [320, 375, 390, 430, 768, 1024, 1280, 1440];
 const b = await chromium.launch({ executablePath: process.env.CHROME || '/opt/pw-browsers/chromium-1194/chrome-linux/chrome', args: ['--no-sandbox'] });
