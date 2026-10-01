@@ -1,76 +1,84 @@
 /**
- * useShareLink — encodes the current schema into a URL hash
- * and decodes it on mount.
+ * useShareLink — stateless sharing. The whole schema is compressed into the URL hash, so
+ * sharing needs no server and no account.
  *
- * Format: /#/schema/<base64url(gzipped JSON)>
- * Falls back to plain base64 for broad compatibility.
+ * Format: <origin>/app/shared#/schema/<lz-string compressToEncodedURIComponent(JSON)>
  */
 import { useEffect, useCallback } from 'react';
 import LZString from 'lz-string';
 import { useSchemaStore } from '../store/schema';
 import { useUIStore } from '../store/ui';
+import { sanitizeCanvasState } from '../lib/sanitizeSchema';
+import type { CanvasState } from '../lib/projectStore';
 
-const PREFIX = '#/schema/';
+export const SHARE_PREFIX = '#/schema/';
+/** Above this many characters a link is likely to be truncated by chat apps and some browsers. */
+export const SHARE_LINK_WARN_LENGTH = 8000;
 
-function encode(data: unknown): string {
-  const json = JSON.stringify(data);
-  return LZString.compressToEncodedURIComponent(json);
+export interface SharedPayload extends CanvasState {
+  projectName?: string;
 }
 
-function decode(b64: string): unknown {
-  const json = LZString.decompressFromEncodedURIComponent(b64);
-  return json ? JSON.parse(json) : null;
+export function encodeShare(data: unknown): string {
+  return LZString.compressToEncodedURIComponent(JSON.stringify(data));
 }
 
-/** Copy the current schema as a shareable URL to the clipboard. */
-export function useShareLink() {
-  const { tables, relationships, notes, groups, projectName, importTables, setProjectName } = useSchemaStore();
-  const { showToast } = useUIStore() as any;
+/** Decode and validate a share-link hash (including the '#/schema/' prefix). Returns null if invalid. */
+export function decodeShareHash(hash: string): SharedPayload | null {
+  if (!hash.startsWith(SHARE_PREFIX)) return null;
+  try {
+    const json = LZString.decompressFromEncodedURIComponent(hash.slice(SHARE_PREFIX.length));
+    if (!json) return null;
+    const raw = JSON.parse(json);
+    const state = sanitizeCanvasState(raw);
+    if (!state) return null;
+    const name = typeof raw?.projectName === 'string' ? raw.projectName.slice(0, 200) : undefined;
+    return { ...state, projectName: name };
+  } catch {
+    return null;
+  }
+}
 
-  // ── Decode from hash on first load ───────────────
+export function buildShareUrl(payload: SharedPayload, path = '/app/shared'): string {
+  return `${window.location.origin}${path}${SHARE_PREFIX}${encodeShare(payload)}`;
+}
+
+/**
+ * @param decodeOnMount when true, load a schema from the current URL hash into the editor
+ *   (read-only). Only the shared-view route should enable this.
+ */
+export function useShareLink(decodeOnMount = false) {
+  const showToast = useUIStore((s) => s.showToast);
+
   useEffect(() => {
-    const hash = window.location.hash;
-    if (!hash.startsWith(PREFIX)) return;
+    if (!decodeOnMount) return;
+    const data = decodeShareHash(window.location.hash);
+    if (!data) {
+      if (window.location.hash.startsWith(SHARE_PREFIX)) showToast('This share link is damaged or incomplete.', 'error');
+      return;
+    }
+    const store = useSchemaStore.getState();
+    store.importTables(data.tables, data.relationships, data.notes, data.groups);
+    if (data.projectName) store.setProjectName(data.projectName);
+    useSchemaStore.temporal.getState().clear();
+    useUIStore.getState().setReadOnly(true);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [decodeOnMount]);
 
+  const copyShareLink = useCallback(async () => {
+    const { tables, relationships, notes, groups, projectName } = useSchemaStore.getState();
     try {
-      const b64 = hash.slice(PREFIX.length);
-      const data = decode(b64) as {
-        tables: typeof tables;
-        relationships: typeof relationships;
-        notes?: typeof notes;
-        groups?: typeof groups;
-        projectName?: string;
-      };
-
-      if (data && Array.isArray(data.tables)) {
-        importTables(data.tables, data.relationships ?? [], data.notes, data.groups);
-        if (data.projectName) setProjectName(data.projectName);
-        // Clear hash after loading so undo/redo doesn't re-import
-        history.replaceState(null, '', window.location.pathname + window.location.search);
-        (showToast as any)?.('Schema loaded from stateless share link', 'success');
-        
-        // Force read-only mode for hash links
-        useUIStore.getState().setReadOnly(true);
+      const url = buildShareUrl({ tables, relationships, notes, groups, projectName });
+      await navigator.clipboard.writeText(url);
+      if (url.length > SHARE_LINK_WARN_LENGTH) {
+        showToast('Link copied, but it is very long. Some apps may cut it off. For big schemas, export JSON instead.', 'error');
+      } else {
+        showToast('Share link copied. Anyone with it sees a read-only snapshot.', 'success');
       }
     } catch {
-      // Malformed hash — just ignore
+      showToast('Could not copy the share link.', 'error');
     }
-  // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
-
-  // ── Generate and copy share URL ──────────────────
-  const copyShareLink = useCallback(async () => {
-    try {
-      const payload = { tables, relationships, notes, groups, projectName };
-      const b64 = encode(payload);
-      // Always point to /app/shared so we don't accidentally embed the current collaborative room ID
-      const url = `${window.location.origin}/app/shared${PREFIX}${b64}`;
-      await navigator.clipboard.writeText(url);
-      (showToast as any)?.('Stateless Share link copied to clipboard!', 'success');
-    } catch {
-      (showToast as any)?.('Failed to copy share link', 'error');
-    }
-  }, [tables, relationships, notes, groups, projectName, showToast]);
+  }, [showToast]);
 
   return { copyShareLink };
 }

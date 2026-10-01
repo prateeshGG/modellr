@@ -27,7 +27,7 @@ export default function NoteNode({ id, data: rawData, selected }: NodeProps) {
   const updateNote = useSchemaStore(s => s.updateNote);
   const removeNote = useSchemaStore(s => s.removeNote);
 
-  // Local state for snappy typing without debouncing the global Yjs store on every keystroke
+  // Local state for snappy typing without writing to the global store on every keystroke
   const [content, setContent] = useState<string>(data.content ?? '');
 
   useEffect(() => {

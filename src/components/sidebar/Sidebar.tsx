@@ -120,7 +120,15 @@ export const Sidebar: React.FC<SidebarProps> = ({ isHost = false }) => {
                     <button
                       key={snap.id}
                       className="sidebar__snapshot-item"
-                      onClick={() => restoreSnapshot(snap.id)}
+                      onClick={() => {
+                        if (readOnly) return;
+                        useUIStore.getState().showDialog({
+                          title: 'Restore snapshot?',
+                          message: `Replace the current schema with "${snap.label}"? You can undo this with Ctrl/Cmd+Z.`,
+                          type: 'confirm',
+                          onConfirm: () => restoreSnapshot(snap.id),
+                        });
+                      }}
                       title={new Date(snap.timestamp).toLocaleString()}
                     >
                       <span className="snapshot-label">{snap.label}</span>

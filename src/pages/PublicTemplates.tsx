@@ -27,7 +27,7 @@ export const PublicTemplates: React.FC = () => {
           <div className="pd-label">// Templates</div>
           <h1 className="pd-h1">Template Gallery</h1>
           <p className="pd-lead">
-            Jumpstart your architecture. Browse pre-built canonical schemas designed for production scale.
+            Starter schemas you can open in the editor and adapt. Free, and nothing to sign up for.
           </p>
         </div>
       </div>
@@ -83,11 +83,11 @@ export const PublicTemplates: React.FC = () => {
                     {tpl.tables.length} tables
                   </span>
                   <button
-                    onClick={() => navigate(`/?template=${tpl.id}#demo-anchor`)}
+                    onClick={() => navigate('/app/templates')}
                     className="pd-btn-primary"
                     style={{ padding: '7px 14px', fontSize: '12px' }}
                   >
-                    Use template
+                    Open templates
                   </button>
                 </div>
               </div>

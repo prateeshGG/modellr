@@ -1,95 +1,96 @@
 import { useState, useRef, useEffect } from 'react';
 import { useSchemaStore } from '../../store/schema';
-import { useAuthStore } from '../../store/authStore';
-import { Bot, ChevronDown, Send, CheckCircle2, XCircle } from 'lucide-react';
-import { getBackendBase } from '../../lib/api-utils';
-import { getAuthHeader } from '../../lib/auth-utils';
+import { Bot, ChevronDown, Send, CheckCircle2, XCircle, Settings, Square } from 'lucide-react';
+import { requestSchemaModifications } from '../../hooks/useAI';
+import { isAbortError, errorMessage, type ChatMessage } from '../../lib/aiClient';
+import { useAIConfigured } from '../../lib/aiConfig';
+import type { AIOperation } from '../../lib/aiPrompts';
+import { AISettingsDialog } from './AISettingsDialog';
 import './AIBottomDrawer.css';
 
 interface Message {
   id: string;
   role: 'user' | 'assistant';
   content?: string;
-  operations?: any[];
+  operations?: AIOperation[];
   applied?: boolean;
+  isError?: boolean;
 }
+
+const INITIAL: Message = {
+  id: 'initial',
+  role: 'assistant',
+  content: 'What would you like to build today? You can ask me to "Add an auth system" or "Normalize my users table".',
+};
 
 export const AIBottomDrawer: React.FC<{ isOpen: boolean; onClose: () => void }> = ({ isOpen, onClose }) => {
   const { tables, relationships, applyAIOperations } = useSchemaStore();
-  const profile = useAuthStore((s) => s.profile);
-  const [messages, setMessages] = useState<Message[]>([
-    { id: 'initial', role: 'assistant', content: 'What would you like to build today? You can ask me to "Add an auth system" or "Normalize my users table".' }
-  ]);
+  const configured = useAIConfigured();
+  const [settingsOpen, setSettingsOpen] = useState(false);
+  const [messages, setMessages] = useState<Message[]>([INITIAL]);
   const [input, setInput] = useState('');
   const [loading, setLoading] = useState(false);
-  const [quota, setQuota] = useState<number | null>(null);
   const messagesEndRef = useRef<HTMLDivElement>(null);
+  const abortRef = useRef<AbortController | null>(null);
+  const idRef = useRef(0);
+  const nextId = () => `m${Date.now()}-${idRef.current++}`;
 
   useEffect(() => {
-    if (messagesEndRef.current) {
-      messagesEndRef.current.scrollIntoView({ behavior: 'smooth' });
-    }
+    messagesEndRef.current?.scrollIntoView?.({ behavior: 'smooth' });
   }, [messages]);
 
   useEffect(() => {
-    const handler = (e: any) => {
-      if (e.detail?.initialPrompt) {
-        setInput(e.detail.initialPrompt);
-      }
+    const handler = (e: Event) => {
+      const detail = (e as CustomEvent).detail;
+      if (detail?.initialPrompt) setInput(detail.initialPrompt);
     };
-    // Need to listen to this event locally to capture the detail load
-    window.addEventListener('sf:open-ai-generate', handler as EventListener);
-    return () => window.removeEventListener('sf:open-ai-generate', handler as EventListener);
+    window.addEventListener('sf:open-ai-generate', handler);
+    return () => window.removeEventListener('sf:open-ai-generate', handler);
   }, []);
+
+  useEffect(() => () => abortRef.current?.abort(), []);
 
   const handleSend = async () => {
     if (!input.trim() || loading) return;
     const userPrompt = input.trim();
     setInput('');
 
-    const userMsg: Message = { id: Date.now().toString(), role: 'user', content: userPrompt };
-    setMessages(prev => [...prev, userMsg]);
-    setLoading(true);
+    // Recent text-only turns give the model conversational context.
+    const history: ChatMessage[] = messages
+      .filter((m) => m.id !== 'initial' && m.content && !m.isError)
+      .map((m) => ({ role: m.role, content: m.content as string }));
 
-    const endpoint = `${getBackendBase()}/api/openai/modify`;
+    setMessages((prev) => [...prev, { id: nextId(), role: 'user', content: userPrompt }]);
+    setLoading(true);
+    const ctrl = new AbortController();
+    abortRef.current = ctrl;
 
     try {
-      const resp = await fetch(endpoint, {
-        method: 'POST',
-        headers: { 
-          'Content-Type': 'application/json',
-          ...getAuthHeader()
-        },
-        body: JSON.stringify({
-          prompt: userPrompt,
-          currentSchema: { tables, relationships }
-        })
-      });
-
-      const data = await resp.json();
-
-      if (!resp.ok) throw new Error(data.error || 'Failed to fetch AI response');
-
-      const assistantMsg: Message = {
-        id: (Date.now() + 1).toString(),
-        role: 'assistant',
-        content: data.response.analysis,
-        operations: data.response.operations,
-        applied: false
-      };
-
-      if (data.remaining !== undefined) setQuota(data.remaining);
-      setMessages(prev => [...prev, assistantMsg]);
-    } catch (err: any) {
-      setMessages(prev => [...prev, { id: Date.now().toString(), role: 'assistant', content: `Error: ${err.message}` }]);
+      const result = await requestSchemaModifications(userPrompt, tables, relationships, { history, signal: ctrl.signal });
+      let content = result.analysis;
+      if (!content) content = result.operations.length ? 'Here are the proposed changes.' : 'No changes needed.';
+      if (result.dropped > 0) {
+        content += ` (${result.dropped} invalid ${result.dropped === 1 ? 'change was' : 'changes were'} ignored.)`;
+      }
+      setMessages((prev) => [
+        ...prev,
+        { id: nextId(), role: 'assistant', content, operations: result.operations, applied: false },
+      ]);
+    } catch (err) {
+      if (!isAbortError(err)) {
+        setMessages((prev) => [...prev, { id: nextId(), role: 'assistant', content: errorMessage(err), isError: true }]);
+      }
     } finally {
+      if (abortRef.current === ctrl) abortRef.current = null;
       setLoading(false);
     }
   };
 
-  const applyOperations = (msgId: string, ops: any[]) => {
+  const handleStop = () => abortRef.current?.abort();
+
+  const applyOperations = (msgId: string, ops: AIOperation[]) => {
     applyAIOperations(ops);
-    setMessages(prev => prev.map(m => m.id === msgId ? { ...m, applied: true } : m));
+    setMessages((prev) => prev.map((m) => (m.id === msgId ? { ...m, applied: true } : m)));
   };
 
   if (!isOpen) return null;
@@ -99,89 +100,107 @@ export const AIBottomDrawer: React.FC<{ isOpen: boolean; onClose: () => void }> 
       <div className="ai-drawer__header">
         <div style={{ display: 'flex', alignItems: 'center', gap: '8px', fontWeight: 600 }}>
           <Bot size={18} color="#A09AEB" /> Modellr AI
-          {quota !== null && (
-            <span className="ai-quota-badge">
-              {quota} requests left today
-            </span>
-          )}
-          {profile?.tier === 'free' && quota === 0 && (
-            <span className="ai-quota-badge ai-quota-badge--limit">
-              Daily Limit Reached
-            </span>
-          )}
         </div>
-        <button className="ai-drawer__close" onClick={onClose}>
-          <ChevronDown size={20} />
-        </button>
+        <div style={{ display: 'flex', alignItems: 'center', gap: 2 }}>
+          <button className="ai-drawer__close" onClick={() => setSettingsOpen(true)} title="AI settings" aria-label="AI settings">
+            <Settings size={16} />
+          </button>
+          <button className="ai-drawer__close" onClick={onClose} aria-label="Close">
+            <ChevronDown size={20} />
+          </button>
+        </div>
       </div>
 
-      <div className="ai-drawer__chat">
-        {messages.map(msg => (
-          <div key={msg.id} className={`ai-message ai-message--${msg.role}`}>
-            {msg.role === 'assistant' && <Bot className="ai-avatar" size={16} />}
-            <div className="ai-bubble">
-              {msg.content && <p>{msg.content}</p>}
+      {!configured ? (
+        <div className="ai-drawer__chat">
+          <div className="ai-setup-cta">
+            <strong>Set up AI (bring your own key)</strong>
+            <span>
+              Modellr AI runs on your own AI provider. Add an OpenAI or OpenRouter key, or point it at a local
+              Ollama model. Your key stays in this browser and is sent only to the provider you choose.
+            </span>
+            <button onClick={() => setSettingsOpen(true)}>Set up AI</button>
+          </div>
+        </div>
+      ) : (
+        <>
+          <div className="ai-drawer__chat">
+            {messages.map((msg) => (
+              <div key={msg.id} className={`ai-message ai-message--${msg.role}`}>
+                {msg.role === 'assistant' && <Bot className="ai-avatar" size={16} />}
+                <div className="ai-bubble">
+                  {msg.content && <p style={msg.isError ? { color: '#ff7b72' } : undefined}>{msg.content}</p>}
 
-              {/* Diff Card */}
-              {msg.operations && msg.operations.length > 0 && !msg.applied && (
-                <div className="ai-diff-card">
-                  <div className="ai-diff-card__header">
-                    <span>Proposed Structural Changes ({msg.operations.length})</span>
-                  </div>
-                  <div className="ai-diff-card__body">
-                    {msg.operations.map((op, i) => (
-                      <div key={i} className="ai-diff-item">
-                        <span className={`ai-diff-badge ai-diff-badge--${op.action.split('_')[0]}`}>
-                          {op.action.replace('_', ' ').toUpperCase()}
-                        </span>
-                        <span>
-                          {op.tableName} {op.fieldName ? `(${op.fieldName})` : ''}
-                          {op.relationTargetTable ? ` → ${op.relationTargetTable}` : ''}
-                        </span>
+                  {/* Diff Card */}
+                  {msg.operations && msg.operations.length > 0 && !msg.applied && (
+                    <div className="ai-diff-card">
+                      <div className="ai-diff-card__header">
+                        <span>Proposed Structural Changes ({msg.operations.length})</span>
                       </div>
-                    ))}
-                  </div>
-                  <div className="ai-diff-card__actions">
-                    <button className="ai-btn-reject" onClick={() => setMessages(prev => prev.filter(m => m.id !== msg.id))}>
-                      <XCircle size={14} /> Reject
-                    </button>
-                    <button className="ai-btn-accept" onClick={() => applyOperations(msg.id, msg.operations!)}>
-                      <CheckCircle2 size={14} /> Accept & Apply
-                    </button>
-                  </div>
+                      <div className="ai-diff-card__body">
+                        {msg.operations.map((op, i) => (
+                          <div key={i} className="ai-diff-item">
+                            <span className={`ai-diff-badge ai-diff-badge--${op.action.split('_')[0]}`}>
+                              {op.action.replace(/_/g, ' ').toUpperCase()}
+                            </span>
+                            <span>
+                              {op.tableName} {op.fieldName ? `(${op.fieldName})` : ''}
+                              {op.relationTargetTable ? ` → ${op.relationTargetTable}` : ''}
+                            </span>
+                          </div>
+                        ))}
+                      </div>
+                      <div className="ai-diff-card__actions">
+                        <button className="ai-btn-reject" onClick={() => setMessages((prev) => prev.filter((m) => m.id !== msg.id))}>
+                          <XCircle size={14} /> Reject
+                        </button>
+                        <button className="ai-btn-accept" onClick={() => applyOperations(msg.id, msg.operations!)}>
+                          <CheckCircle2 size={14} /> Accept & Apply
+                        </button>
+                      </div>
+                    </div>
+                  )}
+                  {msg.applied && (
+                    <div className="ai-applied-badge">
+                      <CheckCircle2 size={14} /> Changes applied to canvas
+                    </div>
+                  )}
                 </div>
-              )}
-              {msg.applied && (
-                <div className="ai-applied-badge">
-                  <CheckCircle2 size={14} /> Changes applied to canvas
+              </div>
+            ))}
+            {loading && (
+              <div className="ai-message ai-message--assistant">
+                <Bot className="ai-avatar" size={16} />
+                <div className="ai-bubble ai-bubble--loading">
+                  <span></span><span></span><span></span>
                 </div>
-              )}
-            </div>
+              </div>
+            )}
+            <div ref={messagesEndRef} />
           </div>
-        ))}
-        {loading && (
-          <div className="ai-message ai-message--assistant">
-            <Bot className="ai-avatar" size={16} />
-            <div className="ai-bubble ai-bubble--loading">
-              <span></span><span></span><span></span>
-            </div>
-          </div>
-        )}
-        <div ref={messagesEndRef} />
-      </div>
 
-      <div className="ai-drawer__input-area">
-        <input
-          value={input}
-          onChange={(e) => setInput(e.target.value)}
-          onKeyDown={(e) => e.key === 'Enter' && handleSend()}
-          placeholder="Ask AI to modify your database..."
-          disabled={loading}
-        />
-        <button onClick={handleSend} disabled={!input.trim() || loading} className="ai-send-btn">
-          <Send size={18} />
-        </button>
-      </div>
+          <div className="ai-drawer__input-area">
+            <input
+              value={input}
+              onChange={(e) => setInput(e.target.value)}
+              onKeyDown={(e) => e.key === 'Enter' && !e.nativeEvent.isComposing && handleSend()}
+              placeholder="Ask AI to modify your database..."
+              disabled={loading}
+            />
+            {loading ? (
+              <button onClick={handleStop} className="ai-send-btn" title="Stop" aria-label="Stop">
+                <Square size={16} />
+              </button>
+            ) : (
+              <button onClick={handleSend} disabled={!input.trim()} className="ai-send-btn" aria-label="Send">
+                <Send size={18} />
+              </button>
+            )}
+          </div>
+        </>
+      )}
+
+      <AISettingsDialog open={settingsOpen} onClose={() => setSettingsOpen(false)} />
     </div>
   );
 };

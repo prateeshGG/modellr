@@ -1,33 +1,129 @@
-import type { Table, Relationship, Dialect } from '../../types/schema';
+import type { Table, Relationship, Dialect, Field } from '../../types/schema';
+import {
+  commentText,
+  fkBaseName,
+  isSafeExpression,
+  mapType,
+  orderTables,
+  quoteIdent,
+  renderSqlDefault,
+  resolveRelationships,
+  sqlString,
+  stripControl,
+  uniqueName,
+  type ResolvedRel,
+} from './sqlUtils';
 
-const NULLABLE = (nullable: boolean) => (nullable ? '' : ' NOT NULL');
-const UNIQUE = (unique: boolean) => (unique ? ' UNIQUE' : '');
-const DEFAULT = (def?: string) => (def ? ` DEFAULT ${def}` : '');
-const CHECK = (check?: string) => (check ? ` CHECK (${check})` : '');
-
-/**
- * Maps PostgreSQL-style types to MySQL-style types if needed
- */
-function mapType(type: string, dialect: Dialect): string {
-  if (dialect !== 'mysql') return type;
-  const t = type.toLowerCase();
-  if (t === 'uuid') return 'varchar(36)';
-  if (t === 'bigserial') return 'BIGINT UNSIGNED NOT NULL AUTO_INCREMENT';
-  if (t === 'serial') return 'INT UNSIGNED NOT NULL AUTO_INCREMENT';
-  if (t === 'timestamptz') return 'timestamp';
-  if (t === 'jsonb') return 'json';
-  if (t === 'boolean') return 'tinyint(1)';
-  return type;
+export interface ColumnOptions {
+  /** Emit UNIQUE inline (default true) */
+  inlineUnique?: boolean;
+  /** Emit a single-column PRIMARY KEY inline (default true) */
+  inlinePk?: boolean;
+  /** Emit CHECK inline (default true) */
+  inlineCheck?: boolean;
+  /** Emit a MySQL COMMENT '...' clause (default true) */
+  mysqlComment?: boolean;
 }
 
-function quote(name: string, dialect: Dialect): string {
-  return dialect === 'mysql' ? `\`${name}\`` : `"${name}"`;
+/** One column definition (without leading indentation / trailing comma). */
+export function columnDDL(f: Field, dialect: Dialect, opts: ColumnOptions = {}): string {
+  const { inlineUnique = true, inlinePk = true, inlineCheck = true, mysqlComment = true } = opts;
+  const mapped = mapType(f, dialect);
+  const q = quoteIdent(f.name, dialect);
+
+  // SQLite: INTEGER PRIMARY KEY AUTOINCREMENT is the only legal form.
+  if (dialect === 'sqlite' && mapped.auto && f.isPK && inlinePk) {
+    return `${q} INTEGER PRIMARY KEY AUTOINCREMENT`;
+  }
+
+  const parts: string[] = [q, mapped.sql];
+  const notNull = !f.nullable || f.isPK;
+  const isAuto = mapped.auto !== null;
+
+  if (dialect === 'mysql') {
+    if (notNull) parts.push('NOT NULL');
+    if (isAuto && dialect === 'mysql') parts.push('AUTO_INCREMENT');
+  } else {
+    if (notNull) parts.push('NOT NULL');
+  }
+
+  // Serial / identity columns have their own generator.
+  if (!isAuto) {
+    const def = renderSqlDefault(f.default, dialect, mapped.category);
+    if (def !== undefined) parts.push(`DEFAULT ${def}`);
+  }
+
+  if (inlineUnique && f.unique && !f.isPK) parts.push('UNIQUE');
+
+  if (inlineCheck) {
+    const check = checkExpr(f.check);
+    if (check) parts.push(`CHECK (${check})`);
+  }
+
+  if (inlinePk && f.isPK) parts.push('PRIMARY KEY');
+
+  if (mysqlComment && dialect === 'mysql' && f.comment && commentText(f.comment)) {
+    parts.push(`COMMENT ${sqlString(commentText(f.comment), dialect)}`);
+  }
+  return parts.join(' ');
 }
 
-function fieldDDL(f: Table['fields'][0], dialect: Dialect): string {
-  const mappedType = mapType(f.type, dialect);
-  const pk = f.isPK ? ' PRIMARY KEY' : '';
-  return `  ${quote(f.name, dialect)} ${mappedType}${NULLABLE(f.nullable)}${UNIQUE(f.unique)}${DEFAULT(f.default)}${CHECK(f.check)}${pk}`;
+function checkExpr(check: string | undefined): string | undefined {
+  if (!check) return undefined;
+  const t = check.trim();
+  if (!t) return undefined;
+  if (!isSafeExpression(t)) return undefined;
+  return t.replace(/[\r\n\t]+/g, ' ');
+}
+
+export interface FkSpec {
+  name: string;
+  sourceTable: string;
+  sourceColumn: string;
+  targetTable: string;
+  targetColumn: string;
+}
+
+export function fkClause(fk: FkSpec, dialect: Dialect): string {
+  return `CONSTRAINT ${quoteIdent(fk.name, dialect)} FOREIGN KEY (${quoteIdent(fk.sourceColumn, dialect)}) REFERENCES ${quoteIdent(fk.targetTable, dialect)} (${quoteIdent(fk.targetColumn, dialect)})`;
+}
+
+/** Build a complete CREATE TABLE statement (comments for non-MySQL/Postgres dialects included). */
+export function createTableStatement(table: Table, dialect: Dialect, fks: FkSpec[] = []): string {
+  const pkFields = table.fields.filter((f) => f.isPK);
+  const composite = pkFields.length > 1;
+  // SQLite AUTOINCREMENT needs an inline single-column key.
+  const inlinePk = !composite;
+
+  const lines: string[] = [];
+  const entries: string[] = [];
+
+  for (const f of table.fields) {
+    const c = commentText(f.comment);
+    const ddl = columnDDL(f, dialect, { inlinePk });
+    if (c && (dialect === 'sqlite' || dialect === 'mssql')) {
+      entries.push(`  -- ${c}\n  ${ddl}`);
+    } else {
+      entries.push(`  ${ddl}`);
+    }
+  }
+  if (composite) {
+    entries.push(`  PRIMARY KEY (${pkFields.map((f) => quoteIdent(f.name, dialect)).join(', ')})`);
+  }
+  for (const fk of fks) entries.push(`  ${fkClause(fk, dialect)}`);
+
+  // Entries may contain a leading comment line; commas go on the real line.
+  entries.forEach((e, i) => {
+    lines.push(i < entries.length - 1 ? `${e},` : e);
+  });
+
+  const tableComment = commentText(table.comment);
+  let prefix = '';
+  if (tableComment && (dialect === 'sqlite' || dialect === 'mssql')) prefix = `-- ${tableComment}\n`;
+  let suffix = ';';
+  if (tableComment && dialect === 'mysql') suffix = ` COMMENT=${sqlString(tableComment, dialect)};`;
+
+  return `${prefix}CREATE TABLE ${quoteIdent(table.name, dialect)} (\n${lines.join('\n')}\n)${suffix}`;
 }
 
 export function exportSQL(
@@ -35,40 +131,72 @@ export function exportSQL(
   relationships: Relationship[],
   dialect: Dialect
 ): string {
-  const tableMap = new Map(tables.map((t) => [t.id, t]));
-  const fieldMap = new Map(
-    tables.flatMap((t) => t.fields.map((f) => [`${t.id}:${f.id}`, { table: t, field: f }]))
-  );
+  // Tables without columns cannot be created in most dialects.
+  const usable = tables.filter((t) => t.fields.length > 0);
+  const skipped = tables.filter((t) => t.fields.length === 0);
+  const resolved = resolveRelationships(usable, relationships);
+  const ordered = orderTables(usable, resolved);
 
-  // 1. Create Tables (without FKs to avoid circular dependency issues)
-  const createTableStmts = tables.map((table) => {
-    const cols = table.fields.map(f => fieldDDL(f, dialect));
-    return `CREATE TABLE ${quote(table.name, dialect)} (\n${cols.join(',\n')}\n);`;
-  });
+  // Unique, length-safe FK names
+  const usedNames = new Set<string>();
+  const named = new Map<ResolvedRel, FkSpec>();
+  for (const r of resolved) {
+    named.set(r, {
+      name: uniqueName(fkBaseName(r.sourceTable.name, r.sourceField.name), usedNames),
+      sourceTable: r.sourceTable.name,
+      sourceColumn: r.sourceField.name,
+      targetTable: r.targetTable.name,
+      targetColumn: r.targetField.name,
+    });
+  }
 
-  // 2. Add Foreign Keys via ALTER TABLE
-  const alterTableStmts: string[] = [];
-  relationships.forEach((r) => {
-    const sourceTable = tableMap.get(r.sourceTableId);
-    const targetTable = tableMap.get(r.targetTableId);
-    const sourceField = fieldMap.get(`${r.sourceTableId}:${r.sourceFieldId}`)?.field;
-    const targetField = fieldMap.get(`${r.targetTableId}:${r.targetFieldId}`)?.field;
-
-    if (sourceTable && targetTable && sourceField && targetField) {
-      const fkName = `fk_${sourceTable.name}_${sourceField.name}`;
-      alterTableStmts.push(
-        `ALTER TABLE ${quote(sourceTable.name, dialect)} ADD CONSTRAINT ${quote(fkName, dialect)} FOREIGN KEY (${quote(sourceField.name, dialect)}) REFERENCES ${quote(targetTable.name, dialect)} (${quote(targetField.name, dialect)});`
-      );
+  // FKs are inlined when the target already exists (or SQLite, which has no
+  // ALTER ... ADD CONSTRAINT); otherwise they are added at the end.
+  const created = new Set<string>();
+  const createStmts: string[] = [];
+  const deferred: FkSpec[] = [];
+  for (const table of ordered) {
+    created.add(table.id);
+    const inline: FkSpec[] = [];
+    for (const r of resolved) {
+      if (r.sourceTable.id !== table.id) continue;
+      const spec = named.get(r)!;
+      if (dialect === 'sqlite' || created.has(r.targetTable.id)) inline.push(spec);
+      else deferred.push(spec);
     }
-  });
+    createStmts.push(createTableStatement(table, dialect, inline));
+  }
 
   const header = `-- Generated by SchemaForge\n-- Dialect: ${dialect}\n-- ${new Date().toISOString()}\n\n`;
-  
   let result = header;
-  result += createTableStmts.join('\n\n');
-  if (alterTableStmts.length > 0) {
+  for (const t of skipped) {
+    result += `-- Skipped table ${stripControl(t.name)}: no columns defined\n`;
+  }
+  if (skipped.length) result += '\n';
+  result += createStmts.join('\n\n');
+
+  if (deferred.length > 0) {
     result += '\n\n-- Foreign Keys\n';
-    result += alterTableStmts.join('\n');
+    result += deferred
+      .map((fk) => `ALTER TABLE ${quoteIdent(fk.sourceTable, dialect)} ADD ${fkClause(fk, dialect)};`)
+      .join('\n');
+  }
+
+  if (dialect === 'postgres') {
+    const comments: string[] = [];
+    for (const t of ordered) {
+      const tc = commentText(t.comment);
+      if (tc) comments.push(`COMMENT ON TABLE ${quoteIdent(t.name, dialect)} IS ${sqlString(tc, dialect)};`);
+      for (const f of t.fields) {
+        const fc = commentText(f.comment);
+        if (fc) {
+          comments.push(
+            `COMMENT ON COLUMN ${quoteIdent(t.name, dialect)}.${quoteIdent(f.name, dialect)} IS ${sqlString(fc, dialect)};`
+          );
+        }
+      }
+    }
+    if (comments.length) result += `\n\n-- Comments\n${comments.join('\n')}`;
   }
 
   return result;

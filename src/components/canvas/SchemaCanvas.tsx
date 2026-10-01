@@ -64,14 +64,14 @@ function groupToNode(group: Group): Node {
 // Build a lightweight {id -> position} map that updates live during drag
 type PositionMap = Map<string, { x: number; y: number }>;
 
-function relationshipToEdge(rel: Relationship, positions: PositionMap): Edge {
-  const sourcePos = positions.get(rel.sourceTableId);
-  const targetPos = positions.get(rel.targetTableId);
-  
-  // Use centre of a ~300px wide node to decide which side faces the other
-  const sourceX = (sourcePos?.x ?? 0) + 150;
-  const targetX = (targetPos?.x ?? 0) + 150;
-  const isSourceLeftOfTarget = sourceX <= targetX;
+/** Use the centre of a ~300px wide node to decide which side of each table the edge attaches to. */
+function isSourceLeftOf(rel: Relationship, positions: PositionMap): boolean {
+  const sourceX = (positions.get(rel.sourceTableId)?.x ?? 0) + 150;
+  const targetX = (positions.get(rel.targetTableId)?.x ?? 0) + 150;
+  return sourceX <= targetX;
+}
+
+function relationshipToEdge(rel: Relationship, isSourceLeftOfTarget: boolean): Edge {
 
   // React Flow edges must always flow from a 'source' handle (right side) to a 'target' handle (left side).
   // Our FieldRow only renders type="source" on the right, and type="target" on the left.
@@ -102,19 +102,57 @@ function relationshipToEdge(rel: Relationship, positions: PositionMap): Edge {
   };
 }
 
+type NodeSource = Table | Note | Group;
+
 function CanvasInner() {
-  const { tables, relationships, notes, groups, addRelationship, moveTable, removeTable, addNote, updateNote, addGroup, updateGroup, updateTable } = useSchemaStore();
-  const { setZoom, zoom, density, showToast, setSelection, clearSelection, readOnly } = useUIStore();
+  // Subscribe to individual slices. Destructuring the whole store re-rendered the entire canvas
+  // on every unrelated change (autosave flags, project rename, ...).
+  const tables = useSchemaStore((s) => s.tables);
+  const relationships = useSchemaStore((s) => s.relationships);
+  const notes = useSchemaStore((s) => s.notes);
+  const groups = useSchemaStore((s) => s.groups);
+  const addRelationship = useSchemaStore((s) => s.addRelationship);
+  const moveTables = useSchemaStore((s) => s.moveTables);
+  const updateNote = useSchemaStore((s) => s.updateNote);
+  const addNote = useSchemaStore((s) => s.addNote);
+  const addGroup = useSchemaStore((s) => s.addGroup);
+  const updateGroup = useSchemaStore((s) => s.updateGroup);
+  const updateTable = useSchemaStore((s) => s.updateTable);
+  const removeTable = useSchemaStore((s) => s.removeTable);
+  const setZoom = useUIStore((s) => s.setZoom);
+  const zoom = useUIStore((s) => s.zoom);
+  const density = useUIStore((s) => s.density);
+  const showToast = useUIStore((s) => s.showToast);
+  const setSelection = useUIStore((s) => s.setSelection);
+  const clearSelection = useUIStore((s) => s.clearSelection);
+  const readOnly = useUIStore((s) => s.readOnly);
   const { screenToFlowPosition, fitView, setViewport, getViewport, getIntersectingNodes } = useReactFlow();
   const isRunningLayout = useRef(false);
 
-  // Combine tables, notes, and groups into a single nodes array
-  const initialNodes = [...groups.map(groupToNode), ...tables.map(tableToNode), ...notes.map(noteToNode)];
-  const [nodes, setNodes, onNodesChange] = useNodesState(initialNodes);
+  const [nodes, setNodes, onNodesChange] = useNodesState<Node>([]);
   const [edges, setEdges, onEdgesChange] = useEdgesState<Edge>([]);
 
+  // Rebuild the node list, but keep the existing node object for every table/note/group whose
+  // source object is unchanged. The store is immutable, so identity equality means "unchanged",
+  // and React Flow can then skip re-rendering that node (and keeps its measured size/selection).
+  // Without this, editing one field re-rendered every table on the canvas.
+  const nodeSources = useRef(new Map<string, NodeSource>());
   useEffect(() => {
-    setNodes([...groups.map(groupToNode), ...tables.map(tableToNode), ...notes.map(noteToNode)]);
+    setNodes((prev) => {
+      const prevById = new Map(prev.map((n) => [n.id, n]));
+      const sources = new Map<string, NodeSource>();
+      const build = <T extends NodeSource>(items: T[], toNode: (item: T) => Node): Node[] =>
+        items.map((item) => {
+          sources.set(item.id, item);
+          const old = prevById.get(item.id);
+          if (old && nodeSources.current.get(item.id) === item) return old;
+          const fresh = toNode(item);
+          return old ? { ...fresh, selected: old.selected, measured: old.measured } : fresh;
+        });
+      const next = [...build(groups, groupToNode), ...build(tables, tableToNode), ...build(notes, noteToNode)];
+      nodeSources.current = sources;
+      return next;
+    });
   }, [tables, notes, groups, setNodes]);
 
   // Derive a position map from the LIVE React Flow node state (not Zustand).
@@ -126,8 +164,22 @@ function CanvasInner() {
     return map;
   }, [nodes]);
 
+  // An edge only changes when its relationship changes or when the table it attaches to flips
+  // sides, so reuse the previous edge object otherwise (most frames of a drag change none).
+  const edgeCache = useRef(new Map<string, { rel: Relationship; leftOf: boolean; edge: Edge }>());
   useEffect(() => {
-    setEdges(relationships.map(r => relationshipToEdge(r, livePositions)));
+    const cache = new Map<string, { rel: Relationship; leftOf: boolean; edge: Edge }>();
+    const next = relationships.map((rel) => {
+      const leftOf = isSourceLeftOf(rel, livePositions);
+      const hit = edgeCache.current.get(rel.id);
+      const entry = hit && hit.rel === rel && hit.leftOf === leftOf
+        ? hit
+        : { rel, leftOf, edge: relationshipToEdge(rel, leftOf) };
+      cache.set(rel.id, entry);
+      return entry.edge;
+    });
+    edgeCache.current = cache;
+    setEdges(next);
   }, [relationships, livePositions, setEdges]);
 
   const onConnect = useCallback(
@@ -245,9 +297,7 @@ function CanvasInner() {
 
     try {
       const positions = await autoLayout(ungroupedTables, ungroupedRels, density ?? 'comfortable');
-      positions.forEach((pos, tableId) => {
-        moveTable(tableId, pos);
-      });
+      moveTables(positions);
       setTimeout(() => fitView({ padding: 0.12, duration: 400 }), 100);
       if (showToast) showToast('Auto-layout applied', 'success');
     } catch {
@@ -255,7 +305,7 @@ function CanvasInner() {
     } finally {
       isRunningLayout.current = false;
     }
-  }, [tables, relationships, density, moveTable, fitView, showToast]);
+  }, [tables, relationships, density, moveTables, fitView, showToast]);
 
   const handleAddNote = useCallback(() => {
     if (readOnly) return;
@@ -331,20 +381,23 @@ function CanvasInner() {
   }, [handleAutoLayout, fitView, setViewport, setZoom, tables, removeTable, clearSelection]);
 
   const isPillMode = zoom < PILL_NODE_ZOOM_THRESHOLD;
+  // Only create new node objects when the class actually has to change.
+  const displayNodes = useMemo(
+    () => (isPillMode ? nodes.map((n) => ({ ...n, className: 'table-node--pill' })) : nodes),
+    [nodes, isPillMode],
+  );
 
   return (
     <div
       className="schema-canvas"
       role="application"
       aria-label="Schema canvas"
-      onDoubleClick={onDoubleClick}
+      // Capture phase: React Flow's zoom layer stops the event before it can bubble to this div.
+      onDoubleClickCapture={onDoubleClick}
     >
       <RelationshipMarkerDefs />
       <ReactFlow
-        nodes={nodes.map((n) => ({
-          ...n,
-          className: isPillMode ? 'table-node--pill' : '',
-        }))}
+        nodes={displayNodes}
         edges={edges}
         onNodesChange={onNodesChange}
         onEdgesChange={onEdgesChange}
@@ -365,6 +418,10 @@ function CanvasInner() {
         minZoom={0.1}
         maxZoom={4}
         fitView
+        // Don't blow a single small table up to 400% when it is the first thing on the canvas.
+        fitViewOptions={{ padding: 0.2, maxZoom: 1 }}
+        zoomOnDoubleClick={false}
+        onlyRenderVisibleElements
         multiSelectionKeyCode="Shift"
         deleteKeyCode={null} // We handle delete ourselves
         proOptions={{ hideAttribution: true }}

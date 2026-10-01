@@ -2,6 +2,7 @@ import { create } from 'zustand';
 import { temporal } from 'zundo';
 import { nanoid } from '../store/nanoid';
 import { useUIStore } from './ui';
+import { applyOperations, type AIOperation } from './applyOperations';
 import type {
   Table, Field, Relationship, Dialect, AccentColor, Snapshot, Note, Group
 } from '../types/schema';
@@ -16,18 +17,18 @@ interface SchemaState {
   projectName: string;
   isSaving: boolean;
   lastSaved: number | null;
-  allowGuestEdits: boolean;
 }
 
 interface SchemaActions {
   setProjectName: (name: string) => void;
   setDialect: (dialect: Dialect) => void;
-  setAllowGuestEdits: (allow: boolean) => void;
 
   addTable: (position: { x: number; y: number }) => string;
   removeTable: (id: string) => void;
   updateTable: (id: string, patch: Partial<Omit<Table, 'id'>>) => void;
   moveTable: (id: string, position: { x: number; y: number }) => void;
+  /** Move many tables in a single store update (one render, one undo step). */
+  moveTables: (positions: Map<string, { x: number; y: number }>) => void;
 
   addField: (tableId: string) => string;
   removeField: (tableId: string, fieldId: string) => void;
@@ -46,12 +47,12 @@ interface SchemaActions {
   removeGroup: (id: string) => void;
   updateGroup: (id: string, patch: Partial<Omit<Group, 'id'>>) => void;
 
-  importTables: (tables: Table[], relationships: Relationship[], notes?: Note[], groups?: Group[], allowGuestEdits?: boolean) => void;
+  importTables: (tables: Table[], relationships: Relationship[], notes?: Note[], groups?: Group[]) => void;
   loadSnapshot: (snapshot: Pick<Snapshot, 'tables' | 'relationships' | 'notes' | 'groups'>) => void;
 
   setSaving: (saving: boolean) => void;
   setLastSaved: (ts: number) => void;
-  applyAIOperations: (ops: any[]) => void;
+  applyAIOperations: (ops: AIOperation[]) => void;
 }
 
 type SchemaStore = SchemaState & SchemaActions;
@@ -62,7 +63,7 @@ function nextAccentColor(tables: Table[]): AccentColor {
 
 export type { SchemaState, SchemaActions, SchemaStore };
 
-export const createSchemaLogic = (set: any, _get: any): SchemaStore => ({
+export const createSchemaLogic = (set: any): SchemaStore => ({
   tables: [],
   relationships: [],
   notes: [],
@@ -71,11 +72,9 @@ export const createSchemaLogic = (set: any, _get: any): SchemaStore => ({
   projectName: 'Untitled schema',
   isSaving: false,
   lastSaved: null,
-  allowGuestEdits: false,
 
   setProjectName: (name: string) => set({ projectName: name }),
   setDialect: (dialect: Dialect) => set({ dialect }),
-  setAllowGuestEdits: (allow: boolean) => set({ allowGuestEdits: allow }),
 
   addTable: (position: {x: number, y: number}) => {
     if (useUIStore.getState().readOnly) return '';
@@ -129,6 +128,16 @@ export const createSchemaLogic = (set: any, _get: any): SchemaStore => ({
       tables: s.tables.map((t: Table) =>
         t.id === id ? { ...t, position } : t
       ),
+    }));
+  },
+
+  moveTables: (positions: Map<string, { x: number; y: number }>) => {
+    if (useUIStore.getState().readOnly || positions.size === 0) return;
+    set((s: SchemaStore) => ({
+      tables: s.tables.map((t: Table) => {
+        const position = positions.get(t.id);
+        return position ? { ...t, position } : t;
+      }),
     }));
   },
 
@@ -297,118 +306,38 @@ export const createSchemaLogic = (set: any, _get: any): SchemaStore => ({
     }));
   },
 
-  importTables: (tables: Table[], relationships: Relationship[], notes?: Note[], groups?: Group[], allowGuestEdits?: boolean) =>
-    set((s: SchemaStore) => ({ tables, relationships, notes: notes || [], groups: groups || [], allowGuestEdits: allowGuestEdits ?? s.allowGuestEdits })),
+  importTables: (tables: Table[], relationships: Relationship[], notes?: Note[], groups?: Group[]) =>
+    set({ tables, relationships, notes: notes || [], groups: groups || [] }),
 
   loadSnapshot: (snapshot: Pick<Snapshot, 'tables' | 'relationships' | 'notes' | 'groups'>) =>
     set({ tables: snapshot.tables, relationships: snapshot.relationships, notes: snapshot.notes || [], groups: snapshot.groups || [] }),
 
   setSaving: (isSaving: boolean) => set({ isSaving }),
   setLastSaved: (ts: number) => set({ lastSaved: ts }),
-  applyAIOperations: (ops: any[]) => {
+  applyAIOperations: (ops: AIOperation[]) => {
     if (useUIStore.getState().readOnly) return;
     set((s: SchemaStore) => {
-      // Use a Map for O(1) lookup by name during operation processing
-      const tableMap = new Map(s.tables.map(t => [t.name, { ...t, fields: [...t.fields] }]));
-      const relationships = [...s.relationships];
-      
-      let spawnX = 100;
-      let hasChanges = false;
-
-      for (const op of ops) {
-        if (op.action === 'add_table') {
-          if (tableMap.has(op.tableName)) continue;
-          const id = nanoid();
-          const newTable: Table = {
-            id,
-            name: op.tableName,
-            fields: (op.newFields || []).map((f: any) => ({ ...f, id: nanoid() })),
-            position: { x: spawnX, y: 100 },
-            accentColor: nextAccentColor(Array.from(tableMap.values()))
-          };
-          tableMap.set(op.tableName, newTable);
-          spawnX += 300;
-          hasChanges = true;
-        } 
-        else if (op.action === 'remove_table') {
-          const table = tableMap.get(op.tableName);
-          if (table) {
-            const tId = table.id;
-            tableMap.delete(op.tableName);
-            // Relationship removal is still a filter, but only once per table removal
-            const filteredRels = relationships.filter(r => r.sourceTableId !== tId && r.targetTableId !== tId);
-            if (filteredRels.length !== relationships.length) {
-              relationships.splice(0, relationships.length, ...filteredRels);
-            }
-            hasChanges = true;
-          }
-        }
-        else if (op.action === 'add_field') {
-          const table = tableMap.get(op.tableName);
-          if (table) {
-            const newF = op.newFields?.[0];
-            if (newF && !table.fields.find(f => f.name === newF.name)) {
-              table.fields.push({ ...newF, id: nanoid() });
-              hasChanges = true;
-            }
-          }
-        }
-        else if (op.action === 'remove_field') {
-          const table = tableMap.get(op.tableName);
-          if (table) {
-            const initialCount = table.fields.length;
-            table.fields = table.fields.filter(f => f.name !== op.fieldName);
-            if (table.fields.length !== initialCount) hasChanges = true;
-          }
-        }
-        else if (op.action === 'modify_field') {
-          const table = tableMap.get(op.tableName);
-          if (table) {
-            const field = table.fields.find(f => f.name === op.fieldName);
-            if (field) {
-              Object.assign(field, op.fieldUpdates);
-              hasChanges = true;
-            }
-          }
-        }
-        else if (op.action === 'add_relationship') {
-          const sTable = tableMap.get(op.tableName);
-          const tTable = tableMap.get(op.relationTargetTable);
-          if (sTable && tTable) {
-            const sField = sTable.fields.find(f => f.name === op.fieldName);
-            const tField = tTable.fields.find(f => f.name === op.relationTargetField);
-            if (sField && tField) {
-              relationships.push({
-                id: nanoid(),
-                sourceTableId: sTable.id,
-                sourceFieldId: sField.id,
-                targetTableId: tTable.id,
-                targetFieldId: tField.id,
-                cardinality: op.relationCardinality || 'one-to-many'
-              });
-              hasChanges = true;
-            }
-          }
-        }
-      }
-
-      if (!hasChanges) return s;
-      return { 
-        tables: Array.from(tableMap.values()), 
-        relationships 
-      };
+      const result = applyOperations(s.tables, s.relationships, ops);
+      return result ?? s;
     });
-  }
+  },
 });
 
 export const useSchemaStore = create<SchemaStore>()(
   temporal(createSchemaLogic, {
-    limit: 50,
+    limit: 100,
     partialize: (state) => ({
       tables: state.tables,
       relationships: state.relationships,
       notes: state.notes,
       groups: state.groups,
     }),
+    // Without this every set() is recorded, including autosave bookkeeping (isSaving,
+    // lastSaved) and project renames, which flooded the history and evicted real edits.
+    equality: (a, b) =>
+      a.tables === b.tables &&
+      a.relationships === b.relationships &&
+      a.notes === b.notes &&
+      a.groups === b.groups,
   })
 );

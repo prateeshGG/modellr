@@ -9,8 +9,6 @@ import { exportDBML } from '../../utils/exporters/dbml';
 import { exportImage } from '../../utils/exporters/image';
 import { exportPrisma } from '../../utils/exporters/prisma';
 import { exportDrizzle } from '../../utils/exporters/drizzle';
-import { useAuthStore } from '../../store/authStore';
-import { FeatureGate } from '../shared/FeatureGate';
 import { ShareModal } from '../share/ShareModal';
 import {
   Search,
@@ -22,12 +20,10 @@ import {
   Settings,
   Moon,
   Sun,
-  Database,
   GitCompare,
   Download,
   Plus,
-  ArrowUpRight,
-  Crown
+  ArrowUpRight
 } from 'lucide-react';
 import './TopBar.css';
 
@@ -65,8 +61,6 @@ export const TopBar: React.FC<TopBarProps> = ({ isHost = false, onImportClick, o
   const handleExport = async (format: string) => {
     setExportOpen(false);
     const { showToast } = useUIStore.getState();
-    const profile = useAuthStore.getState().profile;
-    const isPro = profile?.tier === 'pro';
 
     try {
       if (format === 'sql') {
@@ -84,24 +78,15 @@ export const TopBar: React.FC<TopBarProps> = ({ isHost = false, onImportClick, o
         await exportImage('svg');
         showToast('Canvas exported as SVG');
       } else if (format === 'json') {
-        const json = JSON.stringify({ tables, relationships }, null, 2);
+        const { notes, groups } = useSchemaStore.getState();
+        const json = JSON.stringify({ tables, relationships, notes, groups }, null, 2);
         await navigator.clipboard.writeText(json);
         showToast('JSON copied to clipboard');
       } else if (format === 'prisma') {
-        if (!isPro) {
-          showToast('Prisma export is a Pro feature', 'error');
-          navigate('/pricing');
-          return;
-        }
         const prisma = exportPrisma(tables, relationships);
         await navigator.clipboard.writeText(prisma);
         showToast('Prisma schema copied to clipboard');
       } else if (format === 'drizzle') {
-        if (!isPro) {
-          showToast('Drizzle export is a Pro feature', 'error');
-          navigate('/pricing');
-          return;
-        }
         const drizzle = exportDrizzle(tables, relationships);
         await navigator.clipboard.writeText(drizzle);
         showToast('Drizzle schema copied to clipboard');
@@ -244,21 +229,6 @@ export const TopBar: React.FC<TopBarProps> = ({ isHost = false, onImportClick, o
         )}
 
         <div className="topbar__actions">
-          {/* Connect DB button */}
-          {isHost && (
-            <FeatureGate feature="live_introspection">
-              <button
-                className="topbar__btn"
-                onClick={() => window.dispatchEvent(new CustomEvent('sf:open-live-import'))}
-                title="Connect Live Database"
-                aria-label="Connect DB"
-              >
-                <Database size={16} />
-                <span className="topbar__btn-label">Connect DB</span>
-              </button>
-            </FeatureGate>
-          )}
-
           {/* Import button */}
           {isHost && (
             <button
@@ -289,7 +259,7 @@ export const TopBar: React.FC<TopBarProps> = ({ isHost = false, onImportClick, o
           <button
             className="topbar__btn"
             onClick={() => setShareModalOpen(true)}
-            title="Share & Embed Schema"
+            title="Share link & embed"
             aria-label="Share schema"
           >
             <ArrowUpRight size={16} />
@@ -311,19 +281,14 @@ export const TopBar: React.FC<TopBarProps> = ({ isHost = false, onImportClick, o
                 {[
                   { id: 'sql',     label: 'SQL DDL' },
                   { id: 'dbml',    label: 'DBML' },
-                  { id: 'prisma',  label: 'Prisma schema', pro: true },
-                  { id: 'drizzle', label: 'Drizzle ORM', pro: true },
+                  { id: 'prisma',  label: 'Prisma schema' },
+                  { id: 'drizzle', label: 'Drizzle ORM' },
                   { id: 'json',    label: 'JSON schema' },
                   { id: 'png',     label: 'PNG image' },
                   { id: 'svg',     label: 'SVG image' },
                 ].map((item) => (
                   <button key={item.id} className="export-menu__item" onClick={() => handleExport(item.id)}>
                     {item.label}
-                    {item.pro && (
-                      <span style={{ marginLeft: 'auto', display: 'flex', alignItems: 'center', gap: '4px', fontSize: '9px', fontWeight: 700, color: 'var(--brand)', background: 'rgba(55, 65, 81, 0.5)', padding: '2px 4px', borderRadius: '4px' }}>
-                        <Crown size={10} /> PRO
-                      </span>
-                    )}
                   </button>
                 ))}
               </div>

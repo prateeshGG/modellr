@@ -1,79 +1,33 @@
 import { useEffect, useState } from 'react';
-import { useParams } from 'react-router-dom';
-import { supabase } from '../lib/supabase';
 import { useSchemaStore } from '../store/schema';
 import { useUIStore } from '../store/ui';
 import { SchemaCanvas } from '../components/canvas/SchemaCanvas';
+import { decodeShareHash } from '../hooks/useShareLink';
 
+/**
+ * Stateless, read-only embed. The schema travels in the URL hash:
+ *   <iframe src="https://<host>/embed#/schema/<data>">
+ */
 export default function EmbedViewer() {
-  const { id } = useParams();
-  const { importTables, setProjectName } = useSchemaStore();
-  const { setReadOnly } = useUIStore();
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState<string | null>(null);
+  // Decoded once; the hash never changes inside an embed.
+  const [data] = useState(() => decodeShareHash(window.location.hash));
 
   useEffect(() => {
-    // Put the UI store into read-only mode so SchemaCanvas components respect it
-    setReadOnly(true);
+    if (!data) return;
+    const store = useSchemaStore.getState();
+    store.importTables(data.tables, data.relationships, data.notes, data.groups);
+    if (data.projectName) store.setProjectName(data.projectName);
+    useSchemaStore.temporal.getState().clear();
+    useUIStore.getState().setReadOnly(true);
+    return () => useUIStore.getState().setReadOnly(false);
+  }, [data]);
 
-    async function fetchSchema() {
-      if (!id) {
-        setError("Invalid schema ID");
-        setLoading(false);
-        return;
-      }
-
-      // Try fetching the schema. Our RLS policy allows selects if is_public = true.
-      const { data, error: sbError } = await supabase
-        .from('schemas')
-        .select('name, canvas_state, is_public')
-        .eq('id', id)
-        .single();
-
-      if (sbError || !data || !data.is_public) {
-        setError("This schema is either private, does not exist, or you lack permission to view it.");
-        setLoading(false);
-        return;
-      }
-
-      setProjectName(data.name);
-
-      if (data.canvas_state) {
-        const state = typeof data.canvas_state === 'string' ? JSON.parse(data.canvas_state) : data.canvas_state;
-        if (state && Array.isArray(state.tables)) {
-          // Fix #5: pass notes and groups so they appear in embedded view
-          importTables(
-            state.tables,
-            state.relationships || [],
-            Array.isArray(state.notes) ? state.notes : [],
-            Array.isArray(state.groups) ? state.groups : []
-          );
-        }
-      }
-
-      setLoading(false);
-    }
-
-    fetchSchema();
-
-    // Cleanup: Reset readOnly if unmounted (though unlikely in embed)
-    return () => setReadOnly(false);
-  }, [id, importTables, setProjectName, setReadOnly]);
-
-  if (loading) {
-    return (
-      <div style={{ height: '100vh', width: '100vw', display: 'flex', alignItems: 'center', justifyContent: 'center', background: 'var(--canvas-bg)', color: 'var(--text-primary)' }}>
-        Loading schema...
-      </div>
-    );
-  }
-
-  if (error) {
+  if (!data) {
     return (
       <div style={{ height: '100vh', width: '100vw', display: 'flex', alignItems: 'center', justifyContent: 'center', background: 'var(--canvas-bg)', color: 'var(--alert-error)', textAlign: 'center', padding: '20px' }}>
         <div>
-          <h2>Access Denied</h2>
-          <p>{error}</p>
+          <h2>Can't show this schema</h2>
+          <p>This embed link is missing or damaged.</p>
         </div>
       </div>
     );
@@ -82,7 +36,6 @@ export default function EmbedViewer() {
   return (
     <div style={{ height: '100vh', width: '100vw', overflow: 'hidden', background: 'var(--canvas-bg)', position: 'relative' }}>
       <SchemaCanvas />
-      {/* Branding overlay for viral growth! */}
       <a
         href={window.location.origin}
         target="_blank"
@@ -99,15 +52,10 @@ export default function EmbedViewer() {
           textDecoration: 'none',
           fontSize: '12px',
           fontWeight: 600,
-          boxShadow: '0 4px 12px rgba(0,0,0,0.1)',
-          display: 'flex',
-          alignItems: 'center',
-          gap: '6px',
-          zIndex: 1000
+          zIndex: 1000,
         }}
       >
-        <div style={{ width: '16px', height: '16px', background: 'var(--brand)', borderRadius: '4px', display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#fff', fontSize: '8px' }}>SF</div>
-        Powered by Modellr
+        Made with Modellr
       </a>
     </div>
   );

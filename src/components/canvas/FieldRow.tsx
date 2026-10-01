@@ -20,13 +20,15 @@ interface FieldRowProps {
   readOnly?: boolean;
 }
 
-export const FieldRow: React.FC<FieldRowProps> = ({
+export const FieldRow: React.FC<FieldRowProps> = React.memo(({
   tableId, field, index, onDragStart, onDragOver, onDrop, isDragging, isDropTarget, readOnly,
 }) => {
-  const { updateField } = useSchemaStore();
-  const { editingFieldId, setEditingField, selection, setSelection } = useUIStore();
-  const { dialect } = useSchemaStore();
-  const isEditing = editingFieldId === field.id;
+  const updateField = useSchemaStore((s) => s.updateField);
+  const dialect = useSchemaStore((s) => s.dialect);
+  const isEditing = useUIStore((s) => s.editingFieldId) === field.id;
+  const setEditingField = useUIStore((s) => s.setEditingField);
+  const selection = useUIStore((s) => (s.selection?.type === 'field' && s.selection.fieldId === field.id ? s.selection : null));
+  const setSelection = useUIStore((s) => s.setSelection);
   const nameRef = useRef<HTMLInputElement>(null);
   const [localName, setLocalName] = useState(field.name);
   const [localType, setLocalType] = useState(field.type);
@@ -148,4 +150,4 @@ export const FieldRow: React.FC<FieldRowProps> = ({
       )}
     </div>
   );
-};
+});

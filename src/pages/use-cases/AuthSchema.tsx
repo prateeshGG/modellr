@@ -24,11 +24,11 @@ export function AuthSchema() {
         <div className="pd-hero-dot-grid" aria-hidden />
         <div className="pd-hero-glow" aria-hidden />
         <div style={{ position: 'relative', zIndex: 1 }}>
-          <div className="pd-hero-badge"><LayoutTemplate size={13} /> Official Schema Template</div>
+          <div className="pd-hero-badge"><LayoutTemplate size={13} /> Starter Template</div>
           <h1 className="pd-h1">Authentication Database Schema</h1>
-          <p className="pd-lead">A flexible auth schema supporting sessions, roles, and permissions.</p>
+          <p className="pd-lead">The built-in Auth & Users template has users, sessions and profiles. This page also sketches roles and permissions, which you can add on the canvas.</p>
           <div className="pd-hero-actions">
-            <button className="pd-btn-primary" onClick={() => navigate('/login')}>Use this schema →</button>
+            <button className="pd-btn-primary" onClick={() => navigate('/app/templates')}>Use this template →</button>
           </div>
         </div>
       </div>
@@ -52,7 +52,7 @@ export function AuthSchema() {
       {/* ── Visual schema ── */}
       <section className="pd-section">
         <div className="pd-inner">
-          <div className="pd-label">// Schema preview</div>
+          <div className="pd-label">// Illustrative sketch</div>
           <h2 className="pd-h2">How this schema is structured</h2>
           <div style={{ display: 'flex', gap: '16px', alignItems: 'center', flexWrap: 'wrap', justifyContent: 'center', marginBottom: '40px' }}>
             {[
@@ -85,7 +85,7 @@ export function AuthSchema() {
         <div className="pd-inner">
           <div className="pd-grid-2">
             <div>
-              <div className="pd-label">// Core tables</div>
+              <div className="pd-label">// Typical tables</div>
               <div style={{ display: 'flex', flexDirection: 'column', gap: '20px' }}>
                 {[
                   { icon: <Users size={18} />, name: 'Users', desc: 'Account details.' },
@@ -115,8 +115,8 @@ export function AuthSchema() {
                 </ul>
               </div>
               <div style={{ marginTop: '24px' }}>
-                <h3 className="pd-h3">Build secure authentication from the start</h3>
-                <p className="pd-body-text">Weak auth design leads to security vulnerabilities, broken permissions, and scaling issues.</p>
+                <h3 className="pd-h3">Think through authentication early</h3>
+                <p className="pd-body-text">Retrofitting roles, sessions or token storage later is harder than planning them up front. Have your design reviewed against your own security requirements.</p>
               </div>
             </div>
           </div>
@@ -128,9 +128,9 @@ export function AuthSchema() {
         <div className="pd-cta-glow-l" aria-hidden />
         <div className="pd-cta-glow-r" aria-hidden />
         <div className="pd-cta-inner">
-          <h2 className="pd-cta-h2">Build secure authentication from the start.</h2>
-          <p className="pd-cta-sub">Generate, modify, and export to Prisma or Drizzle instantly.</p>
-          <button className="pd-btn-primary" onClick={() => navigate('/login')}>Open in editor →</button>
+          <h2 className="pd-cta-h2">Plan your auth tables before you build.</h2>
+          <p className="pd-cta-sub">Free and open source. Start from the template in your browser, edit it on the canvas, and export SQL, Prisma or Drizzle.</p>
+          <button className="pd-btn-primary" onClick={() => navigate('/app/templates')}>Open the templates →</button>
         </div>
       </div>
 

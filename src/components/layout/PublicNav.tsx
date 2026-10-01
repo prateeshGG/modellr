@@ -1,6 +1,5 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { useAuthStore } from '../../store/authStore';
 
 interface PublicNavProps {
   /** When true, renders the frosted-glass dark variant used on the home page */
@@ -9,7 +8,6 @@ interface PublicNavProps {
 
 export const PublicNav: React.FC<PublicNavProps> = ({ dark = false }) => {
   const navigate = useNavigate();
-  const { session } = useAuthStore();
   const [scrolled, setScrolled] = useState(false);
 
   useEffect(() => {
@@ -78,7 +76,7 @@ export const PublicNav: React.FC<PublicNavProps> = ({ dark = false }) => {
           <div style={{ display: 'flex', gap: '28px' }}>
             {[
               { label: 'Templates', path: '/templates' },
-              { label: 'Pricing',   path: '/pricing' },
+              { label: 'Blog',      path: '/blog' },
               { label: 'Docs',      path: '/docs' },
             ].map(({ label, path }) => (
               <span
@@ -102,63 +100,22 @@ export const PublicNav: React.FC<PublicNavProps> = ({ dark = false }) => {
 
         {/* Right: auth buttons */}
         <div style={{ display: 'flex', gap: '12px', alignItems: 'center' }}>
-          {session ? (
-            <button
-              onClick={() => navigate('/app')}
-              style={{
-                padding: '8px 18px',
-                background: 'rgb(174, 122, 255)',
-                color: '#fff',
-                border: 'none',
-                borderRadius: '4px',
-                fontFamily: "'Geist Mono', monospace",
-                fontSize: '13px',
-                fontWeight: 600,
-                cursor: 'pointer',
-              }}
-            >
-              Go to Dashboard
-            </button>
-          ) : (
-            <>
-              <button
-                onClick={() => navigate('/login')}
-                style={{
-                  background: 'transparent',
-                  border: 'none',
-                  color: '#6b6b80',
-                  fontSize: '14px',
-                  fontFamily: "'Instrument Sans', 'Geist', sans-serif",
-                  cursor: 'pointer',
-                  padding: '8px 4px',
-                  transition: 'color 0.15s',
-                }}
-                onMouseEnter={e => (e.currentTarget.style.color = '#e8e8f0')}
-                onMouseLeave={e => (e.currentTarget.style.color = '#6b6b80')}
-              >
-                Sign in
-              </button>
-              <button
-                onClick={() => navigate('/login')}
-                style={{
-                  background: '#00e5a0',
-                  color: '#050507',
-                  border: 'none',
-                  padding: '8px 18px',
-                  borderRadius: '4px',
-                  fontFamily: "'Geist Mono', monospace",
-                  fontSize: '13px',
-                  fontWeight: 700,
-                  cursor: 'pointer',
-                  transition: 'opacity 0.15s',
-                }}
-                onMouseEnter={e => (e.currentTarget.style.opacity = '0.85')}
-                onMouseLeave={e => (e.currentTarget.style.opacity = '1')}
-              >
-                Start Free
-              </button>
-            </>
-          )}
+          <button
+            onClick={() => navigate('/app')}
+            style={{
+              background: '#00e5a0',
+              color: '#050507',
+              border: 'none',
+              padding: '8px 18px',
+              borderRadius: '4px',
+              fontFamily: "'Geist Mono', monospace",
+              fontSize: '13px',
+              fontWeight: 700,
+              cursor: 'pointer',
+            }}
+          >
+            Open editor
+          </button>
         </div>
       </nav>
     );
@@ -207,34 +164,17 @@ export const PublicNav: React.FC<PublicNavProps> = ({ dark = false }) => {
         </div>
         <div style={{ display: 'flex', gap: '24px', color: 'var(--text-secondary)', fontSize: '14px', fontWeight: 500 }}>
           <span onClick={() => navigate('/templates')} style={{ cursor: 'pointer' }}>Templates</span>
-          <span onClick={() => navigate('/pricing')}   style={{ cursor: 'pointer' }}>Pricing</span>
+          <span onClick={() => navigate('/blog')}      style={{ cursor: 'pointer' }}>Blog</span>
           <span onClick={() => navigate('/docs')}      style={{ cursor: 'pointer' }}>Docs</span>
         </div>
       </div>
       <div style={{ display: 'flex', gap: '1rem' }}>
-        {session ? (
-          <button
-            onClick={() => navigate('/app')}
-            style={{ padding: '0.6rem 1.2rem', background: 'var(--brand)', color: '#fff', border: 'none', borderRadius: '8px', cursor: 'pointer', fontWeight: 600 }}
-          >
-            Go to Dashboard
-          </button>
-        ) : (
-          <>
-            <button
-              onClick={() => navigate('/login')}
-              style={{ padding: '0.6rem 1.2rem', background: 'transparent', border: '1px solid var(--border-subtle)', color: 'var(--text-primary)', borderRadius: '8px', cursor: 'pointer', fontWeight: 600 }}
-            >
-              Log in
-            </button>
-            <button
-              onClick={() => navigate('/login')}
-              style={{ padding: '0.6rem 1.2rem', background: 'var(--brand)', color: '#fff', border: 'none', borderRadius: '8px', cursor: 'pointer', fontWeight: 600 }}
-            >
-              Sign up free
-            </button>
-          </>
-        )}
+        <button
+          onClick={() => navigate('/app')}
+          style={{ padding: '0.6rem 1.2rem', background: 'var(--brand)', color: '#fff', border: 'none', borderRadius: '8px', cursor: 'pointer', fontWeight: 600 }}
+        >
+          Open editor
+        </button>
       </div>
     </nav>
   );
