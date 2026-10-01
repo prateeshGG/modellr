@@ -1,11 +1,8 @@
 import { useEffect } from 'react';
+import { DEFAULT_DESCRIPTION, buildTitle } from './routeMeta';
 
 /** Public origin of the deployed site, without a trailing slash (set VITE_SITE_URL at build time). */
 export const SITE_URL: string = ((import.meta.env.VITE_SITE_URL as string | undefined) ?? '').replace(/\/+$/, '');
-export const SITE_NAME = 'Modellr';
-export const DEFAULT_DESCRIPTION =
-  'Modellr is a free, open-source, local-first database schema designer. Design tables and relationships in your browser, import SQL or Prisma, and export SQL, Prisma, Drizzle and DBML. No sign-up.';
-
 export interface SeoOptions {
   /** Page title without the site name; the site name is appended. Omit for the home page. */
   title?: string;
@@ -16,10 +13,6 @@ export interface SeoOptions {
   noindex?: boolean;
   /** Do nothing (e.g. an embedded sandbox that sits inside a page that already sets its own meta). */
   disabled?: boolean;
-}
-
-export function buildTitle(title?: string): string {
-  return title ? `${title} | ${SITE_NAME}` : `${SITE_NAME}: free, open-source, local-first database schema designer`;
 }
 
 function setMeta(attr: 'name' | 'property', key: string, content: string) {

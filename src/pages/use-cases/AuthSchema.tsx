@@ -5,8 +5,6 @@ export function AuthSchema() {
     <UseCasePage
       data={{
         path: '/use-cases/auth-schema',
-        seoTitle: 'Authentication database schema example',
-        description: 'A free authentication database schema: users, sessions and profiles with UUID keys. Open it in the browser, change it, export SQL, Prisma or Drizzle.',
         eyebrow: 'Example · Auth',
         h1: 'An authentication database schema.',
         lead: 'The built-in Auth & Users template has users, sessions and profiles. Add roles and permissions on the canvas.',

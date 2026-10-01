@@ -12,7 +12,7 @@ const PRINCIPLES = [
 
 export function About() {
   return (
-    <SiteShell title="About" path="/about" description="Modellr is a free, open-source, local-first schema designer built in the open on GitHub. Why it exists and how it is built.">
+    <SiteShell route="/about">
       <PageHead eyebrow="About" title="A free schema designer that stays on your machine." lead="Modellr is an open-source project, built and maintained on GitHub." />
       <section className="n-section n-section--tight" style={{ paddingTop: 24 }}>
         <div className="n-wrap n-grid-2" style={{ gap: 48, alignItems: 'start' }}>

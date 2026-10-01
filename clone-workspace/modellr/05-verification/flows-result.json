@@ -1,0 +1,94 @@
+[
+ [
+  true,
+  "F1 home renders hero, nav, one H1"
+ ],
+ [
+  true,
+  "F1 \"Try it live\" mounts the real editor and shows 4 tables, \"Back to preview\" returns"
+ ],
+ [
+  true,
+  "F1 Open the editor → /app → New schema → /app/:id with an editable canvas"
+ ],
+ [
+  true,
+  "F9 reload inside the editor restores the project from IndexedDB"
+ ],
+ [
+  true,
+  "F9 unknown project id shows a message and returns to /app"
+ ],
+ [
+  true,
+  "F2 import SQL: button disabled when empty, imports tables, previous schema snapshotted"
+ ],
+ [
+  true,
+  "F2 invalid SQL shows an inline error instead of crashing"
+ ],
+ [
+  true,
+  "F3 share link opens read-only with banner; Save a copy creates a project"
+ ],
+ [
+  true,
+  "F3 damaged embed link shows a friendly message"
+ ],
+ [
+  true,
+  "F4 save snapshot, edit, diff generates migration SQL"
+ ],
+ [
+  true,
+  "F5 public templates: category filter shows the blog template under \"CMS & Blogs\""
+ ],
+ [
+  true,
+  "F5 app templates: preview modal opens, Escape closes it, Use template opens the editor"
+ ],
+ [
+  true,
+  "F6 docs: sidebar navigates to /docs/import; deep link survives reload; back works"
+ ],
+ [
+  true,
+  "F6 unknown docs slug redirects to /docs"
+ ],
+ [
+  true,
+  "F6 mobile docs menu toggles and closes after choosing an article"
+ ],
+ [
+  true,
+  "Mobile nav sheet opens, locks scroll, Escape closes it, links navigate"
+ ],
+ [
+  true,
+  "F7 settings: backup downloads JSON, bad restore file errors, delete asks to confirm with focus on Cancel"
+ ],
+ [
+  true,
+  "F8 settings: Set up AI opens the dialog; Escape closes it"
+ ],
+ [
+  true,
+  "F9 unknown URL → 404 page with working Go home; noindex meta"
+ ],
+ [
+  true,
+  "Unknown blog post renders the 404 screen"
+ ],
+ [
+  true,
+  "Keyboard: skip link is the first tab stop and jumps to main; focus ring is visible"
+ ],
+ [
+  true,
+  "Theme toggle switches light/dark and persists across reload"
+ ],
+ [
+  true,
+  "Every public route has a unique <title> and one H1"
+ ]
+]

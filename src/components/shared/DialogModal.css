@@ -1,0 +1,11 @@
+.dialog-modal { position: fixed; inset: 0; z-index: 99999; display: flex; align-items: center; justify-content: center; padding: 16px; }
+.dialog-modal__backdrop { position: absolute; inset: 0; background: rgba(0, 0, 0, 0.6); backdrop-filter: blur(4px); }
+.dialog-modal__panel { position: relative; width: 100%; max-width: 440px; display: flex; flex-direction: column; gap: 24px; padding: 28px; border-radius: 16px; background: var(--surface-raised); border: 1px solid var(--border-default); box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5); }
+.dialog-modal__title { margin: 0 0 8px; font-size: 20px; font-weight: 600; letter-spacing: -0.02em; color: var(--text-primary); }
+.dialog-modal__message { margin: 0; color: var(--text-secondary); line-height: 1.6; font-size: 15px; }
+.dialog-modal__actions { display: flex; gap: 12px; justify-content: flex-end; flex-wrap: wrap; }
+.dialog-modal__btn { min-height: 40px; padding: 0 16px; border-radius: 8px; border: 1px solid var(--border-default); background: transparent; color: var(--text-primary); font-weight: 600; cursor: pointer; }
+.dialog-modal__btn:hover { background: var(--surface-overlay); }
+.dialog-modal__btn:focus-visible { outline: 2px solid var(--brand); outline-offset: 2px; }
+.dialog-modal__btn--danger { border-color: var(--danger-text); background: var(--danger-bg); color: var(--danger-text); }
+.dialog-modal__btn--danger:hover { background: color-mix(in srgb, var(--danger-text) 18%, var(--danger-bg)); }

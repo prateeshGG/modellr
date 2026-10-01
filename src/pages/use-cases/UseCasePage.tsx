@@ -4,9 +4,7 @@ import { MiniSchema } from '../../components/site/MiniSchema';
 import { TEMPLATES } from '../../utils/templates';
 
 export interface UseCaseData {
-  path: string;
-  seoTitle: string;
-  description: string;
+  path: '/use-cases/saas-database-schema' | '/use-cases/ecommerce-schema' | '/use-cases/auth-schema';
   eyebrow: string;
   h1: string;
   lead: string;
@@ -24,7 +22,7 @@ export interface UseCaseData {
 export function UseCasePage({ data }: { data: UseCaseData }) {
   const tpl = TEMPLATES[data.templateId];
   return (
-    <SiteShell title={data.seoTitle} path={data.path} description={data.description}>
+    <SiteShell route={data.path}>
       <section className="n-pagehead">
         <div className="n-dots" aria-hidden="true" />
         <div className="n-wrap">

@@ -22,5 +22,4 @@ export const DOCS_NAV = [
   },
 ] as const;
 
-export const docsPath = (id: string) => (id === 'getting-started' ? '/docs' : `/docs/${id}`);
 

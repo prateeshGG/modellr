@@ -11,11 +11,7 @@ export function PublicTemplates() {
   const shown = list.filter((t) => templateInCategory(t.id, active));
 
   return (
-    <SiteShell
-      title="Database schema templates"
-      path="/templates"
-      description="Free starter database schemas: e-commerce, multi-tenant SaaS, blog and auth. Open one in the browser editor, change it, and export SQL, Prisma or Drizzle."
-    >
+    <SiteShell route="/templates">
       <PageHead eyebrow="Templates" title="Start from a real schema." lead="Starter schemas you can open in the editor and adapt. Free, and nothing to sign up for." />
       <section className="n-section n-section--tight" style={{ paddingTop: 8 }}>
         <div className="n-wrap">

@@ -2,7 +2,8 @@ import { useEffect, useState } from 'react';
 import { Link, useLocation } from 'react-router-dom';
 import { IconMenu } from '../site/icons';
 
-import { DOCS_NAV, docsPath } from './docsNav';
+import { DOCS_NAV } from './docsNav';
+import { docsPath } from '../../lib/routeMeta';
 
 export function DocsLayout({ current, children }: { current: string; children: React.ReactNode }) {
   const [open, setOpen] = useState(false);

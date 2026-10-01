@@ -5,7 +5,7 @@ export function Terms() {
   let n = 0;
   const h = (t: string) => <h2>{`${++n}. ${t}`}</h2>;
   return (
-    <SiteShell title="Terms of use" path="/terms" description="Modellr is free, MIT-licensed software provided as is. Plain-language terms of use.">
+    <SiteShell route="/terms">
       <div className="n-wrap" style={{ paddingTop: 72, paddingBottom: 120 }}>
         <div className="n-prose">
           <span className="n-eyebrow">Legal</span>

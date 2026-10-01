@@ -178,7 +178,7 @@ export default function Home() {
   const demoTables = demo.tables.slice(0, 3);
 
   return (
-    <SiteShell path="/">
+    <SiteShell route="/">
       <Hero />
 
       <section className="n-works" aria-label="Supported formats">

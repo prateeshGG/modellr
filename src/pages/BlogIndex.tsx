@@ -4,7 +4,7 @@ import { POSTS } from './blogPosts';
 
 export function BlogIndex() {
   return (
-    <SiteShell title="Blog" path="/blog" description="Short, practical notes on database schema design, migrations, ORMs and keeping diagrams honest.">
+    <SiteShell route="/blog">
       <PageHead eyebrow="Blog" title="Notes on schema design." lead="Short notes on schema design and working with databases." />
       <section className="n-section n-section--tight" style={{ paddingTop: 8 }}>
         <div className="n-wrap">

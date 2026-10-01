@@ -11,7 +11,6 @@ import { CodePanel } from '../components/editor/CodePanel';
 import { RightPanel } from '../components/panel/RightPanel';
 import { StatusBar } from '../components/statusbar/StatusBar';
 import { CommandPalette } from '../components/palette/CommandPalette';
-import { Toast } from '../components/shared/Toast';
 import { ImportDialog } from '../components/importer/ImportDialog';
 import { DiffViewer } from '../components/diff/DiffViewer';
 import { SearchOverlay } from '../components/search/SearchOverlay';
@@ -150,7 +149,6 @@ export default function Editor({ isSandbox = false, isSharedView = false }: Edit
       <StatusBar />
 
       <CommandPalette />
-      <Toast />
       {importOpen && <ImportDialog onClose={() => setImportOpen(false)} />}
       {diffOpen   && <DiffViewer  onClose={() => setDiffOpen(false)} />}
       {searchOpen && <SearchOverlay onClose={() => setSearchOpen(false)} />}

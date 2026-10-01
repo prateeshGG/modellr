@@ -4,7 +4,7 @@ import { DONATE_URL, REPO_URL } from '../config';
 
 export function Contact() {
   return (
-    <SiteShell title="Contact" path="/contact" description="Report a bug, suggest a feature or read the source. Modellr is open source and everything happens in public on GitHub.">
+    <SiteShell route="/contact">
       <PageHead eyebrow="Contact" title="Found a bug? Tell us." lead="Modellr is an open-source project. Bugs, questions and ideas all go through GitHub." />
       <section className="n-section n-section--tight" style={{ paddingTop: 8 }}>
         <div className="n-wrap">

@@ -5,7 +5,7 @@ export function Privacy() {
   let n = 0;
   const h = (t: string) => <h2>{`${++n}. ${t}`}</h2>;
   return (
-    <SiteShell title="Privacy policy" path="/privacy" description="Modellr is a static, local-first app with no accounts, no analytics and no cookies. Your schemas stay in your browser.">
+    <SiteShell route="/privacy">
       <div className="n-wrap" style={{ paddingTop: 72, paddingBottom: 120 }}>
         <div className="n-prose">
           <span className="n-eyebrow">Legal</span>

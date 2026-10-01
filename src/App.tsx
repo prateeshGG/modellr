@@ -22,12 +22,14 @@ const BlogPost = lazy(() => import('./pages/BlogPost').then(m => ({ default: m.B
 const NotFound = lazy(() => import('./pages/NotFound'));
 import { AppLayout } from './components/layout/AppLayout';
 import { DialogModal } from './components/shared/DialogModal';
+import { Toast } from './components/shared/Toast';
 import { AISettingsHost } from './components/ai/AISettingsDialog';
 
 export default function App() {
   return (
     <BrowserRouter>
       <DialogModal />
+      <Toast />
       <AISettingsHost />
       <Suspense fallback={<div role="status" aria-live="polite" style={{ display: 'flex', height: '100vh', alignItems: 'center', justifyContent: 'center', color: 'var(--text-muted)', fontFamily: "'Geist Variable', system-ui, sans-serif", fontSize: 14 }}>Loading…</div>}>
         <Routes>

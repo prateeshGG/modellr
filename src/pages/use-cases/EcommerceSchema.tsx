@@ -5,8 +5,6 @@ export function EcommerceSchema() {
     <UseCasePage
       data={{
         path: '/use-cases/ecommerce-schema',
-        seoTitle: 'E-commerce database schema example',
-        description: 'A free e-commerce database schema: users, products, orders and order items with foreign keys wired. Open it in the browser, change it, export SQL, Prisma or Drizzle.',
         eyebrow: 'Example · E-commerce',
         h1: 'An e-commerce database schema.',
         lead: 'The built-in E-commerce template has users, products, orders and order items. Add variants, carts and payments on the canvas.',

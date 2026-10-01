@@ -5,8 +5,6 @@ export function SaasSchema() {
     <UseCasePage
       data={{
         path: '/use-cases/saas-database-schema',
-        seoTitle: 'SaaS database schema example',
-        description: 'A free multi-tenant SaaS database schema: organizations, users, members and subscriptions with foreign keys wired. Open it in the browser, change it, export SQL, Prisma or Drizzle.',
         eyebrow: 'Example · SaaS',
         h1: 'A multi-tenant SaaS database schema.',
         lead: 'The built-in Multi-tenant SaaS template has organizations, users, members and subscriptions. Add plans and usage tracking on the canvas.',

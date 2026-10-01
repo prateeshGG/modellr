@@ -12,11 +12,7 @@ const FORMATS = ['PostgreSQL', 'MySQL', 'SQLite', 'SQL Server', 'Prisma', 'Drizz
 export function Features() {
   const theme = useUIStore((s) => s.theme);
   return (
-    <SiteShell
-      title="Features"
-      path="/features"
-      description="Everything in Modellr: visual canvas, SQL and Prisma import, SQL/Prisma/Drizzle/DBML export, snapshots and diff, share links, local-first storage and optional bring-your-own-key AI."
-    >
+    <SiteShell route="/features">
       <PageHead
         eyebrow="Features"
         title="Everything a schema designer needs. Nothing it doesn't."
