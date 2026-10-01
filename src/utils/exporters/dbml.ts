@@ -1,32 +1,106 @@
-import type { Table, Relationship } from '../../types/schema';
+import type { Table, Relationship, Field } from '../../types/schema';
+import {
+  analyzeDefault,
+  mapType,
+  parseType,
+  resolveRelationships,
+  stripControl,
+} from './sqlUtils';
+
+const DBML_KEYWORDS = new Set([
+  'table', 'ref', 'enum', 'indexes', 'note', 'project', 'tablegroup', 'as',
+  'null', 'not', 'pk', 'unique', 'default', 'increment', 'primary', 'key',
+]);
+
+/** Quote a table / column identifier when it is not a plain DBML identifier. */
+function ident(name: string): string {
+  const clean = stripControl(name).replace(/"/g, '\\"') || '_';
+  return /^[A-Za-z_][A-Za-z0-9_]*$/.test(clean) && !DBML_KEYWORDS.has(clean.toLowerCase()) ? clean : `"${clean}"`;
+}
+
+/** Single-quoted DBML string with quotes/backslashes/newlines escaped. */
+/* eslint-disable no-control-regex */
+function dbmlString(s: string): string {
+  return `'${String(s)
+    .replace(/\u0000/g, '')
+    .replace(/\\/g, '\\\\')
+    .replace(/'/g, "\\'")
+    .replace(/\r\n|\r|\n/g, '\\n')
+    .replace(/[\u0001-\u0008\u000b\u000c\u000e-\u001f\u007f]/g, ' ')}'`;
+}
+/* eslint-enable no-control-regex */
+
+function dbmlType(f: Field): string {
+  const p = parseType(f.type);
+  let t = stripControl(p.raw);
+  if (p.args.length === 0 && ['char', 'varchar', 'decimal', 'float'].includes(p.category)) {
+    // Pick up Field.length / precision / scale
+    const m = /\(([^)]*)\)/.exec(mapType(f, 'postgres').sql);
+    if (m) t = `${t.replace(/(\[\s*\d*\s*\])+$/, '')}(${m[1]})${(/(\[\s*\d*\s*\])+$/.exec(t) ?? [''])[0]}`;
+  }
+  if (/^[A-Za-z0-9_]+(\([^)]*\))?(\[\])*$/.test(t)) return t;
+  return `"${t.replace(/"/g, '\\"')}"`;
+}
+
+function dbmlDefault(f: Field): string | undefined {
+  const info = analyzeDefault(f.default);
+  if (!info) return undefined;
+  switch (info.kind) {
+    case 'null': return 'null';
+    case 'bool': return String(info.value);
+    case 'number': return info.text;
+    case 'string': return dbmlString(info.value);
+    case 'now': case 'uuid': case 'keyword': case 'expr':
+      return `\`${info.text.replace(/`/g, '\\`')}\``;
+  }
+}
 
 export function exportDBML(tables: Table[], relationships: Relationship[]): string {
-  const fieldMap = new Map(
-    tables.flatMap((t) => t.fields.map((f) => [`${t.id}:${f.id}`, { table: t, field: f }]))
-  );
+  const resolved = resolveRelationships(tables, relationships);
 
   const tableStmts = tables.map((table) => {
+    const pkFields = table.fields.filter((f) => f.isPK);
+    const composite = pkFields.length > 1;
+
     const fields = table.fields.map((f) => {
       const opts: string[] = [];
-      if (f.isPK) opts.push('pk');
-      if (!f.nullable) opts.push('not null');
-      if (f.unique) opts.push('unique');
-      if (f.default) opts.push(`default: \`${f.default}\``);
-      if (f.comment) opts.push(`note: '${f.comment}'`);
+      const auto = mapType(f, 'postgres').auto !== null;
+      if (f.isPK && !composite) opts.push('pk');
+      if (auto) opts.push('increment');
+      if (!f.nullable && !f.isPK) opts.push('not null');
+      if (f.unique && !f.isPK) opts.push('unique');
+      const def = auto ? undefined : dbmlDefault(f);
+      if (def !== undefined) opts.push(`default: ${def}`);
+      const note = (f.comment ?? '').trim();
+      if (note) opts.push(`note: ${dbmlString(note)}`);
       const optsStr = opts.length ? ` [${opts.join(', ')}]` : '';
-      return `  ${f.name} ${f.type}${optsStr}`;
+      return `  ${ident(f.name)} ${dbmlType(f)}${optsStr}`;
     });
-    return `Table ${table.name} {\n${fields.join('\n')}\n}`;
+
+    const body = [...fields];
+    if (composite) {
+      body.push('');
+      body.push('  indexes {');
+      body.push(`    (${pkFields.map((f) => ident(f.name)).join(', ')}) [pk]`);
+      body.push('  }');
+    }
+    const tableNote = (table.comment ?? '').trim();
+    if (tableNote) {
+      body.push('');
+      body.push(`  Note: ${dbmlString(tableNote)}`);
+    }
+    return `Table ${ident(table.name)} {\n${body.join('\n')}\n}`;
   });
 
-  const refStmts = relationships.map((r) => {
-    const sourceField = fieldMap.get(`${r.sourceTableId}:${r.sourceFieldId}`);
-    const targetField = fieldMap.get(`${r.targetTableId}:${r.targetFieldId}`);
-    if (!sourceField || !targetField) return null;
-    const arrow = r.cardinality === 'one-to-many' ? '>' : r.cardinality === 'many-to-many' ? '<>' : '-';
-    return `Ref: ${sourceField.table.name}.${sourceField.field.name} ${arrow} ${targetField.table.name}.${targetField.field.name}`;
-  }).filter(Boolean);
+  const refStmts = resolved.map((r) => {
+    // source = FK side ("many"), target = referenced side ("one")
+    const arrow =
+      r.rel.cardinality === 'one-to-many' ? '>' : r.rel.cardinality === 'many-to-many' ? '<>' : '-';
+    return `Ref: ${ident(r.sourceTable.name)}.${ident(r.sourceField.name)} ${arrow} ${ident(r.targetTable.name)}.${ident(r.targetField.name)}`;
+  });
 
   const header = `// Generated by Modellr\n// ${new Date().toISOString()}\n\n`;
-  return header + [...tableStmts, '', ...refStmts].join('\n');
+  let out = header + tableStmts.join('\n\n');
+  if (refStmts.length) out += '\n\n' + refStmts.join('\n');
+  return out + '\n';
 }

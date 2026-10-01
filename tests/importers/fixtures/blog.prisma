@@ -1,0 +1,84 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+/// User roles
+enum Role {
+  USER
+  ADMIN // trailing comment
+
+  @@map("role")
+}
+
+enum PostStatus {
+  DRAFT
+  PUBLISHED
+}
+
+model User {
+  id        Int       @id @default(autoincrement())
+  email     String    @unique @db.VarChar(255)
+  name      String?
+  role      Role      @default(USER)
+  settings  Json      @default("{}")
+  bio       String    @default("a {brace} } here")
+  createdAt DateTime  @default(now()) @map("created_at")
+  profile   Profile?
+  posts     Post[]    @relation("PostAuthor")
+  reviews   Post[]    @relation("PostReviewer")
+  tags      String[]
+
+  @@map("users")
+}
+
+model Profile {
+  id     Int    @id @default(autoincrement())
+  bio    String?
+  userId Int    @unique @map("user_id")
+  user   User   @relation(fields: [userId], references: [id], onDelete: Cascade)
+}
+
+model Post {
+  id         String     @id @default(uuid())
+  title      String     @db.VarChar(200)
+  status     PostStatus @default(DRAFT)
+  price      Decimal    @db.Decimal(10, 2)
+  slug       String     @default(dbgenerated("lower(gen_random_uuid()::text)"))
+  authorId   Int        @map("author_id")
+  reviewerId Int?       @map("reviewer_id")
+  author     User       @relation("PostAuthor", fields: [authorId], references: [id])
+  reviewer   User?      @relation("PostReviewer", fields: [reviewerId], references: [id])
+  comments   Comment[]
+}
+
+model Comment {
+  postId   String
+  seq      Int
+  body     String
+  post     Post   @relation(fields: [postId], references: [id])
+
+  @@id([postId, seq])
+  @@index([
+    postId,
+    seq
+  ])
+}
+
+model HTTPLog {
+  id     Int    @id @default(autoincrement())
+  path   String
+  slug   String @unique
+  userEmail String
+  user   User   @relation(fields: [userEmail], references: [email])
+}
+
+model Account {
+  accountId String @id @default(cuid())
+  login     String
+  @@unique([login])
+}

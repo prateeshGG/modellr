@@ -1,0 +1,26 @@
+PRAGMA foreign_keys=OFF;
+BEGIN TRANSACTION;
+CREATE TABLE sqlite_sequence(name,seq);
+CREATE TABLE IF NOT EXISTS "artists" (
+  "ArtistId" INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL,
+  "Name" NVARCHAR(120)
+);
+CREATE TABLE IF NOT EXISTS "albums" (
+  "AlbumId" INTEGER NOT NULL,
+  "Title" NVARCHAR(160) NOT NULL DEFAULT 'Untitled',
+  "ArtistId" INTEGER NOT NULL,
+  "Price" NUMERIC(10,2) DEFAULT 9.99,
+  "AddedAt" DATETIME DEFAULT (datetime('now')),
+  PRIMARY KEY ("AlbumId" AUTOINCREMENT),
+  FOREIGN KEY ("ArtistId") REFERENCES "artists" ("ArtistId") ON DELETE NO ACTION ON UPDATE NO ACTION
+);
+CREATE TABLE tracks (
+  TrackId INTEGER PRIMARY KEY AUTOINCREMENT,
+  Name TEXT NOT NULL,
+  AlbumId INTEGER,
+  FOREIGN KEY (AlbumId) REFERENCES albums(AlbumId)
+);
+INSERT INTO "artists" VALUES(1,'AC/DC -- Live');
+INSERT INTO sqlite_sequence VALUES('artists',1);
+CREATE INDEX "IFK_AlbumArtistId" ON "albums" ("ArtistId");
+COMMIT;
