@@ -56,16 +56,20 @@ asset (Raycast, Supabase, Linear, Cal.com). 4. Sticky top nav with 4–5 links +
 - Pill-everything and 6px-radius-everything defaults: they make the three tools indistinguishable.
 - Horizontal overflow on mobile (drawDB defect) and tiny 10–12px UI text.
 
-### Opportunities for differentiation
-Blueprint identity: warm paper, drafting grid, ink-navy line work, hard offset shadows, serif display, mono annotations ("SHEET 01", PK/FK badges),
-callouts that point at the real UI. Features rendered **as a schema table**. A cyanotype dark theme (navy paper, cream ink) for the app's dark mode.
+### Direction history
+1. First attempt (dark purple "Terminal Luxury") was rejected by the owner as generic.
+2. Second attempt, "Blueprint" (warm paper, serif display, hard shadows), was built from my own taste on thin evidence and was rejected as generic too.
+3. Final direction, **Night**, is built from screenshots of Linear, Vercel, Stripe, Resend and Raycast supplied by the owner (see `reference-screenshots.md`),
+   because every closed reference site is blocked from this environment. What differentiates it from those sites: the product is a diagram tool, so the
+   editor is the hero object and the only colour on the page is the orange relationship line (callout rings, illustration strokes, focus, active marker);
+   illustrations are isometric line drawings of tables and keys; the "works with" row lists real formats instead of customer logos.
 
 ### Interaction patterns worth adapting
-Hover = physical lift (translate −2px, shadow grows), press = push-in (translate +2px, shadow shrinks). Command-palette mockup idea (Raycast) → our real ⌘K.
-Dashboard empty state that teaches (ChartDB onboarding, but inline not modal). Sticky docs sidebar → mobile drawer (Mintlify).
+Hover = border/fill step up one level, small card lift; press = 1px down. Command-palette idea (Raycast) is already real in the editor (Ctrl/Cmd+K).
+Dashboard empty state that teaches (ChartDB onboarding, but inline not modal). Sticky docs sidebar becomes a toggle panel on mobile (Mintlify).
 
 ### Information-architecture patterns worth adapting
 4-link nav + CTA (Linear/Supabase); docs with persistent left nav (Mintlify); templates gallery with category filter (drawDB `/templates`).
 
 ### Visual patterns worth adapting
-Hairline grid backgrounds (blueprint paper), tabular "spec sheet" layouts, annotated screenshots, generous negative space, a single oversized serif statement per section.
+Near-black neutral canvas; product UI as the hero with a soft floor glow; title-left / copy-right feature rows; thin isometric line art; a changelog row; a centred closing CTA; hairline borders; generous negative space.

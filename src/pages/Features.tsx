@@ -22,8 +22,8 @@ export function Features() {
         <div className="n-wrap">
           <div className="n-bento" style={{ marginTop: 0 }}>
             <article className="n-card span-4">
-              <div className="n-card__art" style={{ aspectRatio: '16 / 8', display: 'block', position: 'relative' }}>
-                <img src={theme === 'light' ? editorLight : editorDark} alt="The canvas with four linked tables" width={1800} height={1018} loading="lazy" style={{ position: 'absolute', width: '150%', maxWidth: 'none', left: '-28%', top: '-18%' }} />
+              <div className="n-card__crop">
+                <img src={theme === 'light' ? editorLight : editorDark} alt="The canvas with four linked tables" width={1800} height={1018} loading="lazy" />
               </div>
               <h2 className="n-h4">Visual canvas</h2>
               <p className="n-small">Tables with typed fields, primary and foreign keys, unique, nullable, defaults, checks and comments. Drag between fields to create relationships; add notes and groups; auto-layout, search, undo/redo and a command palette (Ctrl/Cmd+K). Split and code views show generated SQL, DBML, Prisma or Drizzle next to the canvas.</p>

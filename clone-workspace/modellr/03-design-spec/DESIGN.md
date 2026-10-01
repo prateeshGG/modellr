@@ -1,97 +1,71 @@
-# Modellr — "Blueprint" design system
+# Modellr "Night" design system
 
-> Portable and self-contained. Implemented in `src/styles/blueprint.css` (tokens + components). Values are **authored** for this product;
-> the *Evidence* column says what research informed each decision (live-measured = read with `getComputedStyle` from drawDB/ChartDB running locally;
-> secondary = third-party DESIGN.md write-ups; none of the closed products could be inspected live, see `02-extraction/research-summary.md`).
+Implemented in `src/styles/night.css` (tokens + components, class prefix `n-`). Values are authored for this product from the
+reference screenshots the owner supplied (Linear, Vercel, Stripe, Resend, Raycast: visual evidence only, colours sampled from pixels;
+their live CSS could not be read, see `02-extraction/research-summary.md` and `reference-screenshots.md`).
+`assertions.json` pins the values below to the built app; `05-verification/` holds the checks.
 
 ## 1. Visual theme
-A **drafting sheet for databases**. Warm paper (`#f5f2ea`) under a faint blue-grey grid, ink-navy line work, hard offset shadows (no blur), square
-corners, an oversized high-contrast serif for statements, monospace for annotations and labels. One accent (blue) carries emphasis and links; a vermilion
-red appears only as graphic highlight (shadows, leader lines, markers). Primary keys and foreign keys are drawn as real PK/FK badges, features are laid
-out as a schema table, and the real product UI is framed like a sheet with callouts pointing at it. Calm, precise, confident; density is moderate on
-marketing, high in docs and the app. Motion is physical: hover lifts, press pushes in. A **cyanotype** dark theme (navy paper, cream ink) mirrors it.
+A near-black, neutral canvas with hairline borders and one accent. Product UI is the hero: the real editor sits directly under a
+left-aligned, medium-weight headline. Colour is almost absent from the chrome; the single orange accent is "the relationship line"
+(callout rings, link strokes in illustrations, active tab marker, focus ring, the mark in the logo). Illustrations are thin isometric
+line drawings. Light theme mirrors the structure on warm-white. Motion is small: 150ms colour/border changes, 2px card lift, 1px button press.
 
-Why this and not the category default: drawDB (Inter, pill buttons, teal-blue, 12px cards) and ChartDB (system sans, 6px radius, pink accent)
-are measured stock component-library looks; the Blueprint identity is unmistakable next to them. (live-measured)
+Patterns taken from the references: dark neutral canvas; one hero object (here: the editor); text-only "works with" row instead of
+logos (only real formats listed, no fake customers); title-left / copy-right feature rows with the product below; changelog row;
+centred closing CTA; dense, quiet footer; white pill primary button on dark.
+Deliberately not used: gradients on UI, glass cards, multi-colour accents, stock imagery, fake testimonials or metrics.
 
 ## 2. Colour tokens
-| Token | Light | Dark (cyanotype) | Role | Notes / Evidence |
-|---|---|---|---|---|
-| `--bp-paper` | `#f5f2ea` | `#0e1a36` | page background | warm, not white: reduces glare, carries the grid |
-| `--bp-paper-2` | `#ece7d9` | `#0a1429` | sunken sections | |
-| `--bp-card` | `#ffffff` | `#14234a` | raised surfaces | |
-| `--bp-ink` | `#14213d` | `#efe9d8` | text + strong lines | contrast on paper 14.6:1 |
-| `--bp-ink-2` | `#46526f` | `#b9bfd1` | secondary text | ≥ 6:1 |
-| `--bp-ink-3` | `#5b6783` | `#98a1ba` | tertiary text | ≥ 4.5:1 |
-| `--bp-grid` | `#c9cfe0` | `#2a3a66` | hairlines, drafting grid | |
-| `--bp-blue` | `#2b59ff` | `#8aa8ff` | links, emphasis, focus ring | single chromatic accent (shared pattern: Linear/Supabase/Raycast, secondary) |
-| `--bp-red` | `#ff4a2b` | `#ff7a5c` | graphic highlight only (shadows, leaders) | **never body text** (3.2:1) |
-| `--bp-red-text` | `#c8321a` | `#ff8d72` | red when it must be text | ≥ 4.5:1 |
-| `--bp-green` | `#1c7c47` | `#5fd08a` | success | |
-| `--bp-amber-bg/ink` | `#fff1c9` / `#8a5a00` | `#3a3014` / `#f2c46b` | PK badge, warnings | |
-Gradients: **none** on UI. The only gradient is the radial fade that dims the grid behind content.
+| Token | Dark | Light | Role |
+|---|---|---|---|
+| `--n-bg` | `#08090a` | `#fbfbfa` | page |
+| `--n-bg-2` | `#0b0c0e` | `#f4f4f2` | sunken areas, illustration wells |
+| `--n-surface` / `-2` | `#0f1113` / `#15181b` | `#ffffff` / `#f6f6f4` | cards, hover/active fills |
+| `--n-line` / `-2` / `-3` | white 7% / 13% / 22% | ink 9% / 16% / 28% | hairlines, borders, hover borders |
+| `--n-text` | `#f5f6f7` | `#0b0c0e` | primary text |
+| `--n-text-2` | `#a3a8af` | `#4a4f57` | secondary text |
+| `--n-text-3` | `#7d838b` | `#656b74` | tertiary text, labels |
+| `--n-accent` | `#ff6a3d` | `#e24a1c` | graphic accent, focus ring |
+| `--n-accent-text` | `#ff8a63` | `#c63a12` | accent when used as text |
+| `--n-blue` / `--n-amber` / `--n-green` / `--n-danger` | `#8ab0ff` / `#f2c46b` / `#5fd08a` / `#ff8080` | `#2f5fe0` / `#9a6700` / `#15803d` / `#c42b2b` | FK, PK, status |
+Code panels are dark in both themes (`#0b0d0f`). Contrast is measured, not assumed: `05-verification/contrast.mjs` checks every visible
+text element on every route in both themes and two widths (3,552 elements, all >= 4.5:1, or 3:1 for large text).
 
 ## 3. Typography
-| Role | Family | Weight | Size (desktop → mobile) | Line height | Tracking |
-|---|---|---|---|---|---|
-| Display | Fraunces Variable (opsz 144) | 600, italics 400 for emphasis | 92px → 48px (`clamp(3rem,7.4vw,5.75rem)`) | 0.95 | −0.04em |
-| H1 | Fraunces | 600 | 64px → 40px | 1.0 | −0.035em |
-| H2 | Fraunces | 600 | 54px → 32px | 1.02 | −0.03em |
-| H3 | Fraunces (opsz 48) | 600 | 28px → 22px | 1.15 | −0.02em |
-| Lead | Inter Variable | 400 | 20px → 17px | 1.6 | 0 |
-| Body | Inter Variable | 400/500 | 17px → 16px | 1.6 (prose 1.75) | 0 |
-| Label / code / buttons | JetBrains Mono | 600 | 12–13px (labels uppercase, +0.1em) | 1.5–1.75 | 0 / +0.1em |
-Fonts are **self-hosted** (`@fontsource*`), no third-party font requests. Minimum UI text 12px (mono labels only); body never below 16px. Measured contrast:
-drawDB/ChartDB use 14–16px body (live-measured); Blueprint raises prose to 17.5px for docs readability.
+Geist Variable (UI) and Geist Mono Variable (labels, code), self-hosted via `@fontsource-variable`; no third-party font request.
+| Role | Size (1440 → 390) | Weight | Line height | Tracking |
+|---|---|---|---|---|
+| H1 `.n-h1` | 68px → 40px (`clamp(2.5rem, 5.4vw, 4.25rem)`) | 500 | 1.04 | -0.045em |
+| H2 `.n-h2` | 44px → 30px | 500 | 1.08 | -0.04em |
+| H3 `.n-h3` / H4 `.n-h4` | 20px / 15px | 500 | 1.3 / 1.4 | -0.02em / -0.005em |
+| Statement | 32px | 500 | 1.3 | -0.03em |
+| Lead | 18px | 400 | 1.6 | 0 |
+| Body | 16px (prose 17px / 1.75) | 400 | 1.6 | 0 |
+| Eyebrow / badges / code | 12px mono uppercase (+0.06em) / 11px / 13px | 400-600 | 1.5 / 1 / 1.75 | |
+Minimum text size is 11px (mono badges and callouts only); body is never below 14px.
 
 ## 4. Spacing, layout, shape
-- Spacing scale (4px base): 4, 8, 12, 16, 24, 32, 48, 64, 96, 128. Section padding 120 / 96 / 72px (≥1025 / ≤1024 / ≤768).
-- Container 1240px, gutter 40 / 32 / 20px. Docs: 260px sticky nav + fluid article (max 42em prose).
-- Radius: **0** for structure; 2px only for tiny controls; circles only for window dots. Borders: 2px ink (structure), 1.5px (inner), 1px grid (hairline).
-- Shadows (hard, no blur): sm `3px 3px 0 ink`, md `6px 6px 0 ink`, lg `10px 10px 0 ink`; primary button `4px 4px 0 vermilion`.
-- Breakpoints (tested): 320, 375, 390, 430, 768, 1024, 1280, 1440; layout shifts at 860 (nav → sheet, steps/CTA stack), 1024 (hero stacks), 768 (tables → stacked rows).
+- Container 1160px, gutters 40 / 32 / 20px (>1024 / <=1024 / <=768). Section padding 128 / 96 / 72px. Docs: 240px nav + prose (44em).
+- Radius: 6 (tabs, small), 8 (nav controls, small buttons), 10 (buttons, inputs), 12 (cards, panels), 14 (product frame), 16 (modals), 999 (filter chips).
+- Borders 1px hairline everywhere; shadows only on the product frame and modals (`0 40px 120px -24px #000d`).
+- Breakpoints tested: 320, 375, 390, 430, 768, 1024, 1280, 1440. Layout shifts at 1024 (hero stacks, 3-col grids to 2), 860 (nav to full-screen sheet, app rail to bottom tab bar), 640 (single column, modals become bottom sheets).
 
-## 5. Components (visual + behaviour)
-- **Button**: min-height 44 (52 large), mono 13/600, 2px ink border, ink fill, vermilion hard shadow. Hover lifts (−1,−1; shadow 6px), active pushes in (+3,+3; shadow 1px), focus ring 3px blue offset 3px, disabled 45% no shadow. Secondary = white fill, ink shadow. Danger = red-text outline.
-- **Link**: mono 13/600 with 2px underline that turns blue on hover. **Chip** (filter): 32px, 1.5px border, pressed = ink fill.
-- **Card**: white, 2px ink border, shadow md; as link: hover translate(−2,−2) + shadow 9px, active pushes in.
-- **Spec table**: ink header row (mono 12 caps), hairline rows, first column mono bold (feature name + PK/FK badge); below 768px rows become stacked blocks.
-- **Frame**: window-like sheet (3 outline dots, mono caption) with lg shadow, holds the real editor or a screenshot; callouts = mono labels with vermilion border.
-- **Inputs/selects/textarea**: 44px, 2px ink border, white fill, invalid = red-text border + hard red shadow + message below; label = mono 12 caps.
-- **Tabs**: mono 12/600, selected = ink fill. **Accordion (FAQ)**: serif 22px summary, 2px rules, `+` rotates 45° when open.
-- **Modal**: centered on desktop (560px, lg shadow), becomes a bottom sheet ≤640px; scrim ink 55%; Escape + scrim click close; focus trapped, returns to trigger.
-- **Drawer (docs nav)**: ≤900px a bordered panel toggled by a button; **Sheet (site nav)** ≤860px full-screen, large serif links, CTA pinned bottom.
-- **Toast**: ink fill, vermilion shadow, bottom-right (full-width bottom ≤640px). **Alert**: amber (warning) or white (info), 2px ink border.
-- **Empty state**: dashed 2px ink box, serif heading, one primary action. **Loading**: paper shimmer skeleton (disabled under reduced motion).
-- **Badges**: PK = amber fill/ink-amber border; FK = blue outline; mono 10/700.
-- **App shell**: 232px left rail (active item = bordered white tile with hard shadow); ≤860px becomes a 4-item bottom tab bar with a red top rule on the active tab.
+## 5. Components
+Buttons `.n-btn` (44px; `--sm` 34, `--lg` 48; primary = text colour on page colour, `--secondary` = hairline, `--danger`, `--accent`); links `.n-link` (underline in hairline, accent on hover) and `.n-arrow`; nav `.n-nav` (60px sticky, blur, hairline after 8px scroll) with star pill `.n-gh` and theme toggle; full-screen sheet `.n-sheet`; product frame `.n-shot` (bar, screenshot or live editor, callouts, bottom fade, accent floor glow); cards `.n-card` (+ `.n-bento` grid, `.n-card__art` wells); code `.n-panel` + `.n-tabs`; `.n-faq` accordion; `.n-changelog`; `.n-oss` stat strip; `.n-chip` filters; form fields `.n-input/.n-select/.n-textarea` (focus ring in accent, invalid in danger); `.n-alert`, `.n-toast`, `.n-empty`, `.n-skeleton`; modal `.n-scrim/.n-modal` (bottom sheet <= 640px); docs layout `.n-docs` + `.n-prose`; app shell `.n-app/.n-rail/.n-tabbar/.n-main/.n-stats/.n-project`.
 
 ## 6. Interaction language
-| State | Behaviour |
-|---|---|
-| Hover | physical lift: translate(−1…−2px), hard shadow grows, 120–220ms `cubic-bezier(.2,.7,.2,1)` |
-| Active | push-in: translate(+2…+3px), shadow collapses |
-| Focus | `outline: 3px solid blue; offset 3px` on every interactive element, never removed; skip link first in DOM |
-| Disabled | 45% opacity, no shadow/lift, `cursor: not-allowed`, `aria-disabled` |
-| Loading | skeleton shimmer; buttons keep width and show mono "…" |
-| Success / Error | toast (3.5s) for actions; inline mono message under fields; destructive actions confirm with focus on Cancel |
-| Entrance | `bp-reveal` 16px rise + fade, 600ms, once per element via IntersectionObserver; no layout shift |
-| Reduced motion | all transitions/animations/reveals off; hover shows shadow change only |
-| Scroll | nav sticky, gains a 1.5px ink bottom rule after 8px; anchors offset by nav height |
+Hover: border and fill step up one level (card also lifts 2px). Active: buttons move 1px down. Focus: `outline: 2px solid var(--n-accent); offset 3px` on every interactive element, never removed; skip link first in DOM. Disabled: 45% opacity, no pointer events. Loading: skeleton shimmer. Errors: inline text in danger colour or an assertive toast. Destructive confirms start with focus on Cancel and return focus to the trigger. Escape closes menus, sheets and dialogs. Reduced motion: all transitions off.
 
-## 7. Layout rules per screen family
-Marketing: single column 1240 wrap, one oversized serif statement per section, product UI (never decoration) as visual evidence, ≤ 3 columns.
-Docs: sticky left nav + prose, code blocks dark navy, "Open the editor" CTA at article end. App: rail + 12-col fluid main, cards grid auto-fill 300px.
+## 7. Screens
+Marketing: Home, Features, Templates, Docs (11 articles, `/docs/:slug`), Blog (+ posts), 3 use-case pages, About, Contact, Privacy, Terms, 404.
+App: Projects dashboard (loading / empty / populated / search-empty / storage-blocked), Templates gallery + preview modal, Settings. Editor and embed keep their own chrome (re-themed with the same tokens: neutral near-black surfaces, orange brand, Geist).
 
 ## 8. Assets
-No copied brand assets. Product screenshots are captured from this app. Illustrations are original inline SVG (mini schema diagrams). Icons: `lucide-react` (ISC) + the Octicons GitHub mark (MIT).
-Substitutions: Google Fonts (Syne/Geist/Instrument Sans) → self-hosted Fraunces/Inter/JetBrains Mono (OFL).
+No copied brand assets. Product screenshots are captured from this app (`src/assets/editor-*.webp`). Illustrations are original inline SVG. The GitHub mark is the Octicons mark (MIT). Fonts: Geist and Geist Mono (SIL OFL) replace the former Google-hosted Geist/Syne/Instrument Sans.
 
-## 9. Design guardrails
-Do: keep one accent; draw structure with 2px ink lines; use real data in examples; annotate screenshots; keep italics for one phrase per heading; let paper breathe.
-Don't: add gradients, glows, blur shadows, rounded pills, purple/green neon, stock imagery, fake logos/testimonials/metrics, text under 12px, red body text, centered-everything layouts.
+## 9. Guardrails
+Do: one accent, hairlines, real data in examples, product UI as the visual, left-aligned text. Don't: gradients on UI, extra colours, rounded-pill buttons (except chips), blur shadows on cards, text under 11px, red body text, centred-everything layouts, fake logos or metrics.
 
 ## 10. Agent prompt guide
-"Build UI using `src/styles/blueprint.css` classes (`bp-*`). Page = `.bp-root` > `.bp-nav` + `<main id="main">` sections (`.bp-section` > `.bp-wrap`) + `.bp-footer`.
-Headlines use `.bp-display/.bp-h1/.bp-h2` with one `<em>`; eyebrow `.bp-eyebrow`; actions `.bp-btn` (+`--secondary`), links `.bp-link`. Group content in `.bp-card`,
-`.bp-spec`, `.bp-panel`. Never add colours, radii or blur shadows outside the tokens. Every interactive element needs a visible focus ring and a 44px target."
+"Build UI with the `n-*` classes in `src/styles/night.css`. Page = `<SiteShell route=...>` (nav, main, footer, SEO) with `.n-section > .n-wrap` blocks. One `h1` per page. Cards are `.n-card`; code is `.n-panel > .n-code`; actions are `.n-btn` and `.n-arrow`. Never hard-code colours: use the `--n-*` tokens so both themes work. Every interactive element needs a visible focus ring and a 44px target on touch widths."

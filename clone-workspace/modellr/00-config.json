@@ -3,9 +3,47 @@
   "mode": "greenfield-design (no existing screens to clone)",
   "product": "Modellr: free, open-source, local-first database schema designer (static React app)",
   "scope": "interactive+functional (the app already works end to end; this work redesigns the public site and app chrome)",
-  "direction": "Blueprint (chosen by the owner from mockups A/B/C)",
-  "viewports": { "320": [320, 700], "375": [375, 667], "390": [390, 844], "430": [430, 932], "768": [768, 1024], "1024": [1024, 768], "1280": [1280, 800], "1440": [1440, 900] },
+  "direction": "Night (dark-first, near-black, single orange accent), built from the owner's reference screenshots after Blueprint was rejected",
+  "viewports": {
+    "320": [
+      320,
+      700
+    ],
+    "375": [
+      375,
+      667
+    ],
+    "390": [
+      390,
+      844
+    ],
+    "430": [
+      430,
+      932
+    ],
+    "768": [
+      768,
+      1024
+    ],
+    "1024": [
+      1024,
+      768
+    ],
+    "1280": [
+      1280,
+      800
+    ],
+    "1440": [
+      1440,
+      900
+    ]
+  },
   "stack": "React 19, TypeScript, Vite 8, react-router 7, Zustand, React Flow; vitest",
-  "gate": { "style_assertions_failed": 0, "build_ok": true, "typecheck": true, "tests": true },
+  "gate": {
+    "style_assertions_failed": 0,
+    "build_ok": true,
+    "typecheck": true,
+    "tests": true
+  },
   "research_limits": "Org egress policy returns 403 for every closed reference site (linear.app, vercel.com, stripe.com, dbdiagram.io, drawsql.app, ...). Live CSSOM was therefore read from the two open-source direct competitors run locally (drawDB, ChartDB); closed products are covered by third-party DESIGN.md write-ups (VoltAgent/awesome-design-md), explicitly marked secondary evidence."
 }
